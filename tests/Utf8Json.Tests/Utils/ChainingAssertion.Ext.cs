@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit;
 
-namespace MessagePack.Tests
+namespace Xunit
 {
     public static partial class AssertEx
     {
