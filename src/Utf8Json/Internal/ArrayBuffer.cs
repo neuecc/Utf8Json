@@ -2,7 +2,7 @@
 
 namespace Utf8Json.Internal
 {
-    public struct ArrayBuffer<T>
+    internal struct ArrayBuffer<T>
     {
         public T[] Buffer;
         public int Size;
