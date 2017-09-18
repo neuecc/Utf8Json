@@ -595,12 +595,13 @@ namespace Utf8Json
                     goto END;
                 }
 
-                value = checked(value * 10 + (bytes[i] - '0'));
+                // long.MinValue causes overflow so use unchecked.
+                value = unchecked(value * 10 + (bytes[i] - '0'));
             }
             offset = bytes.Length;
 
             END:
-            return value * sign;
+            return unchecked(value * sign);
         }
 
         public byte ReadByte()

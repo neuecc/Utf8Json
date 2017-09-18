@@ -88,5 +88,56 @@ namespace Utf8Json.Tests
 
             reader.ReadUInt64().Is(target);
         }
+
+        [Theory]
+        [InlineData(long.MinValue)]
+        [InlineData(-1234567890123456789)]
+        [InlineData(-123456789012345678)]
+        [InlineData(-12345678901234567)]
+        [InlineData(-1234567890123456)]
+        [InlineData(-123456789012345)]
+        [InlineData(-12345678901234)]
+        [InlineData(-1234567890123)]
+        [InlineData(-123456789012)]
+        [InlineData(-12345678901)]
+        [InlineData(-1234567890)]
+        [InlineData(-123456789)]
+        [InlineData(-12345678)]
+        [InlineData(-1234567)]
+        [InlineData(-123456)]
+        [InlineData(-12345)]
+        [InlineData(-1234)]
+        [InlineData(-123)]
+        [InlineData(-12)]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(12)]
+        [InlineData(123)]
+        [InlineData(12345)]
+        [InlineData(123456)]
+        [InlineData(1234567)]
+        [InlineData(12345678)]
+        [InlineData(123456789)]
+        [InlineData(1234567890)]
+        [InlineData(12345678901)]
+        [InlineData(123456789012)]
+        [InlineData(1234567890123)]
+        [InlineData(12345678901234)]
+        [InlineData(123456789012345)]
+        [InlineData(1234567890123456)]
+        [InlineData(12345678901234567)]
+        [InlineData(123456789012345678)]
+        [InlineData(1234567890123456789L)]
+        [InlineData(long.MaxValue)]
+        public void Int64Test(long target)
+        {
+            var writer = new JsonWriter();
+            writer.WriteInt64(target);
+
+            var reader = SameAsReference(target, writer.GetBuffer());
+
+            reader.ReadInt64().Is(target);
+        }
     }
 }
