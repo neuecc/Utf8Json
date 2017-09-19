@@ -9,8 +9,8 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal struct DiyFp
     {
-        const int kSignificandSize = 64;
-        const ulong kUint64MSB = 9223372036854775808; // 0x80000000_00000000;
+        public const int kSignificandSize = 64;
+        public const ulong kUint64MSB = 0x8000000000000000; // 0x80000000_00000000;
 
         // uint64_t f_;
         // int e_;
@@ -33,7 +33,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // The exponents of both numbers must be the same and the significand of this
         // must be bigger than the significand of other.
         // The result will not be normalized.
-        void Subtract(ref DiyFp other)
+        public void Subtract(ref DiyFp other)
         {
             f -= other.f;
         }
@@ -41,15 +41,20 @@ namespace Utf8Json.Internal.DoubleConversion
         // Returns a - b.
         // The exponents of both numbers must be the same and this must be bigger
         // than other. The result will not be normalized.
-        static DiyFp Minus(ref DiyFp a, ref DiyFp b)
+        public static DiyFp Minus(ref DiyFp a, ref DiyFp b)
         {
             DiyFp result = a;
             result.Subtract(ref b);
             return result;
         }
 
+        public static DiyFp operator -(DiyFp lhs, DiyFp rhs)
+        {
+            return Minus(ref lhs, ref rhs);
+        }
+
         // this = this * other.
-        void Multiply(ref DiyFp other)
+        public void Multiply(ref DiyFp other)
         {
             // Simply "emulates" a 128 bit multiplication.
             // However: the resulting number only contains 64 bits. The least
@@ -74,14 +79,19 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         // returns a * b;
-        static DiyFp Times(ref DiyFp a, ref DiyFp b)
+        public static DiyFp Times(ref DiyFp a, ref DiyFp b)
         {
             DiyFp result = a;
             result.Multiply(ref b);
             return result;
         }
 
-        void Normalize()
+        public static DiyFp operator *(DiyFp lhs, DiyFp rhs)
+        {
+            return Times(ref lhs, ref rhs);
+        }
+
+        public void Normalize()
         {
             ulong significand = f;
             int exponent = e;
@@ -103,7 +113,7 @@ namespace Utf8Json.Internal.DoubleConversion
             e = exponent;
         }
 
-        static DiyFp Normalize(ref DiyFp a)
+        public static DiyFp Normalize(ref DiyFp a)
         {
             DiyFp result = a;
             result.Normalize();
