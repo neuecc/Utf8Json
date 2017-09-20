@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
 {
     using uint64_t = System.UInt64;
     using uint32_t = System.UInt32;
+
+    // Utils
 
     internal class VectorChar
     {
@@ -38,32 +38,162 @@ namespace Utf8Json.Internal.DoubleConversion
         {
             if (cache == null)
             {
-                cache = new VectorChar(new byte[21], 0);
+                cache = new VectorChar(new byte[400], 0); // TODO:max size?
             }
             cache.offset = 0;
             return cache;
         }
     }
 
-    // https://github.com/google/double-conversion/blob/master/double-conversion/fast-dtoa.h
-
-    internal enum FastDtoaMode
+    internal struct StringBuilder
     {
-        // Computes the shortest representation of the given input. The returned
-        // result will be the most accurate number of this length. Longer
-        // representations might be more accurate.
-        FAST_DTOA_SHORTEST,
-        // Same as FAST_DTOA_SHORTEST but for single-precision floats.
-        FAST_DTOA_SHORTEST_SINGLE,
-        // Computes a representation where the precision (number of digits) is
-        // given as input. The precision is independent of the decimal point.
-        // FAST_DTOA_PRECISION
-    };
+        public byte[] buffer;
+        public int offset;
 
+        public StringBuilder(byte[] buffer, int offset)
+        {
+            this.buffer = buffer;
+            this.offset = offset;
+        }
+
+        public void AddCharacter(byte str)
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = str;
+        }
+
+        public void AddString(byte[] str)
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
+            for (int i = 0; i < str.Length; i++)
+            {
+                buffer[offset + i] = str[i];
+            }
+            offset += str.Length;
+        }
+
+        public void AddStringSlow(string str)
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, StringEncoding.UTF8.GetMaxByteCount(str.Length));
+            offset += StringEncoding.UTF8.GetBytes(str, 0, str.Length, buffer, offset);
+        }
+    }
+
+    // public C# API
+    public static partial class DoubleToStringConverter
+    {
+        public static int GetBytes(float value, byte[] buffer, int offset)
+        {
+            var vector = VectorChar.GetCache();
+
+            int len;
+            int decimalPoint;
+            var ok = FastDtoa(value, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, vector, out len, out decimalPoint);
+            if (!ok)
+            {
+                // slow path
+                var str = value.ToString(CultureInfo.InvariantCulture);
+                BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
+                StringEncoding.UTF8.GetBytes(str, 0, str.Length, buffer, offset);
+                return str.Length;
+            }
+
+            // TODO:Write E+***
+            // TODO:EnsureCapacity
+
+            var begin = 0;
+            if (value < 0)
+            {
+                buffer[offset] = (byte)'-';
+                begin = 1;
+            }
+
+            for (int i = 0; i < decimalPoint; i++)
+            {
+                buffer[offset + i + begin] = vector.bytes[i];
+            }
+            if (decimalPoint != len)
+            {
+                buffer[offset + decimalPoint + begin] = (byte)'.';
+                for (int i = decimalPoint; i <= len; i++)
+                {
+                    buffer[offset + (i + 1) + begin] = vector.bytes[i];
+                }
+                return offset + len + 1 + begin;
+            }
+            else
+            {
+                return offset + len + begin;
+            }
+        }
+
+        public static int GetBytes(double value, ref byte[] buffer, int offset)
+        {
+            var sb = new StringBuilder(buffer, offset);
+            if (ToShortestIeeeNumber(value, ref sb, DtoaMode.SHORTEST))
+            {
+                // TODO:
+            }
+            else
+            {
+                // TODO:
+            }
+
+            buffer = sb.buffer;
+            return sb.offset - offset;
+        }
+
+        public static string GetString(double value)
+        {
+            var buffer = new byte[21]; // TODO:from pool?
+            var len = GetBytes(value, ref buffer, 0);
+            return StringEncoding.UTF8.GetString(buffer, 0, len);
+        }
+    }
+
+    // private porting methods
+    // https://github.com/google/double-conversion/blob/master/double-conversion/fast-dtoa.h
     // https://github.com/google/double-conversion/blob/master/double-conversion/fast-dtoa.cc
 
-    public static class DoubleToStringConverter
+    public static partial class DoubleToStringConverter
     {
+        enum FastDtoaMode
+        {
+            // Computes the shortest representation of the given input. The returned
+            // result will be the most accurate number of this length. Longer
+            // representations might be more accurate.
+            FAST_DTOA_SHORTEST,
+            // Same as FAST_DTOA_SHORTEST but for single-precision floats.
+            FAST_DTOA_SHORTEST_SINGLE,
+            // Computes a representation where the precision (number of digits) is
+            // given as input. The precision is independent of the decimal point.
+            // FAST_DTOA_PRECISION
+        };
+
+        enum DtoaMode
+        {
+            SHORTEST,
+            SHORTEST_SINGLE,
+            // FIXED,
+            // PRECISION
+        }
+
+        enum Flags
+        {
+            NO_FLAGS = 0,
+            EMIT_POSITIVE_EXPONENT_SIGN = 1,
+            EMIT_TRAILING_DECIMAL_POINT = 2,
+            EMIT_TRAILING_ZERO_AFTER_POINT = 4,
+            UNIQUE_ZERO = 8
+        };
+
+        // C# constants
+        static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString());
+        static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString());
+
+
+        const int kBase10MaximalLength = 17;
+
         const int kFastDtoaMaximalLength = 17;
         // Same for single-precision numbers.
         const int kFastDtoaMaximalSingleLength = 9;
@@ -481,102 +611,151 @@ namespace Utf8Json.Internal.DoubleConversion
             return result;
         }
 
-        public static int GetBytes(float value, byte[] buffer, int offset)
+        // https://github.com/google/double-conversion/blob/master/double-conversion/double-conversion.cc
+
+        static bool HandleSpecialValues(
+            double value,
+            ref StringBuilder result_builder)
         {
-            var vector = VectorChar.GetCache();
-
-            int len;
-            int decimalPoint;
-            var ok = FastDtoa(value, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, vector, out len, out decimalPoint);
-            if (!ok)
+            Double double_inspect = new Double(value);
+            if (double_inspect.IsInfinite())
             {
-                // slow path
-                var str = value.ToString(CultureInfo.InvariantCulture);
-                BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
-                StringEncoding.UTF8.GetBytes(str, 0, str.Length, buffer, offset);
-                return str.Length;
-            }
-
-            // TODO:Write E+***
-            // TODO:EnsureCapacity
-
-            var begin = 0;
-            if (value < 0)
-            {
-                buffer[offset] = (byte)'-';
-                begin = 1;
-            }
-
-            for (int i = 0; i < decimalPoint; i++)
-            {
-                buffer[offset + i + begin] = vector.bytes[i];
-            }
-            if (decimalPoint != len)
-            {
-                buffer[offset + decimalPoint + begin] = (byte)'.';
-                for (int i = decimalPoint; i <= len; i++)
+                if (infinity_symbol_ == null) return false;
+                if (value < 0)
                 {
-                    buffer[offset + (i + 1) + begin] = vector.bytes[i];
+                    result_builder.AddCharacter((byte)'-');
                 }
-                return offset + len + 1 + begin;
+                result_builder.AddString(infinity_symbol_);
+                return true;
+            }
+            if (double_inspect.IsNan())
+            {
+                if (nan_symbol_ == null) return false;
+                result_builder.AddString(nan_symbol_);
+                return true;
+            }
+            return false;
+        }
+
+        static bool ToShortestIeeeNumber(
+            double value,
+            ref StringBuilder result_builder,
+            DtoaMode mode)
+        {
+            if (new Double(value).IsSpecial())
+            {
+                return HandleSpecialValues(value, ref result_builder);
+            }
+
+            int decimal_point;
+            bool sign;
+            // const int kDecimalRepCapacity = kBase10MaximalLength + 1;
+            //byte[] decimal_rep = new byte[kDecimalRepCapacity];
+            var decimal_rep = VectorChar.GetCache();
+            int decimal_rep_length;
+
+            var fastworked = DoubleToAscii(value, mode, 0, decimal_rep,
+                          out sign, out decimal_rep_length, out decimal_point);
+
+            if (!fastworked)
+            {
+                // C# slow code
+                var str = value.ToString(CultureInfo.InvariantCulture);
+                result_builder.AddStringSlow(str);
+                return true;
+            }
+
+            // TODO:
+
+            //bool unique_zero = (flags_ & UNIQUE_ZERO) != 0;
+            //if (sign && (value != 0.0 || !unique_zero))
+            //{
+            //    result_builder->AddCharacter('-');
+            //}
+
+            //int exponent = decimal_point - 1;
+            //if ((decimal_in_shortest_low_ <= exponent) &&
+            //    (exponent < decimal_in_shortest_high_))
+            //{
+            //    CreateDecimalRepresentation(decimal_rep, decimal_rep_length,
+            //                                decimal_point,
+            //                                Max(0, decimal_rep_length - decimal_point),
+            //                                result_builder);
+            //}
+            //else
+            //{
+            //    CreateExponentialRepresentation(decimal_rep, decimal_rep_length, exponent,
+            //                                    result_builder);
+            //}
+
+            return true;
+        }
+
+        // modified, return fast_worked.
+        static bool DoubleToAscii(double v,
+            DtoaMode mode,
+            int requested_digits,
+            //byte[] buffer,
+            //int buffer_length,
+            VectorChar vector,
+            out bool sign,
+            out int length,
+            out int point)
+        {
+            if (new Double(v).Sign() < 0)
+            {
+                sign = true;
+                v = -v;
             }
             else
             {
-                return offset + len + begin;
+                sign = false;
             }
-        }
 
-        public static int GetBytes(double value, byte[] buffer, int offset)
-        {
-            var vector = VectorChar.GetCache();
+            //if (mode == DtoaMode.PRECISION && requested_digits == 0)
+            //{
+            //    vector[0] = '\0';
+            //    *length = 0;
+            //    return;
+            //}
 
-            int len;
-            int decimalPoint;
-            var ok = FastDtoa(value, FastDtoaMode.FAST_DTOA_SHORTEST, vector, out len, out decimalPoint);
-            if (!ok)
+            if (v == 0)
             {
-                // slow path
-                var str = value.ToString(CultureInfo.InvariantCulture);
-                BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
-                StringEncoding.UTF8.GetBytes(str, 0, str.Length, buffer, offset);
-                return str.Length;
+                vector[0] = (byte)'0';
+                // vector[1] = '\0';
+                length = 1;
+                point = 1;
+                return true;
             }
 
-            // TODO:Write E+***
-
-            // TODO:EnsureCapacity
-
-            var begin = 0;
-            if (value < 0)
+            bool fast_worked;
+            switch (mode)
             {
-                buffer[offset] = (byte)'-';
-                begin = 1;
+                case DtoaMode.SHORTEST:
+                    fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST, vector, out length, out point);
+                    break;
+                case DtoaMode.SHORTEST_SINGLE:
+                    fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, vector, out length, out point);
+                    break;
+                //case FIXED:
+                //    fast_worked = FastFixedDtoa(v, requested_digits, vector, length, point);
+                //    break;
+                //case PRECISION:
+                //    fast_worked = FastDtoa(v, FAST_DTOA_PRECISION, requested_digits,
+                //                           vector, length, point);
+                //    break;
+                default:
+                    fast_worked = false;
+                    throw new Exception("Unreachable code.");
             }
+            // if (fast_worked) return;
 
-            for (int i = 0; i < decimalPoint; i++)
-            {
-                buffer[offset + i + begin] = vector.bytes[i];
-            }
-            if (decimalPoint != len)
-            {
-                buffer[offset + decimalPoint + begin] = (byte)'.';
-                for (int i = decimalPoint; i <= len; i++)
-                {
-                    buffer[offset + (i + 1) + begin] = vector.bytes[i];
-                }
-                return offset + len + 1 + begin;
-            }
-            else
-            {
-                return offset + len + begin;
-            }
-        }
+            // If the fast dtoa didn't succeed use the slower bignum version.
+            // BignumDtoaMode bignum_mode = DtoaToBignumDtoaMode(mode);
+            // BignumDtoa(v, bignum_mode, requested_digits, vector, length, point);
+            // vector[*length] = '\0';
 
-        public static string GetString(double value)
-        {
-            var buffer = new byte[21]; // TODO:from pool?
-            var len = GetBytes(value, buffer, 0);
-            return StringEncoding.UTF8.GetString(buffer, 0, len);
+            return fast_worked;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace ConsoleAppNet461
             var buffer = new byte[100];
 
 
-            var s = DoubleToStringConverter.GetString(-123.456);
+            var s = DoubleToStringConverter.GetString(123.456);
             Console.WriteLine(s);
         }
     }
