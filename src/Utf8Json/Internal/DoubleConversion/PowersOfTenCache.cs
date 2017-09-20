@@ -117,12 +117,12 @@ namespace Utf8Json.Internal.DoubleConversion
             new CachedPower (0xaf87023b9bf0ee6b, 1066, 340),
         };
 
-        const int kCachedPowersOffset = 348;  // -1 * the first decimal_exponent.
-        const double kD_1_LOG2_10 = 0.30102999566398114;  //  1 / lg(10)
-                                                          // Difference between the decimal exponents in the table above.
-        const int kDecimalExponentDistance = 8;
-        const int kMinDecimalExponent = -348;
-        const int kMaxDecimalExponent = 340;
+        public const int kCachedPowersOffset = 348;  // -1 * the first decimal_exponent.
+        public const double kD_1_LOG2_10 = 0.30102999566398114;  //  1 / lg(10)
+                                                                 // Difference between the decimal exponents in the table above.
+        public const int kDecimalExponentDistance = 8;
+        public const int kMinDecimalExponent = -348;
+        public const int kMaxDecimalExponent = 340;
 
         public static void GetCachedPowerForBinaryExponentRange(
             int min_exponent,
@@ -139,6 +139,16 @@ namespace Utf8Json.Internal.DoubleConversion
             // (void)max_exponent;  // Mark variable as used.
             decimal_exponent = cached_power.decimal_exponent;
             power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
+        }
+
+        public static void GetCachedPowerForDecimalExponent(int requested_exponent,
+                                                        out DiyFp power,
+                                                        out int found_exponent)
+        {
+            int index = (requested_exponent + kCachedPowersOffset) / kDecimalExponentDistance;
+            CachedPower cached_power = kCachedPowers[index];
+            power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
+            found_exponent = cached_power.decimal_exponent;
         }
     }
 }

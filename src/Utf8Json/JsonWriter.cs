@@ -54,6 +54,49 @@ namespace Utf8Json
             buffer[offset++] = rawValue;
         }
 
+        public void WriteBeginArray()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)'[';
+        }
+
+        public void WriteEndArray()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)']';
+        }
+
+        public void WriteBeginObject()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)'{';
+        }
+
+        public void WriteEndObject()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)'}';
+        }
+
+        public void WriteValueSeparator()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)',';
+        }
+
+        public void WriteNameSeparator()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)':';
+        }
+
+        /// <summary>WriteString + WriteNameSeparator</summary>
+        public void WritePropertyName(string propertyName)
+        {
+            WriteString(propertyName);
+            WriteNameSeparator();
+        }
+
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -95,21 +138,12 @@ namespace Utf8Json
 
         public void WriteSingle(Single value)
         {
-            throw new NotImplementedException();
+            Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(ref buffer, offset, value);
         }
 
-        // https://github.com/google/double-conversion
         public void WriteDouble(double value)
         {
-            // TODO:more efficient way?
-
-
-
-            // throw new NotImplementedException();
-            var s = value.ToString();
-            // Double.
-            // Encoding.UTF8.GetBytes(s, 0, s.Length, bytes
-
+            Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(ref buffer, offset, value);
         }
 
         public void WriteByte(byte value)
@@ -252,7 +286,7 @@ namespace Utf8Json
             WriteInt64((long)value);
         }
 
-        public  void WriteInt32(int value)
+        public void WriteInt32(int value)
         {
             WriteInt64((long)value);
         }
@@ -408,20 +442,152 @@ namespace Utf8Json
             buffer[offset++] = (byte)('0' + (num1));
         }
 
-        public unsafe void WriteString(string value)
+        public void WriteString(string value)
         {
-            var max = Encoding.UTF8.GetMaxByteCount(value.Length);
-            // TODO:...ensure capacity...
-            fixed (byte* p = buffer)
-            fixed (char* c = value)
+            // single-path escape
+
+            // nonescaped-ensure
+            var startoffset = offset;
+            var max = StringEncoding.UTF8.GetMaxByteCount(value.Length) + 2;
+            BinaryUtil.EnsureCapacity(ref buffer, startoffset, max);
+
+            var from = 0;
+            var to = value.Length;
+
+            buffer[offset++] = (byte)'\"';
+
+            // for JIT Optimization, for-loop str.Length)
+            for (int i = 0; i < value.Length; i++)
             {
-                // escape...
+                byte escapeChar = default(byte);
+                switch ((byte)value[i])
+                {
+                    case (byte)'"':
+                        escapeChar = (byte)'"';
+                        break;
+                    case (byte)'\\':
+                        escapeChar = (byte)'\\';
+                        break;
+                    case (byte)'\b':
+                        escapeChar = (byte)'b';
+                        break;
+                    case (byte)'\f':
+                        escapeChar = (byte)'f';
+                        break;
+                    case (byte)'\n':
+                        escapeChar = (byte)'n';
+                        break;
+                    case (byte)'\r':
+                        escapeChar = (byte)'r';
+                        break;
+                    case (byte)'\t':
+                        escapeChar = (byte)'t';
+                        break;
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    case 35:
+                    case 36:
+                    case 37:
+                    case 38:
+                    case 39:
+                    case 40:
+                    case 41:
+                    case 42:
+                    case 43:
+                    case 44:
+                    case 45:
+                    case 46:
+                    case 47:
+                    case 48:
+                    case 49:
+                    case 50:
+                    case 51:
+                    case 52:
+                    case 53:
+                    case 54:
+                    case 55:
+                    case 56:
+                    case 57:
+                    case 58:
+                    case 59:
+                    case 60:
+                    case 61:
+                    case 62:
+                    case 63:
+                    case 64:
+                    case 65:
+                    case 66:
+                    case 67:
+                    case 68:
+                    case 69:
+                    case 70:
+                    case 71:
+                    case 72:
+                    case 73:
+                    case 74:
+                    case 75:
+                    case 76:
+                    case 77:
+                    case 78:
+                    case 79:
+                    case 80:
+                    case 81:
+                    case 82:
+                    case 83:
+                    case 84:
+                    case 85:
+                    case 86:
+                    case 87:
+                    case 88:
+                    case 89:
+                    case 90:
+                    case 91:
+                    default:
+                        continue;
+                }
 
-                // nonescape range...
+                max += 2;
+                BinaryUtil.EnsureCapacity(ref buffer, startoffset, max); // check +escape capacity
 
-                var count = Encoding.UTF8.GetBytes(c, value.Length, p, max);
-                //TODO:addoffset...
+                offset += StringEncoding.UTF8.GetBytes(value, from, i - from, buffer, offset);
+                from = i + 1;
+                buffer[offset++] = (byte)'\\';
+                buffer[offset++] = escapeChar;
             }
+
+            if (from != value.Length)
+            {
+                offset += StringEncoding.UTF8.GetBytes(value, from, value.Length - from, buffer, offset);
+            }
+
+            buffer[offset++] = (byte)'\"';
         }
     }
 }

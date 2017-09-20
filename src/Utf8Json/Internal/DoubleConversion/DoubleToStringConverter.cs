@@ -5,55 +5,17 @@ namespace Utf8Json.Internal.DoubleConversion
 {
     using uint64_t = System.UInt64;
     using uint32_t = System.UInt32;
-
-    // Utils
-
-    internal class VectorChar
-    {
-        public byte[] bytes;
-        public int offset;
-
-        public VectorChar(byte[] bytes, int offset)
-        {
-            this.bytes = bytes;
-            this.offset = offset;
-        }
-
-        public byte this[int i]
-        {
-            get
-            {
-                return bytes[offset + i];
-            }
-            set
-            {
-                bytes[offset + i] = value;
-            }
-        }
-
-        [ThreadStatic]
-        static VectorChar cache;
-
-        public static VectorChar GetCache()
-        {
-            if (cache == null)
-            {
-                cache = new VectorChar(new byte[400], 0); // TODO:max size?
-            }
-            cache.offset = 0;
-            return cache;
-        }
-    }
+    using System.Collections.Generic;
 
     internal struct StringBuilder
     {
         public byte[] buffer;
         public int offset;
 
-        public StringBuilder(byte[] buffer, int offset)
+        public StringBuilder(byte[] buffer, int position)
         {
             this.buffer = buffer;
-            this.offset = offset;
+            this.offset = position;
         }
 
         public void AddCharacter(byte str)
@@ -72,6 +34,36 @@ namespace Utf8Json.Internal.DoubleConversion
             offset += str.Length;
         }
 
+        public void AddSubstring(byte[] str, int length)
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, length);
+            for (int i = 0; i < length; i++)
+            {
+                buffer[offset + i] = str[i];
+            }
+            offset += length;
+        }
+
+        public void AddSubstring(byte[] str, int start, int length)
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, length);
+            for (int i = 0; i < length; i++)
+            {
+                buffer[offset + i] = str[start + i];
+            }
+            offset += length;
+        }
+
+        public void AddPadding(byte c, int count)
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, count);
+            for (int i = 0; i < count; i++)
+            {
+                buffer[offset + i] = c;
+            }
+            offset += count;
+        }
+
         public void AddStringSlow(string str)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, StringEncoding.UTF8.GetMaxByteCount(str.Length));
@@ -82,71 +74,77 @@ namespace Utf8Json.Internal.DoubleConversion
     // public C# API
     public static partial class DoubleToStringConverter
     {
-        public static int GetBytes(float value, byte[] buffer, int offset)
+        [ThreadStatic]
+        static byte[] decimalRepBuffer;
+
+        [ThreadStatic]
+        static byte[] exponentialRepBuffer;
+
+        [ThreadStatic]
+        static byte[] toStringBuffer;
+
+        static byte[] GetDecimalRepBuffer(int size)
         {
-            var vector = VectorChar.GetCache();
-
-            int len;
-            int decimalPoint;
-            var ok = FastDtoa(value, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, vector, out len, out decimalPoint);
-            if (!ok)
+            if (decimalRepBuffer == null)
             {
-                // slow path
-                var str = value.ToString(CultureInfo.InvariantCulture);
-                BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
-                StringEncoding.UTF8.GetBytes(str, 0, str.Length, buffer, offset);
-                return str.Length;
+                decimalRepBuffer = new byte[size];
             }
-
-            // TODO:Write E+***
-            // TODO:EnsureCapacity
-
-            var begin = 0;
-            if (value < 0)
-            {
-                buffer[offset] = (byte)'-';
-                begin = 1;
-            }
-
-            for (int i = 0; i < decimalPoint; i++)
-            {
-                buffer[offset + i + begin] = vector.bytes[i];
-            }
-            if (decimalPoint != len)
-            {
-                buffer[offset + decimalPoint + begin] = (byte)'.';
-                for (int i = decimalPoint; i <= len; i++)
-                {
-                    buffer[offset + (i + 1) + begin] = vector.bytes[i];
-                }
-                return offset + len + 1 + begin;
-            }
-            else
-            {
-                return offset + len + begin;
-            }
+            return decimalRepBuffer;
         }
 
-        public static int GetBytes(double value, ref byte[] buffer, int offset)
+        static byte[] GetExponentialRepBuffer(int size)
+        {
+            if (exponentialRepBuffer == null)
+            {
+                exponentialRepBuffer = new byte[size];
+            }
+            return exponentialRepBuffer;
+        }
+
+        static byte[] GetToStringBuffer()
+        {
+            if (toStringBuffer == null)
+            {
+                toStringBuffer = new byte[24];
+            }
+            return toStringBuffer;
+        }
+
+        public static int GetBytes(ref byte[] buffer, int offset, float value)
         {
             var sb = new StringBuilder(buffer, offset);
-            if (ToShortestIeeeNumber(value, ref sb, DtoaMode.SHORTEST))
+            if (!ToShortestIeeeNumber(value, ref sb, DtoaMode.SHORTEST_SINGLE))
             {
-                // TODO:
-            }
-            else
-            {
-                // TODO:
+                throw new InvalidOperationException("not support float value:" + value);
             }
 
             buffer = sb.buffer;
             return sb.offset - offset;
         }
 
+        public static int GetBytes(ref byte[] buffer, int offset, double value)
+        {
+            var sb = new StringBuilder(buffer, offset);
+            if (!ToShortestIeeeNumber(value, ref sb, DtoaMode.SHORTEST))
+            {
+                throw new InvalidOperationException("not support double value:" + value);
+            }
+
+            buffer = sb.buffer;
+            return sb.offset - offset;
+        }
+
+        public static string GetString(float value)
+        {
+            var buffer = GetToStringBuffer();
+            var len = GetBytes(ref buffer, 0, value);
+            return StringEncoding.UTF8.GetString(buffer, 0, len);
+        }
+
         public static string GetString(double value)
         {
-            var buffer = new byte[21]; // TODO:from pool?
-            var len = GetBytes(value, ref buffer, 0);
+            var buffer = GetToStringBuffer();
+            var len = GetBytes(ref buffer, 0, value);
             return StringEncoding.UTF8.GetString(buffer, 0, len);
         }
     }
@@ -191,6 +189,26 @@ namespace Utf8Json.Internal.DoubleConversion
         static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString());
         static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString());
 
+        // constructor parameter, same as EcmaScriptConverter
+        //DoubleToStringConverter(int flags,
+        //                  const char* infinity_symbol,
+        //                  const char* nan_symbol,
+        //                  char exponent_character,
+        //                  int decimal_in_shortest_low,
+        //                  int decimal_in_shortest_high,
+        //                  int max_leading_padding_zeroes_in_precision_mode,
+        //                  int max_trailing_padding_zeroes_in_precision_mode)
+
+        //const char exponent_character_;
+        //const int decimal_in_shortest_low_;
+        //const int decimal_in_shortest_high_;
+        //const int max_leading_padding_zeroes_in_precision_mode_;
+        //const int max_trailing_padding_zeroes_in_precision_mode_;
+
+        static readonly Flags flags_ = Flags.UNIQUE_ZERO | Flags.EMIT_POSITIVE_EXPONENT_SIGN;
+        static readonly char exponent_character_ = 'E';
+        static readonly int decimal_in_shortest_low_ = -4; // C# ToString("G")
+        static readonly int decimal_in_shortest_high_ = 15;// C# ToString("G")
 
         const int kBase10MaximalLength = 17;
 
@@ -222,7 +240,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // Output: returns true if the buffer is guaranteed to contain the closest
         //    representable number to the input.
         //  Modifies the generated digits in the buffer to approach (round towards) w.
-        static bool RoundWeed(VectorChar buffer,
+        static bool RoundWeed(byte[] buffer,
                               int length,
                               uint64_t distance_too_high_w,
                               uint64_t unsafe_interval,
@@ -408,7 +426,7 @@ namespace Utf8Json.Internal.DoubleConversion
         static bool DigitGen(DiyFp low,
                              DiyFp w,
                              DiyFp high,
-                             VectorChar buffer,
+                             byte[] buffer,
                              out int length,
                              out int kappa)
         {
@@ -513,7 +531,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // computed.
         static bool Grisu3(double v,
                            FastDtoaMode mode,
-                           VectorChar buffer,
+                           byte[] buffer,
                            out int length,
                            out int decimal_exponent)
         {
@@ -583,7 +601,7 @@ namespace Utf8Json.Internal.DoubleConversion
         static bool FastDtoa(double v,
               FastDtoaMode mode,
               // int requested_digits,
-              VectorChar buffer,
+              byte[] buffer,
               out int length,
               out int decimal_point)
         {
@@ -649,9 +667,8 @@ namespace Utf8Json.Internal.DoubleConversion
 
             int decimal_point;
             bool sign;
-            // const int kDecimalRepCapacity = kBase10MaximalLength + 1;
-            //byte[] decimal_rep = new byte[kDecimalRepCapacity];
-            var decimal_rep = VectorChar.GetCache();
+            const int kDecimalRepCapacity = kBase10MaximalLength + 1;
+            var decimal_rep = GetDecimalRepBuffer(kDecimalRepCapacity); // byte[] decimal_rep = new byte[kDecimalRepCapacity];
             int decimal_rep_length;
 
             var fastworked = DoubleToAscii(value, mode, 0, decimal_rep,
@@ -659,36 +676,130 @@ namespace Utf8Json.Internal.DoubleConversion
 
             if (!fastworked)
             {
-                // C# slow code
-                var str = value.ToString(CultureInfo.InvariantCulture);
+                // C# custom, slow path
+                var str = value.ToString("G17", CultureInfo.InvariantCulture);
                 result_builder.AddStringSlow(str);
                 return true;
             }
 
-            // TODO:
+            bool unique_zero = (flags_ & Flags.UNIQUE_ZERO) != 0;
+            if (sign && (value != 0.0 || !unique_zero))
+            {
+                result_builder.AddCharacter((byte)'-');
+            }
 
-            //bool unique_zero = (flags_ & UNIQUE_ZERO) != 0;
-            //if (sign && (value != 0.0 || !unique_zero))
-            //{
-            //    result_builder->AddCharacter('-');
-            //}
-
-            //int exponent = decimal_point - 1;
-            //if ((decimal_in_shortest_low_ <= exponent) &&
-            //    (exponent < decimal_in_shortest_high_))
-            //{
-            //    CreateDecimalRepresentation(decimal_rep, decimal_rep_length,
-            //                                decimal_point,
-            //                                Max(0, decimal_rep_length - decimal_point),
-            //                                result_builder);
-            //}
-            //else
-            //{
-            //    CreateExponentialRepresentation(decimal_rep, decimal_rep_length, exponent,
-            //                                    result_builder);
-            //}
+            int exponent = decimal_point - 1;
+            if ((decimal_in_shortest_low_ <= exponent) &&
+                (exponent < decimal_in_shortest_high_))
+            {
+                CreateDecimalRepresentation(decimal_rep, decimal_rep_length,
+                                            decimal_point,
+                                            Math.Max(0, decimal_rep_length - decimal_point),
+                                            ref result_builder);
+            }
+            else
+            {
+                CreateExponentialRepresentation(decimal_rep, decimal_rep_length, exponent,
+                                                ref result_builder);
+            }
 
             return true;
+        }
+
+        static void CreateDecimalRepresentation(
+            byte[] decimal_digits,
+            int length,
+            int decimal_point,
+            int digits_after_point,
+            ref StringBuilder result_builder)
+        {
+            // Create a representation that is padded with zeros if needed.
+            if (decimal_point <= 0)
+            {
+                // "0.00000decimal_rep" or "0.000decimal_rep00".
+                result_builder.AddCharacter((byte)'0');
+                if (digits_after_point > 0)
+                {
+                    result_builder.AddCharacter((byte)'.');
+                    result_builder.AddPadding((byte)'0', -decimal_point);
+                    result_builder.AddSubstring(decimal_digits, length);
+                    int remaining_digits = digits_after_point - (-decimal_point) - length;
+                    result_builder.AddPadding((byte)'0', remaining_digits);
+                }
+            }
+            else if (decimal_point >= length)
+            {
+                // "decimal_rep0000.00000" or "decimal_rep.0000".
+                result_builder.AddSubstring(decimal_digits, length);
+                result_builder.AddPadding((byte)'0', decimal_point - length);
+                if (digits_after_point > 0)
+                {
+                    result_builder.AddCharacter((byte)'.');
+                    result_builder.AddPadding((byte)'0', digits_after_point);
+                }
+            }
+            else
+            {
+                // "decima.l_rep000".
+                result_builder.AddSubstring(decimal_digits, decimal_point);
+                result_builder.AddCharacter((byte)'.');
+                result_builder.AddSubstring(decimal_digits, decimal_point, length - decimal_point);
+                int remaining_digits = digits_after_point - (length - decimal_point);
+                result_builder.AddPadding((byte)'0', remaining_digits);
+            }
+            if (digits_after_point == 0)
+            {
+                if ((flags_ & Flags.EMIT_TRAILING_DECIMAL_POINT) != 0)
+                {
+                    result_builder.AddCharacter((byte)'.');
+                }
+                if ((flags_ & Flags.EMIT_TRAILING_ZERO_AFTER_POINT) != 0)
+                {
+                    result_builder.AddCharacter((byte)'0');
+                }
+            }
+        }
+
+        static void CreateExponentialRepresentation(
+            byte[] decimal_digits,
+            int length,
+            int exponent,
+            ref StringBuilder result_builder)
+        {
+            result_builder.AddCharacter(decimal_digits[0]);
+            if (length != 1)
+            {
+                result_builder.AddCharacter((byte)'.');
+                result_builder.AddSubstring(decimal_digits, 1, length - 1);
+            }
+            result_builder.AddCharacter((byte)exponent_character_);
+            if (exponent < 0)
+            {
+                result_builder.AddCharacter((byte)'-');
+                exponent = -exponent;
+            }
+            else
+            {
+                if ((flags_ & Flags.EMIT_POSITIVE_EXPONENT_SIGN) != 0)
+                {
+                    result_builder.AddCharacter((byte)'+');
+                }
+            }
+            if (exponent == 0)
+            {
+                result_builder.AddCharacter((byte)'0');
+                return;
+            }
+            const int kMaxExponentLength = 5;
+            byte[] buffer = GetExponentialRepBuffer(kMaxExponentLength + 1);
+            buffer[kMaxExponentLength] = (byte)'\0';
+            int first_char_pos = kMaxExponentLength;
+            while (exponent > 0)
+            {
+                buffer[--first_char_pos] = (byte)((byte)'0' + (exponent % 10));
+                exponent /= 10;
+            }
+            result_builder.AddSubstring(buffer, first_char_pos, kMaxExponentLength - first_char_pos);
         }
 
         // modified, return fast_worked.
@@ -697,7 +808,7 @@ namespace Utf8Json.Internal.DoubleConversion
             int requested_digits,
             //byte[] buffer,
             //int buffer_length,
-            VectorChar vector,
+            byte[] vector, // already allocate
             out bool sign,
             out int length,
             out int point)

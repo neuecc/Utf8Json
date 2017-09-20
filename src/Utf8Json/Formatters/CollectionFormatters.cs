@@ -13,13 +13,14 @@ namespace Utf8Json.Formatters
 
         public void Serialize(ref JsonWriter writer, ref T[] value, IFormatterResolver formatterResolver)
         {
-            // TODO:writer.WriteBegin...
+            writer.WriteBeginArray();
             var formatter = formatterResolver.GetFormatter<T>();
             for (int i = 0; i < value.Length; i++)
             {
+                if (i != 0) writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, ref value[i], formatterResolver);
             }
-            // TODO:writer.WriteEnd...
+            writer.WriteEndArray();
         }
 
         public T[] Deserialize(ref JsonReader reader, IFormatterResolver formatterResolver)

@@ -641,6 +641,22 @@ namespace Utf8Json
             return value;
         }
 
+        public Single ReadSingle()
+        {
+            int readCount;
+            var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToSingle(bytes, offset, out readCount);
+            offset += readCount;
+            return v;
+        }
+
+        public Double ReadDouble()
+        {
+            int readCount;
+            var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToDouble(bytes, offset, out readCount);
+            offset += readCount;
+            return v;
+        }
+
         internal static class StringBuilderCache
         {
             [ThreadStatic]
