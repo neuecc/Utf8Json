@@ -93,23 +93,14 @@ namespace Utf8Json
             }
         }
 
-        public void WriteSingle(Single value)
+        public void WriteSingle(float value)
         {
             throw new NotImplementedException();
         }
 
-        // https://github.com/google/double-conversion
         public void WriteDouble(double value)
         {
-            // TODO:more efficient way?
-
-
-
-            // throw new NotImplementedException();
-            var s = value.ToString();
-            // Double.
-            // Encoding.UTF8.GetBytes(s, 0, s.Length, bytes
-
+            offset += Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(value, ref buffer, offset);
         }
 
         public void WriteByte(byte value)
