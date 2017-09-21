@@ -293,10 +293,9 @@ namespace Utf8Json
 
         void ReadStringSegmentCore(out byte[] resultBytes, out int resultOffset, out int resultLength)
         {
-            byte[] builder = null; // StringBuilderCache.GetBuffer();
+            byte[] builder = null;
             var builderOffset = 0;
-            char[] codePointBuffer = null; // StringBuilderCache.GetForCodePoint();
-            char[] codePointStringBuffer = null; // StringBuilderCache.GetCodePointStringBuffer();
+            char[] codePointStringBuffer = null;
             var codePointStringOffet = 0;
 
             if (bytes[offset++] != '\"') throw CreateParsingException("\"");
@@ -316,47 +315,52 @@ namespace Utf8Json
                             case '\\':
                             case '/':
                                 escapeCharacter = bytes[i];
-                                offset += 2;
                                 goto COPY;
                             case 'b':
                                 escapeCharacter = (byte)'\b';
-                                offset += 2;
                                 goto COPY;
                             case 'f':
                                 escapeCharacter = (byte)'\f';
-                                offset += 2;
                                 goto COPY;
                             case 'n':
                                 escapeCharacter = (byte)'\n';
-                                offset += 2;
                                 goto COPY;
                             case 'r':
                                 escapeCharacter = (byte)'\r';
-                                offset += 2;
                                 goto COPY;
                             case 't':
                                 escapeCharacter = (byte)'\t';
-                                offset += 2;
                                 goto COPY;
                             case 'u':
-                                if (codePointBuffer == null) codePointBuffer = StringBuilderCache.GetForCodePoint();
                                 if (codePointStringBuffer == null) codePointStringBuffer = StringBuilderCache.GetCodePointStringBuffer();
 
-                                i++; // \\
-                                i++; // \u
-                                codePointBuffer[0] = (char)bytes[i++];
-                                codePointBuffer[1] = (char)bytes[i++];
-                                codePointBuffer[2] = (char)bytes[i++];
-                                codePointBuffer[3] = (char)bytes[i];
-                                offset += 5;
+                                if (codePointStringOffet == 0)
+                                {
+                                    if (builder == null) builder = StringBuilderCache.GetBuffer();
 
-                                var codepoint = (char)Convert.ToInt32(new string(codePointBuffer), 16);
-                                codePointStringBuffer[codePointStringOffet++] = codepoint;
-                                break;
+                                    var copyCount = i - from;
+                                    Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                                    builderOffset += copyCount;
+                                }
+
+                                if (codePointStringBuffer.Length == codePointStringOffet)
+                                {
+                                    Array.Resize(ref codePointStringBuffer, codePointStringBuffer.Length * 2);
+                                }
+
+                                var a = (char)bytes[i + 2];
+                                var b = (char)bytes[i + 3];
+                                var c = (char)bytes[i + 4];
+                                var d = (char)bytes[i + 5];
+                                var codepoint = GetCodePoint(a, b, c, d);
+                                codePointStringBuffer[codePointStringOffet++] = (char)codepoint;
+                                i += 5;
+                                offset += 6;
+                                from = offset;
+                                continue;
                             default:
                                 throw new JsonParsingException("Bad JSON escape.");
                         }
-                        break;
                     case (byte)'"': // endtoken
                         offset++;
                         goto END;
@@ -365,23 +369,29 @@ namespace Utf8Json
                         continue;
                 }
 
-                // TODO:copy codepoint
-                if (codePointStringOffet != 0) { }
-
                 COPY:
-                if (builder == null) builder = StringBuilderCache.GetBuffer();
+                {
+                    if (builder == null) builder = StringBuilderCache.GetBuffer();
+                    if (codePointStringOffet != 0)
+                    {
+                        builderOffset += StringEncoding.UTF8.GetBytes(codePointStringBuffer, 0, codePointStringOffet, builder, builderOffset);
+                        codePointStringOffet = 0;
+                    }
 
-                var copyCount = i - from;
-                Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
-                builderOffset += copyCount;
-                builder[builderOffset++] = escapeCharacter;
-                from = i + 2;
+                    var copyCount = i - from;
+                    Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                    builderOffset += copyCount;
+                    builder[builderOffset++] = escapeCharacter;
+                    i += 1;
+                    offset += 2;
+                    from = offset;
+                }
             }
 
             throw CreateParsingException("\"");
 
             END:
-            if (builderOffset == 0) // no escape
+            if (builderOffset == 0 && codePointStringOffet == 0) // no escape
             {
                 resultBytes = bytes;
                 resultOffset = from;
@@ -389,8 +399,14 @@ namespace Utf8Json
             }
             else
             {
-                // copy last
-                var copyCount = offset - from - 2;
+                if (builder == null) builder = StringBuilderCache.GetBuffer();
+                if (codePointStringOffet != 0)
+                {
+                    builderOffset += StringEncoding.UTF8.GetBytes(codePointStringBuffer, 0, codePointStringOffet, builder, builderOffset);
+                    codePointStringOffet = 0;
+                }
+
+                var copyCount = offset - from - 1;
                 Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
                 builderOffset += copyCount;
 
@@ -398,6 +414,28 @@ namespace Utf8Json
                 resultOffset = 0;
                 resultLength = builderOffset;
             }
+        }
+
+        static int GetCodePoint(char a, char b, char c, char d)
+        {
+            return (((((ToNumber(a) * 16) + ToNumber(b)) * 16) + ToNumber(c)) * 16) + ToNumber(d);
+        }
+
+        static int ToNumber(char x)
+        {
+            if ('0' <= x && x <= '9')
+            {
+                return x - '0';
+            }
+            else if ('a' <= x && x <= 'f')
+            {
+                return x - 'a' + 10;
+            }
+            else if ('A' <= x && x <= 'F')
+            {
+                return x - 'A' + 10;
+            }
+            throw new JsonParsingException("Invalid Character" + x);
         }
 
         public ArraySegment<byte> ReadStringSegmentUnsafe()
@@ -667,9 +705,6 @@ namespace Utf8Json
             static byte[] buffer;
 
             [ThreadStatic]
-            static char[] codePoint;
-
-            [ThreadStatic]
             static char[] codePointStringBuffer;
 
             public static byte[] GetBuffer()
@@ -679,15 +714,6 @@ namespace Utf8Json
                     buffer = new byte[65535];
                 }
                 return buffer;
-            }
-
-            public static char[] GetForCodePoint()
-            {
-                if (codePoint == null)
-                {
-                    codePoint = new char[4];
-                }
-                return codePoint;
             }
 
             public static char[] GetCodePointStringBuffer()

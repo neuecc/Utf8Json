@@ -40,8 +40,8 @@ class Program
         //var s1 = Encoding.UTF8.GetBytes("\"あいうえお\"");
         //var s1 = Encoding.UTF8.GetBytes("\"あいう\\tえお\"");
         //var s1 = Encoding.UTF8.GetBytes("\"あいう\tえお\t\"");
-        var s1 = Encoding.UTF8.GetBytes("\"\\u3042\\u3044\\u3046なの\"");
-        //var s1 = Encoding.UTF8.GetBytes("\"\uD840\uDC0B\"");
+        //var s1 = Encoding.UTF8.GetBytes("\"\\u3042\\u3044\\u3046えお\"");
+        var s1 = Encoding.UTF8.GetBytes("\"\\uD840\\uDC0B\"");
 
         var str = new JsonReader(s1, 0).ReadString();
         Console.WriteLine(str);
