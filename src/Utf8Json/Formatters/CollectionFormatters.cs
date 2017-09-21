@@ -11,7 +11,7 @@ namespace Utf8Json.Formatters
         [ThreadStatic]
         static T[] workingArea;
 
-        public void Serialize(ref JsonWriter writer, ref T[] value, IFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, ref T[] value, IJsonFormatterResolver formatterResolver)
         {
             writer.WriteBeginArray();
             var formatter = formatterResolver.GetFormatter<T>();
@@ -23,7 +23,7 @@ namespace Utf8Json.Formatters
             writer.WriteEndArray();
         }
 
-        public T[] Deserialize(ref JsonReader reader, IFormatterResolver formatterResolver)
+        public T[] Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 

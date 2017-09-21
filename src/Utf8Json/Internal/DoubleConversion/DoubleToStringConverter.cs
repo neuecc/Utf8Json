@@ -71,8 +71,8 @@ namespace Utf8Json.Internal.DoubleConversion
         }
     }
 
-    // public C# API
-    public static partial class DoubleToStringConverter
+    // C# API
+    internal static partial class DoubleToStringConverter
     {
         [ThreadStatic]
         static byte[] decimalRepBuffer;
@@ -133,27 +133,13 @@ namespace Utf8Json.Internal.DoubleConversion
             buffer = sb.buffer;
             return sb.offset - offset;
         }
-
-        public static string GetString(float value)
-        {
-            var buffer = GetToStringBuffer();
-            var len = GetBytes(ref buffer, 0, value);
-            return StringEncoding.UTF8.GetString(buffer, 0, len);
-        }
-
-        public static string GetString(double value)
-        {
-            var buffer = GetToStringBuffer();
-            var len = GetBytes(ref buffer, 0, value);
-            return StringEncoding.UTF8.GetString(buffer, 0, len);
-        }
     }
 
     // private porting methods
     // https://github.com/google/double-conversion/blob/master/double-conversion/fast-dtoa.h
     // https://github.com/google/double-conversion/blob/master/double-conversion/fast-dtoa.cc
 
-    public static partial class DoubleToStringConverter
+    internal static partial class DoubleToStringConverter
     {
         enum FastDtoaMode
         {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Utf8Json.Internal;
 
@@ -13,8 +12,50 @@ namespace Utf8Json
 
     public struct JsonWriter
     {
+        static readonly byte[] emptyBytes = new byte[0];
+
+        // write direct from UnsafeMemory
+#if NETSTANDARD
+        internal
+#endif
         byte[] buffer;
+#if NETSTANDARD
+        internal
         int offset;
+#endif
+
+        public static byte[] GetEncodedPropertyName(string propertyName)
+        {
+            var writer = new JsonWriter();
+            writer.WritePropertyName(propertyName);
+            return writer.ToUtf8ByteArray();
+        }
+
+        public static byte[] GetEncodedPropertyNameWithPrefixValueSeparator(string propertyName)
+        {
+            var writer = new JsonWriter();
+            writer.WriteValueSeparator();
+            writer.WritePropertyName(propertyName);
+            return writer.ToUtf8ByteArray();
+        }
+
+        public static byte[] GetEncodedPropertyNameWithBeginObject(string propertyName)
+        {
+            var writer = new JsonWriter();
+            writer.WriteBeginObject();
+            writer.WritePropertyName(propertyName);
+            return writer.ToUtf8ByteArray();
+        }
+
+        public static byte[] GetEncodedPropertyNameWithoutQuotation(string propertyName)
+        {
+            var writer = new JsonWriter();
+            writer.WriteString(propertyName); // "propname"
+            var buf = writer.GetBuffer();
+            var result = new byte[buf.Count - 2];
+            Buffer.BlockCopy(buf.Array, buf.Offset + 1, result, 0, result.Length); // without quotation
+            return result;
+        }
 
         public JsonWriter(byte[] initialBuffer)
         {
@@ -24,12 +65,20 @@ namespace Utf8Json
 
         public ArraySegment<byte> GetBuffer()
         {
+            if (buffer == null) return new ArraySegment<byte>(emptyBytes, 0, 0);
             return new ArraySegment<byte>(buffer, 0, offset);
         }
 
         public byte[] ToUtf8ByteArray()
         {
+            if (buffer == null) return emptyBytes;
             return BinaryUtil.FastCloneWithResize(buffer, offset);
+        }
+
+        public override string ToString()
+        {
+            if (buffer == null) return null;
+            return Encoding.UTF8.GetString(buffer, 0, offset);
         }
 
         public void EnsureCapacity(int appendLength)
@@ -49,41 +98,73 @@ namespace Utf8Json
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
+        public void WriteRaw(byte[] rawValue)
+        {
+#if NETSTANDARD
+            UnsafeMemory.WriteRaw(ref this, rawValue);
+#else
+            BinaryUtil.EnsureCapacity(ref buffer, offset, rawValue.Length);
+            Buffer.BlockCopy(rawValue, 0, buffer, offset, rawValue.Length);
+            offset += rawValue.Length;
+#endif
+        }
+
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteRawUnsafe(byte rawValue)
         {
             buffer[offset++] = rawValue;
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteBeginArray()
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
             buffer[offset++] = (byte)'[';
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteEndArray()
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
             buffer[offset++] = (byte)']';
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteBeginObject()
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
             buffer[offset++] = (byte)'{';
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteEndObject()
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
             buffer[offset++] = (byte)'}';
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteValueSeparator()
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
             buffer[offset++] = (byte)',';
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteNameSeparator()
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
@@ -91,10 +172,22 @@ namespace Utf8Json
         }
 
         /// <summary>WriteString + WriteNameSeparator</summary>
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WritePropertyName(string propertyName)
         {
             WriteString(propertyName);
             WriteNameSeparator();
+        }
+
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void WriteQuotation()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)'\"';
         }
 
 #if NETSTANDARD
@@ -136,25 +229,41 @@ namespace Utf8Json
             }
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteSingle(Single value)
         {
             Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(ref buffer, offset, value);
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteDouble(double value)
         {
             Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(ref buffer, offset, value);
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteByte(byte value)
         {
             WriteUInt64((ulong)value);
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteUInt16(ushort value)
         {
             WriteUInt64((ulong)value);
         }
+
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteUInt32(uint value)
         {
             WriteUInt64((ulong)value);
@@ -276,16 +385,25 @@ namespace Utf8Json
             buffer[offset++] = (byte)('0' + (num1));
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteSByte(sbyte value)
         {
             WriteInt64((long)value);
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteInt16(short value)
         {
             WriteInt64((long)value);
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void WriteInt32(int value)
         {
             WriteInt64((long)value);
@@ -444,6 +562,12 @@ namespace Utf8Json
 
         public void WriteString(string value)
         {
+            if (value == null)
+            {
+                WriteNull();
+                return;
+            }
+
             // single-path escape
 
             // nonescaped-ensure
@@ -456,119 +580,120 @@ namespace Utf8Json
 
             buffer[offset++] = (byte)'\"';
 
-            // for JIT Optimization, for-loop str.Length)
+            // for JIT Optimization, for-loop i < str.Length
             for (int i = 0; i < value.Length; i++)
             {
                 byte escapeChar = default(byte);
-                switch ((byte)value[i])
+                switch (value[i])
                 {
-                    case (byte)'"':
+                    case '"':
                         escapeChar = (byte)'"';
                         break;
-                    case (byte)'\\':
+                    case '\\':
                         escapeChar = (byte)'\\';
                         break;
-                    case (byte)'\b':
+                    case '\b':
                         escapeChar = (byte)'b';
                         break;
-                    case (byte)'\f':
+                    case '\f':
                         escapeChar = (byte)'f';
                         break;
-                    case (byte)'\n':
+                    case '\n':
                         escapeChar = (byte)'n';
                         break;
-                    case (byte)'\r':
+                    case '\r':
                         escapeChar = (byte)'r';
                         break;
-                    case (byte)'\t':
+                    case '\t':
                         escapeChar = (byte)'t';
                         break;
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 11:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    case 35:
-                    case 36:
-                    case 37:
-                    case 38:
-                    case 39:
-                    case 40:
-                    case 41:
-                    case 42:
-                    case 43:
-                    case 44:
-                    case 45:
-                    case 46:
-                    case 47:
-                    case 48:
-                    case 49:
-                    case 50:
-                    case 51:
-                    case 52:
-                    case 53:
-                    case 54:
-                    case 55:
-                    case 56:
-                    case 57:
-                    case 58:
-                    case 59:
-                    case 60:
-                    case 61:
-                    case 62:
-                    case 63:
-                    case 64:
-                    case 65:
-                    case 66:
-                    case 67:
-                    case 68:
-                    case 69:
-                    case 70:
-                    case 71:
-                    case 72:
-                    case 73:
-                    case 74:
-                    case 75:
-                    case 76:
-                    case 77:
-                    case 78:
-                    case 79:
-                    case 80:
-                    case 81:
-                    case 82:
-                    case 83:
-                    case 84:
-                    case 85:
-                    case 86:
-                    case 87:
-                    case 88:
-                    case 89:
-                    case 90:
-                    case 91:
+                    // use switch jumptable
+                    case (char)0:
+                    case (char)1:
+                    case (char)2:
+                    case (char)3:
+                    case (char)4:
+                    case (char)5:
+                    case (char)6:
+                    case (char)7:
+                    case (char)11:
+                    case (char)14:
+                    case (char)15:
+                    case (char)16:
+                    case (char)17:
+                    case (char)18:
+                    case (char)19:
+                    case (char)20:
+                    case (char)21:
+                    case (char)22:
+                    case (char)23:
+                    case (char)24:
+                    case (char)25:
+                    case (char)26:
+                    case (char)27:
+                    case (char)28:
+                    case (char)29:
+                    case (char)30:
+                    case (char)31:
+                    case (char)32:
+                    case (char)33:
+                    case (char)35:
+                    case (char)36:
+                    case (char)37:
+                    case (char)38:
+                    case (char)39:
+                    case (char)40:
+                    case (char)41:
+                    case (char)42:
+                    case (char)43:
+                    case (char)44:
+                    case (char)45:
+                    case (char)46:
+                    case (char)47:
+                    case (char)48:
+                    case (char)49:
+                    case (char)50:
+                    case (char)51:
+                    case (char)52:
+                    case (char)53:
+                    case (char)54:
+                    case (char)55:
+                    case (char)56:
+                    case (char)57:
+                    case (char)58:
+                    case (char)59:
+                    case (char)60:
+                    case (char)61:
+                    case (char)62:
+                    case (char)63:
+                    case (char)64:
+                    case (char)65:
+                    case (char)66:
+                    case (char)67:
+                    case (char)68:
+                    case (char)69:
+                    case (char)70:
+                    case (char)71:
+                    case (char)72:
+                    case (char)73:
+                    case (char)74:
+                    case (char)75:
+                    case (char)76:
+                    case (char)77:
+                    case (char)78:
+                    case (char)79:
+                    case (char)80:
+                    case (char)81:
+                    case (char)82:
+                    case (char)83:
+                    case (char)84:
+                    case (char)85:
+                    case (char)86:
+                    case (char)87:
+                    case (char)88:
+                    case (char)89:
+                    case (char)90:
+                    case (char)91:
                     default:
                         continue;
                 }

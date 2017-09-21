@@ -15,10 +15,30 @@
     <LangVersion>4</LangVersion>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Resolvers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Internal\UnsafeMemory.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>UnsafeMemory.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Internal\UnsafeMemory.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>UnsafeMemory.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

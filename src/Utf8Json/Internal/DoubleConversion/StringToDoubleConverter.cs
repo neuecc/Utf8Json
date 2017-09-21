@@ -4,8 +4,6 @@ using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
 {
-
-
 #pragma warning disable CS0660
 #pragma warning disable CS0661
 
@@ -99,7 +97,7 @@ namespace Utf8Json.Internal.DoubleConversion
 #pragma warning restore CS0660
 
     // C# API
-    public static partial class StringToDoubleConverter
+    internal static partial class StringToDoubleConverter
     {
         [ThreadStatic]
         static byte[] kBuffer;
@@ -137,7 +135,7 @@ namespace Utf8Json.Internal.DoubleConversion
     }
 
     // port
-    public static partial class StringToDoubleConverter
+    internal static partial class StringToDoubleConverter
     {
         enum Flags
         {

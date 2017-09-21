@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Utf8Json.Internal;
+
+#if NETSTANDARD
+using System.Runtime.CompilerServices;
+#endif
 
 namespace Utf8Json
 {
@@ -17,7 +22,7 @@ namespace Utf8Json
             this.offset = offset;
         }
 
-        JsonParsingException CreateException(string expected)
+        JsonParsingException CreateParsingException(string expected)
         {
             return new JsonParsingException("expected:" + expected + ", actual:" + (char)bytes[offset] + " at:" + offset);
         }
@@ -119,7 +124,7 @@ namespace Utf8Json
                     case 31:
                     default:
                         offset = i;
-                        return;
+                        return; // end
                 }
             }
 
@@ -143,7 +148,7 @@ namespace Utf8Json
             }
 
             ERROR:
-            throw CreateException("null");
+            throw CreateParsingException("null");
         }
 
         public bool ReadIsBeginArray()
@@ -162,7 +167,7 @@ namespace Utf8Json
 
         public void ReadIsBeginArrayWithVerify()
         {
-            if (!ReadIsBeginArray()) throw CreateException("{");
+            if (!ReadIsBeginArray()) throw CreateParsingException("{");
         }
 
         public bool ReadIsEndArray()
@@ -213,7 +218,7 @@ namespace Utf8Json
 
         public void ReadIsBeginObjectWithVerify()
         {
-            if (!ReadIsBeginObject()) throw CreateException("{");
+            if (!ReadIsBeginObject()) throw CreateParsingException("{");
         }
 
         public bool ReadIsEndObject()
@@ -264,7 +269,7 @@ namespace Utf8Json
 
         public void ReadIsValueSeparatorWithVerify()
         {
-            if (!ReadIsValueSeparator()) throw CreateException(",");
+            if (!ReadIsValueSeparator()) throw CreateParsingException(",");
         }
 
         public bool ReadIsNameSeparator()
@@ -283,88 +288,135 @@ namespace Utf8Json
 
         public void ReadIsNameSeparatorWithVerify()
         {
-            if (!ReadIsNameSeparator()) throw CreateException(".");
+            if (!ReadIsNameSeparator()) throw CreateParsingException(".");
         }
 
-        void ReadStringSegmentCore(out byte[] resultBytes, out int resultOffset)
+        void ReadStringSegmentCore(out byte[] resultBytes, out int resultOffset, out int resultLength)
         {
-            var builder = StringBuilderCache.GetBuffer();
+            byte[] builder = null; // StringBuilderCache.GetBuffer();
             var builderOffset = 0;
+            char[] codePointBuffer = null; // StringBuilderCache.GetForCodePoint();
+            char[] codePointStringBuffer = null; // StringBuilderCache.GetCodePointStringBuffer();
+            var codePointStringOffet = 0;
 
-            if (bytes[offset++] != '\"') throw CreateException("\"");
+            if (bytes[offset++] != '\"') throw CreateParsingException("\"");
+
+            var from = offset;
 
             // eliminate array-bound check
             for (int i = offset; i < bytes.Length; i++)
             {
+                byte escapeCharacter = 0;
                 switch (bytes[i])
                 {
-                    case (byte)'"': // endtoken
-                        offset = i + 1;
-                        goto END;
                     case (byte)'\\': // escape character
-                                     // TODO
-                                     //c = (char)bytes[offset++];
-                                     //switch (c)
-                                     //{
-                                     //    case '"':
-                                     //    case '\\':
-                                     //    case '/':
-                                     //        // p[offset] = c;
-                                     //        break;
-                                     //    case 'b':
-                                     //        //sb.Append('\b');
-                                     //        break;
-                                     //    case 'f':
-                                     //        //sb.Append('\f');
-                                     //        break;
-                                     //    case 'n':
-                                     //        //sb.Append('\n');
-                                     //        break;
-                                     //    case 'r':
-                                     //        //sb.Append('\r');
-                                     //        break;
-                                     //    case 't':
-                                     //        //sb.Append('\t');
-                                     //        break;
-                                     //    case 'u':
-                                     //        //var hex = new char[4];
-                                     //        //hex[0] = ReadChar();
-                                     //        //hex[1] = ReadChar();
-                                     //        //hex[2] = ReadChar();
-                                     //        //hex[3] = ReadChar();
-                                     //        //sb.Append((char)Convert.ToInt32(new string(hex), 16));
-                                     //        break;
-                                     //}
+                        switch ((char)bytes[i + 1])
+                        {
+                            case '"':
+                            case '\\':
+                            case '/':
+                                escapeCharacter = bytes[i];
+                                offset += 2;
+                                goto COPY;
+                            case 'b':
+                                escapeCharacter = (byte)'\b';
+                                offset += 2;
+                                goto COPY;
+                            case 'f':
+                                escapeCharacter = (byte)'\f';
+                                offset += 2;
+                                goto COPY;
+                            case 'n':
+                                escapeCharacter = (byte)'\n';
+                                offset += 2;
+                                goto COPY;
+                            case 'r':
+                                escapeCharacter = (byte)'\r';
+                                offset += 2;
+                                goto COPY;
+                            case 't':
+                                escapeCharacter = (byte)'\t';
+                                offset += 2;
+                                goto COPY;
+                            case 'u':
+                                if (codePointBuffer == null) codePointBuffer = StringBuilderCache.GetForCodePoint();
+                                if (codePointStringBuffer == null) codePointStringBuffer = StringBuilderCache.GetCodePointStringBuffer();
+
+                                i++; // \\
+                                i++; // \u
+                                codePointBuffer[0] = (char)bytes[i++];
+                                codePointBuffer[1] = (char)bytes[i++];
+                                codePointBuffer[2] = (char)bytes[i++];
+                                codePointBuffer[3] = (char)bytes[i];
+                                offset += 5;
+
+                                var codepoint = (char)Convert.ToInt32(new string(codePointBuffer), 16);
+                                codePointStringBuffer[codePointStringOffet++] = codepoint;
+                                break;
+                            default:
+                                throw new JsonParsingException("Bad JSON escape.");
+                        }
                         break;
+                    case (byte)'"': // endtoken
+                        offset++;
+                        goto END;
                     default: // string
-                             // TODO:EnsureCapacity
-                        builder[builderOffset++] = bytes[i];
-                        break;
+                        offset++;
+                        continue;
                 }
+
+                // TODO:copy codepoint
+                if (codePointStringOffet != 0) { }
+
+                COPY:
+                if (builder == null) builder = StringBuilderCache.GetBuffer();
+
+                var copyCount = i - from;
+                Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                builderOffset += copyCount;
+                builder[builderOffset++] = escapeCharacter;
+                from = i + 2;
             }
 
-            throw CreateException("\"");
+            throw CreateParsingException("\"");
 
             END:
-            resultBytes = builder;
-            resultOffset = builderOffset;
+            if (builderOffset == 0) // no escape
+            {
+                resultBytes = bytes;
+                resultOffset = from;
+                resultLength = offset - 1 - from; // skip last quote
+            }
+            else
+            {
+                // copy last
+                var copyCount = offset - from - 2;
+                Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                builderOffset += copyCount;
+
+                resultBytes = builder;
+                resultOffset = 0;
+                resultLength = builderOffset;
+            }
         }
 
         public ArraySegment<byte> ReadStringSegmentUnsafe()
         {
             byte[] bytes;
             int offset;
-            ReadStringSegmentCore(out bytes, out offset);
-            return new ArraySegment<byte>(bytes, 0, offset);
+            int length;
+            ReadStringSegmentCore(out bytes, out offset, out length);
+            return new ArraySegment<byte>(bytes, offset, length);
         }
 
         public string ReadString()
         {
             byte[] bytes;
             int offset;
-            ReadStringSegmentCore(out bytes, out offset);
+            int length;
+            ReadStringSegmentCore(out bytes, out offset, out length);
 
-            return Encoding.UTF8.GetString(bytes, 0, offset);
+            return Encoding.UTF8.GetString(bytes, offset, length);
         }
 
         /// <summary>ReadString + ReadIsNameSeparatorWithVerify</summary>
@@ -404,13 +456,13 @@ namespace Utf8Json
             }
             else
             {
-                throw CreateException("true | false");
+                throw CreateParsingException("true | false");
             }
 
             ERROR_TRUE:
-            throw CreateException("true");
+            throw CreateParsingException("true");
             ERROR_FALSE:
-            throw CreateException("false");
+            throw CreateParsingException("false");
         }
 
         // TODO:Optimize
@@ -432,25 +484,9 @@ namespace Utf8Json
             }
         }
 
-        // TODO:Optimize
         static bool IsNumber(byte c)
         {
-            switch (c)
-            {
-                case (byte)'0':
-                case (byte)'1':
-                case (byte)'2':
-                case (byte)'3':
-                case (byte)'4':
-                case (byte)'5':
-                case (byte)'6':
-                case (byte)'7':
-                case (byte)'8':
-                case (byte)'9':
-                    return true;
-                default:
-                    return false;
-            }
+            return (byte)'0' <= c && c <= (byte)'9';
         }
 
         public void ReadNext()
@@ -578,30 +614,10 @@ namespace Utf8Json
         {
             SkipWhiteSpace();
 
-            var value = 0L;
-            var sign = 1;
-
-            if (bytes[offset] == '-')
-            {
-                sign = -1;
-                offset++;
-            }
-
-            for (int i = offset; i < bytes.Length; i++)
-            {
-                if (!IsNumber(bytes[i]))
-                {
-                    offset = i;
-                    goto END;
-                }
-
-                // long.MinValue causes overflow so use unchecked.
-                value = unchecked(value * 10 + (bytes[i] - '0'));
-            }
-            offset = bytes.Length;
-
-            END:
-            return unchecked(value * sign);
+            int readCount;
+            var v = NumberConverter.ReadInt64(bytes, offset, out readCount);
+            offset += readCount;
+            return v;
         }
 
         public byte ReadByte()
@@ -623,22 +639,10 @@ namespace Utf8Json
         {
             SkipWhiteSpace();
 
-            var value = 0UL;
-
-            for (int i = offset; i < bytes.Length; i++)
-            {
-                if (!IsNumber(bytes[i]))
-                {
-                    offset = i;
-                    goto END;
-                }
-
-                value = checked(value * 10 + (ulong)(bytes[i] - '0'));
-            }
-            offset = bytes.Length;
-
-            END:
-            return value;
+            int readCount;
+            var v = NumberConverter.ReadUInt64(bytes, offset, out readCount);
+            offset += readCount;
+            return v;
         }
 
         public Single ReadSingle()
@@ -662,6 +666,12 @@ namespace Utf8Json
             [ThreadStatic]
             static byte[] buffer;
 
+            [ThreadStatic]
+            static char[] codePoint;
+
+            [ThreadStatic]
+            static char[] codePointStringBuffer;
+
             public static byte[] GetBuffer()
             {
                 if (buffer == null)
@@ -669,7 +679,24 @@ namespace Utf8Json
                     buffer = new byte[65535];
                 }
                 return buffer;
+            }
 
+            public static char[] GetForCodePoint()
+            {
+                if (codePoint == null)
+                {
+                    codePoint = new char[4];
+                }
+                return codePoint;
+            }
+
+            public static char[] GetCodePointStringBuffer()
+            {
+                if (codePointStringBuffer == null)
+                {
+                    codePointStringBuffer = new char[65535];
+                }
+                return codePointStringBuffer;
             }
         }
     }

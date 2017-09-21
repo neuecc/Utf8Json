@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Utf8Json.Internal.DoubleConversion;
 using Xunit;
+using Utf8Json.Internal;
 
 namespace Utf8Json.Tests
 {
@@ -16,6 +17,20 @@ namespace Utf8Json.Tests
         public static bool Approximately(double a, double b)
         {
             return Math.Abs(b - a) < Math.Max(1E-06 * Math.Max(Math.Abs(a), Math.Abs(b)), double.Epsilon * 8.0);
+        }
+
+        static string GetString(double v)
+        {
+            byte[] buf = null;
+            var len = NumberConverter.WriteDouble(ref buf, 0, v);
+            return Encoding.UTF8.GetString(buf, 0, len);
+        }
+
+        static string GetString(float v)
+        {
+            byte[] buf = null;
+            var len = NumberConverter.WriteSingle(ref buf, 0, v);
+            return Encoding.UTF8.GetString(buf, 0, len);
         }
 
         [Fact]
@@ -35,7 +50,7 @@ namespace Utf8Json.Tests
 
             foreach (var item in x.Concat(new[] { double.Epsilon, double.MaxValue, double.MinValue }))
             {
-                var actual = Internal.DoubleConversion.DoubleToStringConverter.GetString(item);
+                var actual = GetString(item);
                 var y = double.Parse(actual);
                 var diff = Math.Abs((item - y) / item);
                 if (diff > 1E-15) throw new Exception(item + "      :   " + diff.ToString());
@@ -44,7 +59,7 @@ namespace Utf8Json.Tests
                 {
                     var buf = Encoding.UTF8.GetBytes(item.ToString());
                     var buf2 = Enumerable.Range(1, 100).Select(z => (byte)z).Concat(buf).ToArray();
-                    var d2 = Internal.DoubleConversion.StringToDoubleConverter.ToDouble(buf2, 100, out var _);
+                    var d2 = NumberConverter.ReadDouble(buf2, 100, out var _);
                     Approximately(y, d2).IsTrue();
                 }
             }
@@ -52,13 +67,13 @@ namespace Utf8Json.Tests
             // same
             foreach (var item in new[] { double.NaN, double.NegativeInfinity, double.PositiveInfinity, 0.000, })
             {
-                Internal.DoubleConversion.DoubleToStringConverter.GetString(item).Is(item.ToString());
+                GetString(item).Is(item.ToString());
             }
 
             // has e
             foreach (var item in new[] { 1000000000000000.0, 0.00001 })
             {
-                Internal.DoubleConversion.DoubleToStringConverter.GetString(item).Contains("E").IsTrue();
+                GetString(item).Contains("E").IsTrue();
             }
         }
 
@@ -77,27 +92,27 @@ namespace Utf8Json.Tests
 
             foreach (var item in y.Concat(new[] { float.Epsilon, float.MaxValue, float.MinValue }))
             {
-                var actual = Internal.DoubleConversion.DoubleToStringConverter.GetString(item);
+                var actual = GetString(item);
                 var y2 = float.Parse(actual);
                 var diff = Math.Abs((item - y2) / item);
                 if (diff > 2E-7) throw new Exception(item + "      :   " + diff.ToString());
 
                 var buf = Encoding.UTF8.GetBytes(item.ToString());
                 var buf2 = Enumerable.Range(1, 100).Select(z => (byte)z).Concat(buf).ToArray();
-                var d2 = Internal.DoubleConversion.StringToDoubleConverter.ToSingle(buf2, 100, out var _);
+                var d2 = NumberConverter.ReadSingle(buf2, 100, out var _);
                 Approximately(y2, d2).IsTrue();
             }
 
             // same
             foreach (var item in new[] { float.NaN, float.NegativeInfinity, float.PositiveInfinity, 0.000f, })
             {
-                Internal.DoubleConversion.DoubleToStringConverter.GetString(item).Is(item.ToString());
+                GetString(item).Is(item.ToString());
             }
 
             // has e
             foreach (var item in new[] { 1000000000000000.0f, 0.00001f })
             {
-                Internal.DoubleConversion.DoubleToStringConverter.GetString(item).Contains("E").IsTrue();
+                GetString(item).Contains("E").IsTrue();
             }
         }
     }

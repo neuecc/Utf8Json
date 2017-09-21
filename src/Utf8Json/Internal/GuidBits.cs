@@ -55,7 +55,7 @@ namespace Utf8Json.Internal
         }
 
         // 4-pattern, lower/upper and '-' or no
-        public GuidBits(ArraySegment<byte> utf8string)
+        public GuidBits(ref ArraySegment<byte> utf8string)
         {
             this = default(GuidBits);
 

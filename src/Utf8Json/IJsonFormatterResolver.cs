@@ -2,14 +2,14 @@
 
 namespace Utf8Json
 {
-    public interface IFormatterResolver
+    public interface IJsonFormatterResolver
     {
         IJsonFormatter<T> GetFormatter<T>();
     }
 
-    public static class FormatterResolverExtensions
+    public static class JsonFormatterResolverExtensions
     {
-        public static IJsonFormatter<T> GetFormatterWithVerify<T>(this IFormatterResolver resolver)
+        public static IJsonFormatter<T> GetFormatterWithVerify<T>(this IJsonFormatterResolver resolver)
         {
             IJsonFormatter<T> formatter;
             try
