@@ -47,6 +47,11 @@ namespace Utf8Json.Internal.DoubleConversion
             d64_ = new UnionDoubleULong { d = d }.u64;
         }
 
+        public Double(DiyFp d)
+        {
+            d64_ = DiyFpToUint64(d);
+        }
+
         // The value encoded by this Double must be greater or equal to +0.0.
         // It must not be special (infinity, or NaN).
         public DiyFp AsDiyFp()

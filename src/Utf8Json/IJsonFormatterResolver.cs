@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Reflection;
 
 namespace Utf8Json
 {
-    public interface IFormatterResolver
+    public interface IJsonFormatterResolver
     {
         IJsonFormatter<T> GetFormatter<T>();
     }
 
-    public static class FormatterResolverExtensions
+    public static class JsonFormatterResolverExtensions
     {
-        public static IJsonFormatter<T> GetFormatterWithVerify<T>(this IFormatterResolver resolver)
+        public static IJsonFormatter<T> GetFormatterWithVerify<T>(this IJsonFormatterResolver resolver)
         {
             IJsonFormatter<T> formatter;
             try
@@ -32,6 +33,14 @@ namespace Utf8Json
                 throw new FormatterNotRegisteredException(typeof(T).FullName + " is not registered in this resolver. resolver:" + resolver.GetType().Name);
             }
 
+            return formatter;
+        }
+
+        public static object GetFormatterDynamic(this IJsonFormatterResolver resolver, Type type)
+        {
+            var methodInfo = typeof(IJsonFormatterResolver).GetRuntimeMethod("GetFormatter", Type.EmptyTypes);
+
+            var formatter = methodInfo.MakeGenericMethod(type).Invoke(resolver, null);
             return formatter;
         }
     }
