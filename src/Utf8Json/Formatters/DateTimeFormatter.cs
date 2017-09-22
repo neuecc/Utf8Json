@@ -20,7 +20,7 @@ namespace Utf8Json.Formatters
             this.formatString = formatString;
         }
 
-        public void Serialize(ref JsonWriter writer, ref DateTime value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer,  DateTime value, IJsonFormatterResolver formatterResolver)
         {
             writer.WriteString(value.ToString(formatString));
         }
@@ -36,7 +36,7 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<DateTime> Default = new ISO8601DateTimeFormatter();
 
-        public void Serialize(ref JsonWriter writer, ref DateTime value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer,  DateTime value, IJsonFormatterResolver formatterResolver)
         {
             var year = value.Year;
             var month = value.Month;
@@ -259,7 +259,7 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<DateTimeOffset> Default = new ISO8601DateTimeOffsetFormatter();
 
-        public void Serialize(ref JsonWriter writer, ref DateTimeOffset value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer,  DateTimeOffset value, IJsonFormatterResolver formatterResolver)
         {
             var year = value.Year;
             var month = value.Month;
@@ -452,7 +452,7 @@ namespace Utf8Json.Formatters
     {
         static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public void Serialize(ref JsonWriter writer, ref DateTime value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer,  DateTime value, IJsonFormatterResolver formatterResolver)
         {
             var ticks = (long)(value.ToUniversalTime() - UnixEpoch).TotalSeconds;
             writer.WriteQuotation();

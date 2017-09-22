@@ -10,7 +10,7 @@ namespace Utf8Json
         {
             var writer = new JsonWriter(MemoryPool.GetBuffer());
             var formatter = resolver.GetFormatterWithVerify<T>();
-            formatter.Serialize(ref writer, ref value, resolver);
+            formatter.Serialize(ref writer, value, resolver);
             return writer.ToUtf8ByteArray();
         }
 
@@ -18,7 +18,7 @@ namespace Utf8Json
         {
             var writer = new JsonWriter(MemoryPool.GetBuffer());
             var formatter = resolver.GetFormatterWithVerify<T>();
-            formatter.Serialize(ref writer, ref value, resolver);
+            formatter.Serialize(ref writer, value, resolver);
             var buffer = writer.GetBuffer();
             stream.Write(buffer.Array, buffer.Offset, buffer.Count);
         }
@@ -27,7 +27,7 @@ namespace Utf8Json
         {
             var writer = new JsonWriter(MemoryPool.GetBuffer());
             var formatter = resolver.GetFormatterWithVerify<T>();
-            formatter.Serialize(ref writer, ref value, resolver);
+            formatter.Serialize(ref writer, value, resolver);
             return writer.ToString();
         }
 

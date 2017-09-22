@@ -3,11 +3,27 @@ using Utf8Json.Internal;
 
 namespace Utf8Json.Formatters
 {
+    public sealed class CharFormatter : IJsonFormatter<char>
+    {
+        public static readonly IJsonFormatter<char> Default = new CharFormatter();
+
+        // MEMO:can be improvement write directly
+        public void Serialize(ref JsonWriter writer, char value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteString(value.ToString());
+        }
+
+        public char Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            return reader.ReadString()[0];
+        }
+    }
+
     public sealed class GuidFormatter : IJsonFormatter<Guid>
     {
         public static readonly IJsonFormatter<Guid> Default = new GuidFormatter();
 
-        public void Serialize(ref JsonWriter writer, ref Guid value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, Guid value, IJsonFormatterResolver formatterResolver)
         {
             writer.EnsureCapacity(38); // unsafe, control underlying buffer manually
 
@@ -32,7 +48,7 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<byte[]> Default = new ByteArrayFormatter();
 
-        public void Serialize(ref JsonWriter writer, ref byte[] value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, byte[] value, IJsonFormatterResolver formatterResolver)
         {
             if (value == null) { writer.WriteNull(); return; }
 
@@ -52,7 +68,7 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<ArraySegment<byte>> Default = new ByteArraySegmentFormatter();
 
-        public void Serialize(ref JsonWriter writer, ref ArraySegment<byte> value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, ArraySegment<byte> value, IJsonFormatterResolver formatterResolver)
         {
             if (value.Array == null) { writer.WriteNull(); return; }
 

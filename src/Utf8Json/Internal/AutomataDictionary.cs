@@ -84,6 +84,11 @@ namespace Utf8Json.Internal
 
         public void Add(string str, int value)
         {
+            Add(Encoding.UTF8.GetBytes(str), value);
+        }
+
+        public unsafe void Add(byte[] bytes, int value)
+        {
             var bytes = Encoding.UTF8.GetBytes(str);
             var offset = 0;
 
@@ -96,13 +101,13 @@ namespace Utf8Json.Internal
 
                 if (rest == 0)
                 {
-                    node = node.Add(key, value, str);
+                    node = node.Add(key, value, Encoding.UTF8.GetString(bytes));
                 }
                 else
                 {
                     node = node.Add(key);
                 }
-            }
+            }            
         }
 
 #endif

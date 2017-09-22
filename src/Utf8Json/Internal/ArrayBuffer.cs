@@ -2,12 +2,12 @@
 
 namespace Utf8Json.Internal
 {
-    internal struct ArrayBuffer<T>
+    public struct ArrayBuffer<T>
     {
         public T[] Buffer;
         public int Size;
 
-        public ArrayBuffer(int initialSize = 4)
+        public ArrayBuffer(int initialSize)
         {
             this.Buffer = new T[initialSize];
             this.Size = 0;
@@ -15,7 +15,7 @@ namespace Utf8Json.Internal
 
         public void Add(T value)
         {
-            if (this.Buffer.Length > Size)
+            if (Size >= this.Buffer.Length)
             {
                 Array.Resize(ref Buffer, Size * 2);
             }

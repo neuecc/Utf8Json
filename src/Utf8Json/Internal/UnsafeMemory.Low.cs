@@ -48,11 +48,20 @@ namespace Utf8Json.Internal
                 case 30: if (Is32Bit) { UnsafeMemory32.WriteRaw30(ref writer, src); } else { UnsafeMemory64.WriteRaw30(ref writer, src); } break;
                 case 31: if (Is32Bit) { UnsafeMemory32.WriteRaw31(ref writer, src); } else { UnsafeMemory64.WriteRaw31(ref writer, src); } break;
                 default:
-                    BinaryUtil.EnsureCapacity(ref writer.buffer, writer.offset, src.Length);
-                    Buffer.BlockCopy(src, 0, writer.buffer, writer.offset, src.Length);
-                    writer.offset += src.Length;
+                    MemoryCopy(ref writer, src);
                     break;
             }
+        }
+
+        public static unsafe void MemoryCopy(ref JsonWriter writer, byte[] src)
+        {
+            BinaryUtil.EnsureCapacity(ref writer.buffer, writer.offset, src.Length);
+            fixed (void* dstP = &writer.buffer[writer.offset])
+            fixed (void* srcP = &src[0])
+            {
+                Buffer.MemoryCopy(srcP, dstP, writer.buffer.Length - writer.offset, src.Length);
+            }
+            writer.offset += src.Length;
         }
     }
 

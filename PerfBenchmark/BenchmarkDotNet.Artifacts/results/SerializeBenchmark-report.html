@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>SerializeBenchmark</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.10.9, OS=Windows 10 Redstone 1 (10.0.14393)
+Processor=Intel Core i7-6700 CPU 3.40GHz (Skylake), ProcessorCount=8
+Frequency=3328129 Hz, Resolution=300.4691 ns, Timer=TSC
+.NET Core SDK=2.0.0
+  [Host]     : .NET Core 2.0.0 (Framework 4.6.00001.0), 64bit RyuJIT
+  Job-SWZORH : .NET Core 2.0.0 (Framework 4.6.00001.0), 64bit RyuJIT
+</code></pre>
+<pre><code>Jit=RyuJit  Runtime=Core  Toolchain=CoreCsProj  
+LaunchCount=1  TargetCount=1  WarmupCount=1  
+</code></pre>
+
+<table>
+<thead><tr><th>                 Method</th><th> Mean</th><th>Error</th><th>Scaled</th><th>ScaledSD</th><th>Gen 0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>     Utf8JsonSerializer</td><td>   NA</td><td>NA</td><td>?</td><td> ?</td><td>N/A</td><td>N/A</td>
+</tr><tr><td>      MessagePackCSharp</td><td>256.1 ns</td><td>NA</td><td>?</td><td> ?</td><td>0.0262</td><td>112 B</td>
+</tr><tr><td>MessagePackCSharpContractless</td><td>337.1 ns</td><td>NA</td><td>?</td><td> ?</td><td>0.0472</td><td>200 B</td>
+</tr><tr><td>            Protobufnet</td><td>625.8 ns</td><td>NA</td><td>?</td><td> ?</td><td>0.1202</td><td>504 B</td>
+</tr><tr><td>                   _Jil</td><td>6,655.8 ns</td><td>NA</td><td>?</td><td> ?</td><td>0.5951</td><td>2520 B</td>
+</tr><tr><td>         _JilTextWriter</td><td>6,995.3 ns</td><td>NA</td><td>?</td><td> ?</td><td>1.5411</td><td>6480 B</td>
+</tr><tr><td>               _NetJson</td><td>6,916.8 ns</td><td>NA</td><td>?</td><td> ?</td><td>0.3891</td><td>1648 B</td>
+</tr><tr><td>               _JsonNet</td><td>15,379.9 ns</td><td>NA</td><td>?</td><td> ?</td><td>0.7935</td><td>3440 B</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -14,6 +14,9 @@ namespace Utf8Json
     {
         static readonly byte[] emptyBytes = new byte[0];
 
+        [ThreadStatic]
+        static char[] charSingleBuffer;
+
         // write direct from UnsafeMemory
 #if NETSTANDARD
         internal

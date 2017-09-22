@@ -14,6 +14,7 @@ using Utf8Json;
 using Utf8Json.Formatters;
 using Utf8Json.Internal;
 using System.Collections.Generic;
+using MessagePack.Resolvers;
 
 
 // [assembly: AllowPartiallyTrustedCallers]
@@ -26,25 +27,68 @@ class Program
     {
         var switcher = new BenchmarkSwitcher(new[]
         {
+            typeof(SerializeCheck),
+            typeof(DeserializeCheck),
             typeof(DoubleConvertBenchmark),
             typeof(StringToDoubleBenchmark),
             typeof(SwitchVsIf),
             typeof(SwitchVsSwitch),
-            typeof(SerializeCheck)
         });
 
-        // args = new string[] { "0" };
+        //args = new string[] { "0" };
 
 #if DEBUG
+
+        new DeserializeCheck().MessagePackCSharp();
 
         //var s1 = Encoding.UTF8.GetBytes("\"あいうえお\"");
         //var s1 = Encoding.UTF8.GetBytes("\"あいう\\tえお\"");
         //var s1 = Encoding.UTF8.GetBytes("\"あいう\tえお\t\"");
         //var s1 = Encoding.UTF8.GetBytes("\"\\u3042\\u3044\\u3046えお\"");
-        var s1 = Encoding.UTF8.GetBytes("\"\\uD840\\uDC0B\"");
+        //var s1 = Encoding.UTF8.GetBytes("\"\\uD840\\uDC0B\"");
 
-        var str = new JsonReader(s1, 0).ReadString();
-        Console.WriteLine(str);
+        //var str = new JsonReader(s1, 0).ReadString();
+        //Console.WriteLine(str);
+
+        //var xs = new[,]
+        //{
+        //    { 1, 2, 3, 4, 9 },
+        //    { 4, 5, 6, 7, 10 },
+        //    { 10, 5, 6, 7, 10000 },
+        //};
+        //var f = new TwoDimentionalArrayFormatter<int>();
+
+
+        //var writer = new JsonWriter();
+        //f.Serialize(ref writer, xs, Utf8Json.Resolvers.BuiltinResolver.Instance);
+
+        //Console.WriteLine(writer.ToString());
+        //var reader = new JsonReader(writer.ToUtf8ByteArray());
+        //var ys = Int32ArrayFormatter.Default.Deserialize(ref reader, null);
+        //foreach (var item in ys)
+        //{
+        //    Console.WriteLine(item);
+        //}
+
+        var writer = new JsonWriter();
+        //new SimplePersonFormatter().Serialize(ref writer, new SimplePerson { Age = 99, FirstName = "foo", LastName = "baz" }, null);
+        //var reader = new JsonReader(writer.ToUtf8ByteArray());
+        //dynamic v = Utf8Json.Formatters.PrimitiveObjectFormatter.Default.Deserialize(ref reader, null);
+        //Console.WriteLine(writer.ToString());
+        //Console.WriteLine((int)v["Age"]);
+        //Console.WriteLine((string)v["FirstName"]);
+        //Console.WriteLine((string)v["LastName"]);
+
+
+
+        var xss = new ArrayBuffer<int>(4);
+        xss.Add(10);
+        xss.Add(20);
+        xss.Add(30);
+        xss.Add(40);
+        xss.Add(50);
+
+        
 
 #else
         switcher.Run(args);
@@ -52,11 +96,26 @@ class Program
     }
 }
 
+public enum MyEnum : long
+{
+    Apple, Orange = long.MaxValue
+}
+
 public class SimplePerson
 {
     public int Age { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+}
+
+public class MyResolver : IJsonFormatterResolver
+{
+    SimplePersonFormatter f = new SimplePersonFormatter();
+
+    public IJsonFormatter<T> GetFormatter<T>()
+    {
+        return (IJsonFormatter<T>)(object)f;
+    }
 }
 
 [MessagePack.MessagePackObject]
@@ -416,12 +475,12 @@ public class SerializeCheck
     IJsonFormatter<SimplePerson> formatter = new SimplePersonFormatter();
     Encoding utf8 = Encoding.UTF8;
 
+    MyResolver resolver = new MyResolver();
+
     [Benchmark(Baseline = true)]
-    public byte[] SugoiJsonSerializer()
+    public byte[] Utf8JsonSerializer()
     {
-        var writer = new JsonWriter(cache);
-        formatter.Serialize(ref writer, ref p, null);
-        return writer.ToUtf8ByteArray();
+        return JsonSerializer.Serialize(p, resolver);
     }
 
     [Benchmark]
@@ -468,24 +527,24 @@ public class SerializeCheck
 [Config(typeof(BenchmarkConfig))]
 public class DeserializeCheck
 {
-    byte[] json = new SerializeCheck().SugoiJsonSerializer();
+    byte[] json = new SerializeCheck().Utf8JsonSerializer();
     byte[] msgpack1 = new SerializeCheck().MessagePackCSharp();
     byte[] msgpack2 = new SerializeCheck().MessagePackCSharpContractless();
     IJsonFormatter<SimplePerson> formatter = new SimplePersonFormatter();
+    MyResolver resolver = new MyResolver();
 
     Encoding utf8 = Encoding.UTF8;
 
     [Benchmark(Baseline = true)]
     public SimplePerson SugoiJsonSerializer()
     {
-        var reader = new JsonReader(json, 0);
-        return formatter.Deserialize(ref reader, null);
+        return JsonSerializer.Deserialize<SimplePerson>(json, resolver);
     }
 
     [Benchmark]
-    public SimplePerson MessagePackCSharp()
+    public SimplePersonMsgpack MessagePackCSharp()
     {
-        return MessagePack.MessagePackSerializer.Deserialize<SimplePerson>(msgpack1);
+        return MessagePack.MessagePackSerializer.Deserialize<SimplePersonMsgpack>(msgpack1);
     }
 
     [Benchmark]
@@ -530,7 +589,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
 
     public SimplePersonFormatter()
     {
-        // byte cache with "{" and ","
+        // escaped string byte cache with "{" and ","
         nameCaches = new byte[3][]
         {
             JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"), // {\"Age\":
@@ -545,7 +604,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
         };
     }
 
-    public void Serialize(ref JsonWriter writer, ref SimplePerson value, IJsonFormatterResolver formatterResolver)
+    public void Serialize(ref JsonWriter writer, SimplePerson value, IJsonFormatterResolver formatterResolver)
     {
         UnsafeMemory64.WriteRaw7(ref writer, nameCaches[0]); // optimize byte->byte copy we know src size.
         writer.WriteInt32(value.Age);
