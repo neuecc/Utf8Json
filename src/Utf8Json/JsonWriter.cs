@@ -21,8 +21,21 @@ namespace Utf8Json
         byte[] buffer;
 #if NETSTANDARD
         internal
-        int offset;
 #endif
+        int offset;
+
+        public int CurrentOffset
+        {
+            get
+            {
+                return offset;
+            }
+        }
+
+        public void AdvanceOffset(int offset)
+        {
+            this.offset += offset;
+        }
 
         public static byte[] GetEncodedPropertyName(string propertyName)
         {
@@ -165,6 +178,7 @@ namespace Utf8Json
             buffer[offset++] = (byte)',';
         }
 
+        /// <summary>:</summary>
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif

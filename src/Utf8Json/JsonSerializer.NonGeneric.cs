@@ -192,6 +192,11 @@ namespace Utf8Json
                 return GetOrAdd(type).deserialize2.Invoke(bytes, offset, resolver);
             }
 
+            public static object Deserialize(Type type, Stream stream)
+            {
+                return Deserialize(type, stream, defaultResolver);
+            }
+
             public static object Deserialize(Type type, Stream stream, IJsonFormatterResolver resolver)
             {
                 return GetOrAdd(type).deserialize3.Invoke(stream, resolver);

@@ -53,7 +53,7 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public sealed class NullableStringFormatter : IJsonFormatter<string>
+    public sealed class NullableStringFormatter : IJsonFormatter<string>, IObjectPropertyNameFormatter<string>
     {
         public static readonly IJsonFormatter<string> Default = new NullableStringFormatter();
 
@@ -63,6 +63,16 @@ namespace Utf8Json.Formatters
         }
 
         public string Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            return reader.ReadString();
+        }
+
+        public void SerializeToPropertyName(ref JsonWriter writer, string value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteString(value);
+        }
+
+        public string DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             return reader.ReadString();
         }
@@ -129,7 +139,7 @@ namespace Utf8Json.Formatters
         // MEMO:can be improvement write directly
         public void Serialize(ref JsonWriter writer, char value, IJsonFormatterResolver formatterResolver)
         {
-            writer.WriteString(value.ToString());
+            writer.WriteString(value.ToString(CultureInfo.InvariantCulture));
         }
 
         public char Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -232,7 +242,8 @@ namespace Utf8Json.Formatters
             writer.WriteRawUnsafe((byte)'\"');
 
             var rawData = writer.GetBuffer();
-            new GuidBits(ref value).Write(rawData.Array, rawData.Offset); // len = 36
+            new GuidBits(ref value).Write(rawData.Array, writer.CurrentOffset); // len = 36
+            writer.AdvanceOffset(36);
 
             writer.WriteRawUnsafe((byte)'\"');
         }
@@ -250,7 +261,7 @@ namespace Utf8Json.Formatters
 
         public void Serialize(ref JsonWriter writer, decimal value, IJsonFormatterResolver formatterResolver)
         {
-            writer.WriteString(value.ToString());
+            writer.WriteString(value.ToString(CultureInfo.InvariantCulture));
         }
 
         public decimal Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -321,8 +332,6 @@ namespace Utf8Json.Formatters
     {
         public void Serialize(ref JsonWriter writer, KeyValuePair<TKey, TValue> value, IJsonFormatterResolver formatterResolver)
         {
-            writer.WriteBeginObject();
-
             writer.WriteRaw(StandardClassLibraryFormatterHelper.keyValuePairName[0]);
             formatterResolver.GetFormatterWithVerify<TKey>().Serialize(ref writer, value.Key, formatterResolver);
             writer.WriteRaw(StandardClassLibraryFormatterHelper.keyValuePairName[1]);
@@ -337,6 +346,8 @@ namespace Utf8Json.Formatters
 
             TKey resultKey = default(TKey);
             TValue resultValue = default(TValue);
+
+            reader.ReadIsBeginObjectWithVerify();
 
             var count = 0;
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
@@ -396,6 +407,7 @@ namespace Utf8Json.Formatters
             writer.WriteBeginArray();
             for (int i = 0; i < value.Length; i++)
             {
+                if (i != 0) writer.WriteValueSeparator();
                 writer.WriteBoolean(value[i]);
             }
             writer.WriteEndArray();
@@ -406,7 +418,7 @@ namespace Utf8Json.Formatters
             if (reader.ReadIsNull()) return null;
             reader.ReadIsBeginArrayWithVerify();
             var c = 0;
-            var buffer = new ArrayBuffer<bool>();
+            var buffer = new ArrayBuffer<bool>(4);
             while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref c))
             {
                 buffer.Add(reader.ReadBoolean());
@@ -422,7 +434,7 @@ namespace Utf8Json.Formatters
         public void Serialize(ref JsonWriter writer, BigInteger value, IJsonFormatterResolver formatterResolver)
         {
             // JSON.NET writes Integer format, not compatible.
-            writer.WriteString(value.ToString());
+            writer.WriteString(value.ToString(CultureInfo.InvariantCulture));
         }
 
         public BigInteger Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -441,6 +453,7 @@ namespace Utf8Json.Formatters
         {
             writer.WriteBeginArray();
             writer.WriteDouble(value.Real);
+            writer.WriteValueSeparator();
             writer.WriteDouble(value.Imaginary);
             writer.WriteEndArray();
         }

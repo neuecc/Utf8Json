@@ -174,6 +174,7 @@ namespace Utf8Json.Formatters
             T1 item1 = default(T1);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -222,6 +223,7 @@ namespace Utf8Json.Formatters
             T2 item2 = default(T2);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -276,6 +278,7 @@ namespace Utf8Json.Formatters
             T3 item3 = default(T3);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -336,6 +339,7 @@ namespace Utf8Json.Formatters
             T4 item4 = default(T4);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -402,6 +406,7 @@ namespace Utf8Json.Formatters
             T5 item5 = default(T5);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -474,6 +479,7 @@ namespace Utf8Json.Formatters
             T6 item6 = default(T6);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -552,6 +558,7 @@ namespace Utf8Json.Formatters
             T7 item7 = default(T7);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();
@@ -636,6 +643,7 @@ namespace Utf8Json.Formatters
             TRest item8 = default(TRest);
             
             var count = 0;
+            reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var keyString = reader.ReadPropertyNameSegmentUnescaped();

@@ -919,6 +919,14 @@ namespace Utf8Json.Resolvers.Internal
             }
 
             il.MarkLabel(endObjectLabel);
+
+            // for case of empty
+            if (!excludeNull && index == 0)
+            {
+                argWriter.EmitLoad();
+                il.EmitCall(EmitInfo.JsonWriter.WriteBeginObject);
+            }
+
             argWriter.EmitLoad();
             il.EmitCall(EmitInfo.JsonWriter.WriteEndObject);
             il.Emit(OpCodes.Ret);

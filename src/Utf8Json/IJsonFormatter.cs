@@ -14,4 +14,10 @@ namespace Utf8Json
         void Serialize(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver);
         T Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver);
     }
+
+    public interface IObjectPropertyNameFormatter<T> : IJsonFormatter<T>
+    {
+        void SerializeToPropertyName(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver);
+        T DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver);
+    }
 }

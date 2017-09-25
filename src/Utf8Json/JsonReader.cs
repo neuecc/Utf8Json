@@ -835,7 +835,7 @@ namespace Utf8Json
                             }
                             else
                             {
-                                offset = i;
+                                offset = i + 1;
                                 return; // end
                             }
                         }
@@ -875,15 +875,18 @@ namespace Utf8Json
                 case JsonToken.EndObject:
                 case JsonToken.EndArray:
                     offset++;
-                    ReadNextBlockCore(stack - 1);
+                    if ((stack - 1) != 0)
+                    {
+                        ReadNextBlockCore(stack - 1);
+                    }
                     break;
                 case JsonToken.True:
                 case JsonToken.False:
                 case JsonToken.Null:
                 case JsonToken.String:
                 case JsonToken.Number:
-                case JsonToken.ValueSeparator:
                 case JsonToken.NameSeparator:
+                case JsonToken.ValueSeparator:
                     ReadNext();
                     if (stack != 0)
                     {

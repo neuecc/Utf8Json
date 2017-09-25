@@ -1,4 +1,7 @@
 ﻿using System;
+using Utf8Json.Internal.Emit;
+using Utf8Json.Internal;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
 using Utf8Json.Formatters;
@@ -36,7 +39,26 @@ namespace Utf8Json.Resolvers.Internal
 
             static FormatterCache()
             {
-                if (typeof(T).IsEnum)
+                var ti = typeof(T).GetTypeInfo();
+
+                if (ti.IsNullable())
+                {
+                    // build underlying type and use wrapped formatter.
+                    ti = ti.GenericTypeArguments[0].GetTypeInfo();
+                    if (!ti.IsEnum)
+                    {
+                        return;
+                    }
+
+                    var innerFormatter = Instance.GetFormatterDynamic(ti.AsType());
+                    if (innerFormatter == null)
+                    {
+                        return;
+                    }
+                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                    return;
+                }
+                else if (typeof(T).IsEnum)
                 {
                     formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(true);
                 }
@@ -63,7 +85,26 @@ namespace Utf8Json.Resolvers.Internal
 
             static FormatterCache()
             {
-                if (typeof(T).IsEnum)
+                var ti = typeof(T).GetTypeInfo();
+
+                if (ti.IsNullable())
+                {
+                    // build underlying type and use wrapped formatter.
+                    ti = ti.GenericTypeArguments[0].GetTypeInfo();
+                    if (!ti.IsEnum)
+                    {
+                        return;
+                    }
+
+                    var innerFormatter = Instance.GetFormatterDynamic(ti.AsType());
+                    if (innerFormatter == null)
+                    {
+                        return;
+                    }
+                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                    return;
+                }
+                else if (typeof(T).IsEnum)
                 {
                     formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false);
                 }

@@ -15,6 +15,8 @@ namespace Utf8Json.Formatters
 
         public void Serialize(ref JsonWriter writer, T[] value, IJsonFormatterResolver formatterResolver)
         {
+            if (value == null) { writer.WriteNull(); return; }
+
             writer.WriteBeginArray();
             var formatter = formatterResolver.GetFormatter<T>();
             if (value.Length != 0)
@@ -54,7 +56,7 @@ namespace Utf8Json.Formatters
                 var result = new T[count];
                 Array.Copy(array, result, count);
                 Array.Clear(workingArea, 0, Math.Min(count, workingArea.Length));
-                return array;
+                return result;
             }
             finally
             {
@@ -128,6 +130,8 @@ namespace Utf8Json.Formatters
     {
         public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolver formatterResolver)
         {
+            if (value == null) { writer.WriteNull(); return; }
+
             writer.WriteBeginArray();
             var formatter = formatterResolver.GetFormatter<T>();
             if (value.Count != 0)
@@ -450,8 +454,6 @@ namespace Utf8Json.Formatters
             }
             else
             {
-                writer.WriteBeginObject();
-
                 writer.WriteRaw(CollectionFormatterHelper.groupingName[0]);
                 formatterResolver.GetFormatterWithVerify<TKey>().Serialize(ref writer, value.Key, formatterResolver);
                 writer.WriteRaw(CollectionFormatterHelper.groupingName[1]);
@@ -471,6 +473,8 @@ namespace Utf8Json.Formatters
             {
                 TKey resultKey = default(TKey);
                 IEnumerable<TElement> resultValue = default(IEnumerable<TElement>);
+
+                reader.ReadIsBeginObjectWithVerify();
 
                 var count = 0;
                 while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
@@ -502,21 +506,45 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public sealed class InterfaceLookupFormatter<TKey, TElement> : CollectionFormatterBase<IGrouping<TKey, TElement>, Dictionary<TKey, IGrouping<TKey, TElement>>, ILookup<TKey, TElement>>
+    public sealed class InterfaceLookupFormatter<TKey, TElement> : IJsonFormatter<ILookup<TKey, TElement>>
     {
-        protected override void Add(ref Dictionary<TKey, IGrouping<TKey, TElement>> collection, int index, IGrouping<TKey, TElement> value)
+        public void Serialize(ref JsonWriter writer, ILookup<TKey, TElement> value, IJsonFormatterResolver formatterResolver)
         {
-            collection.Add(value.Key, value);
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            else
+            {
+                formatterResolver.GetFormatterWithVerify<IEnumerable<IGrouping<TKey, TElement>>>().Serialize(ref writer, value.AsEnumerable(), formatterResolver);
+            }
         }
 
-        protected override ILookup<TKey, TElement> Complete(ref Dictionary<TKey, IGrouping<TKey, TElement>> intermediateCollection)
+        public ILookup<TKey, TElement> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            return new Lookup<TKey, TElement>(intermediateCollection);
-        }
+            if (reader.ReadIsNull())
+            {
+                return null;
+            }
+            else
+            {
+                if (reader.ReadIsNull()) return null;
 
-        protected override Dictionary<TKey, IGrouping<TKey, TElement>> Create()
-        {
-            return new Dictionary<TKey, IGrouping<TKey, TElement>>();
+                var count = 0;
+
+                var formatter = formatterResolver.GetFormatterWithVerify<IGrouping<TKey, TElement>>();
+                var intermediateCollection = new Dictionary<TKey, IGrouping<TKey, TElement>>();
+
+                reader.ReadIsBeginArrayWithVerify();
+                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                {
+                    var g = formatter.Deserialize(ref reader, formatterResolver);
+                    intermediateCollection.Add(g.Key, g);
+                }
+
+                return new Lookup<TKey, TElement>(intermediateCollection);
+            }
         }
     }
 

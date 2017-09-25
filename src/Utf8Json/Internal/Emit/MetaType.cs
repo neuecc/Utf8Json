@@ -31,7 +31,7 @@ namespace Utf8Json.Internal.Emit
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
 
                     var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
-                    var name = dm != null ? dm.Name : nameMutetor(item.Name);
+                    var name = (dm != null && dm.Name != null) ? dm.Name : nameMutetor(item.Name);
 
                     var member = new MetaMember(item, name, allowPrivate);
                     if (!member.IsReadable && !member.IsWritable) continue;
@@ -49,7 +49,7 @@ namespace Utf8Json.Internal.Emit
                     if (item.IsStatic) continue;
 
                     var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
-                    var name = dm != null ? dm.Name : nameMutetor(item.Name);
+                    var name = (dm != null && dm.Name != null) ? dm.Name : nameMutetor(item.Name);
 
                     var member = new MetaMember(item, name, allowPrivate);
                     if (!member.IsReadable && !member.IsWritable) continue;

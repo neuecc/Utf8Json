@@ -74,8 +74,10 @@ namespace Utf8Json.Formatters
 
             writer.WriteRawUnsafe((byte)'\"');
 
-            if (year < 1000)
+            if (year < 10)
             {
+                writer.WriteRawUnsafe((byte)'0');
+                writer.WriteRawUnsafe((byte)'0');
                 writer.WriteRawUnsafe((byte)'0');
             }
             else if (year < 100)
@@ -83,10 +85,8 @@ namespace Utf8Json.Formatters
                 writer.WriteRawUnsafe((byte)'0');
                 writer.WriteRawUnsafe((byte)'0');
             }
-            else if (year < 10)
+            else if (year < 1000)
             {
-                writer.WriteRawUnsafe((byte)'0');
-                writer.WriteRawUnsafe((byte)'0');
                 writer.WriteRawUnsafe((byte)'0');
             }
             writer.WriteInt32(year);
@@ -339,8 +339,10 @@ namespace Utf8Json.Formatters
 
             writer.WriteRawUnsafe((byte)'\"');
 
-            if (year < 1000)
+            if (year < 10)
             {
+                writer.WriteRawUnsafe((byte)'0');
+                writer.WriteRawUnsafe((byte)'0');
                 writer.WriteRawUnsafe((byte)'0');
             }
             else if (year < 100)
@@ -348,10 +350,8 @@ namespace Utf8Json.Formatters
                 writer.WriteRawUnsafe((byte)'0');
                 writer.WriteRawUnsafe((byte)'0');
             }
-            else if (year < 10)
+            else if (year < 1000)
             {
-                writer.WriteRawUnsafe((byte)'0');
-                writer.WriteRawUnsafe((byte)'0');
                 writer.WriteRawUnsafe((byte)'0');
             }
             writer.WriteInt32(year);

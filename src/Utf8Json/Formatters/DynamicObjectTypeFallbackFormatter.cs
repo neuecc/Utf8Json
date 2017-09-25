@@ -58,24 +58,18 @@ namespace Utf8Json.Formatters
                             var dm = new DynamicMethod("Serialize", null, new[] { typeof(object), typeof(JsonWriter).MakeByRefType(), typeof(object), typeof(IJsonFormatterResolver) });
                             var il = dm.GetILGenerator();
 
-                            // (object dynamicFormatter, ref JsonWriter writer, object value, IJsonFormatterResolver formatterResolver)
-                            // ((IJsonFormatter<T>)dynamicFormatter).Serialize(ref writer, (T)value, formatterResolver);
+                            // delegate void SerializeMethod(object dynamicFormatter, ref JsonWriter writer, object value, IJsonFormatterResolver formatterResolver);
 
                             il.EmitLdarg(0);
                             il.Emit(OpCodes.Castclass, typeof(IJsonFormatter<>).MakeGenericType(t));
                             il.EmitLdarg(1);
                             il.EmitLdarg(2);
-                            if (t.IsValueType)
-                            {
-                                il.Emit(OpCodes.Unbox);
-                            }
-                            else
-                            {
-                                il.Emit(OpCodes.Castclass, t);
-                            }
+                            il.EmitUnboxOrCast(t);
                             il.EmitLdarg(3);
 
                             il.EmitCall(Resolvers.Internal.DynamicObjectTypeBuilder.EmitInfo.Serialize(t));
+
+                            il.Emit(OpCodes.Ret);
 
                             formatterAndDelegate = new KeyValuePair<object, SerializeMethod>(formatter, (SerializeMethod)dm.CreateDelegate(typeof(SerializeMethod)));
                         }

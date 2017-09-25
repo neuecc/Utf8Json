@@ -26,7 +26,7 @@ using Utf8Json.Internal;
 namespace Utf8Json.Formatters
 {
 <# foreach(var t in types) {  #>
-    public sealed class <#= t.Name #>Formatter : IJsonFormatter<<#= t.Name #>>
+    public sealed class <#= t.Name #>Formatter : IJsonFormatter<<#= t.Name #>>, IObjectPropertyNameFormatter<<#= t.Name #>>
     {
         public static readonly <#= t.Name #>Formatter Default = new <#= t.Name #>Formatter();
 
@@ -39,9 +39,23 @@ namespace Utf8Json.Formatters
         {
             return reader.Read<#= t.Name #>();
         }
+
+        public void SerializeToPropertyName(ref JsonWriter writer, <#= t.Name #> value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteQuotation();
+            writer.Write<#= t.Name #>(value);
+            writer.WriteQuotation();
+        }
+
+        public <#= t.Name #> DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var key = reader.ReadPropertyNameSegmentUnescaped();
+            int _;
+            return NumberConverter.Read<#= t.Name #>(key.Array, key.Offset, out _);
+        }
     }
 
-    public sealed class Nullable<#= t.Name #>Formatter : IJsonFormatter<<#= t.Name #>?>
+    public sealed class Nullable<#= t.Name #>Formatter : IJsonFormatter<<#= t.Name #>?>, IObjectPropertyNameFormatter<<#= t.Name #>?>
     {
         public static readonly Nullable<#= t.Name #>Formatter Default = new Nullable<#= t.Name #>Formatter();
 
@@ -67,6 +81,24 @@ namespace Utf8Json.Formatters
             {
                 return reader.Read<#= t.Name #>();
             }
+        }
+
+        public void SerializeToPropertyName(ref JsonWriter writer, <#= t.Name #>? value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
+
+            writer.WriteQuotation();
+            writer.Write<#= t.Name #>(value.Value);
+            writer.WriteQuotation();
+        }
+
+        public <#= t.Name #>? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+
+            var key = reader.ReadPropertyNameSegmentUnescaped();
+            int _;
+            return NumberConverter.Read<#= t.Name #>(key.Array, key.Offset, out _);
         }
     }
 

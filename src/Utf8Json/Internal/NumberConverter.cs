@@ -416,5 +416,36 @@ namespace Utf8Json.Internal
         {
             return DoubleToStringConverter.GetBytes(ref bytes, offset, value);
         }
+
+        // boolean is not number:)
+        public static bool ReadBoolean(byte[] bytes, int offset, out int readCount)
+        {
+            if (bytes[offset] == 't')
+            {
+                if (bytes[offset + 1] != 'r') goto ERROR_TRUE;
+                if (bytes[offset + 2] != 'u') goto ERROR_TRUE;
+                if (bytes[offset + 3] != 'e') goto ERROR_TRUE;
+                readCount = 4;
+                return true;
+            }
+            else if (bytes[offset] == 'f')
+            {
+                if (bytes[offset + 1] != 'a') goto ERROR_FALSE;
+                if (bytes[offset + 2] != 'l') goto ERROR_FALSE;
+                if (bytes[offset + 3] != 's') goto ERROR_FALSE;
+                if (bytes[offset + 4] != 'e') goto ERROR_FALSE;
+                readCount = 5;
+                return false;
+            }
+            else
+            {
+                throw new InvalidOperationException("value is not boolean.");
+            }
+
+            ERROR_TRUE:
+            throw new InvalidOperationException("value is not boolean(true).");
+            ERROR_FALSE:
+            throw new InvalidOperationException("value is not boolean(false).");
+        }
     }
 }

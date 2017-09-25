@@ -22,7 +22,21 @@ namespace DynamicCodeDumper
                 //DynamicObjectResolver.Default.GetFormatter<Test>();
                 //DynamicObjectResolver.Default.GetFormatter<Test2>();
                 //DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
-                DynamicObjectResolver.Default.GetFormatter<SimplePerson>();
+                DynamicObjectResolver.Default.GetFormatter<Person>();
+                DynamicObjectResolver.Default.GetFormatter<Address>();
+
+                
+            var p = new Person
+            {
+                Name = "John",
+                Addresses = new[]
+                {
+                        new Address { Street = "St." },
+                        new Address { Street = "Ave." }
+                    }
+            };
+
+            var result = JsonSerializer.Serialize(p);
 
             }
             catch (Exception ex)
@@ -62,6 +76,25 @@ namespace DynamicCodeDumper
                 Console.WriteLine(data);
             }
         }
+    }
+
+    internal static class CheckCheck
+    {
+        internal static void SerializeMethod(object dynamicFormatter, ref JsonWriter writer, object value, IJsonFormatterResolver formatterResolver)
+        {
+            ((IJsonFormatter<Address>)dynamicFormatter).Serialize(ref writer, (Address)value, formatterResolver);
+        }
+    }
+
+    public class Address
+    {
+        public string Street { get; set; }
+    }
+
+    public class Person
+    {
+        public string Name { get; set; }
+        public object[] /*Address*/ Addresses { get; set; }
     }
 
 
