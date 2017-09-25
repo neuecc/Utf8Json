@@ -86,20 +86,30 @@ namespace Utf8Json.Internal
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public static byte[] FastCloneWithResize(byte[] array, int newSize)
+        public static
+#if NETSTANDARD
+            unsafe
+#endif
+            byte[] FastCloneWithResize(byte[] src, int newSize)
         {
             if (newSize < 0) throw new ArgumentOutOfRangeException("newSize");
+            if (src.Length < newSize) throw new ArgumentException("length < newSize");
 
-            byte[] array2 = array;
-            if (array2 == null)
+            if (src == null) return new byte[newSize];
+
+            byte[] dst = new byte[newSize];
+
+#if NETSTANDARD
+            fixed (byte* pSrc = &src[0])
+            fixed (byte* pDst = &dst[0])
             {
-                array = new byte[newSize];
-                return array;
+                Buffer.MemoryCopy(pSrc, pDst, dst.Length, newSize);
             }
+#else
+            Buffer.BlockCopy(src, 0, dst, 0, newSize);
+#endif
 
-            byte[] array3 = new byte[newSize];
-            Buffer.BlockCopy(array2, 0, array3, 0, (array2.Length > newSize) ? newSize : array2.Length);
-            return array3;
+            return dst;
         }
     }
 }

@@ -15,6 +15,7 @@ using Utf8Json.Formatters;
 using Utf8Json.Internal;
 using System.Collections.Generic;
 using MessagePack.Resolvers;
+using System.Runtime.InteropServices;
 
 
 // [assembly: AllowPartiallyTrustedCallers]
@@ -39,7 +40,21 @@ class Program
 
 #if DEBUG
 
-        new DeserializeCheck().MessagePackCSharp();
+
+
+        var rand = new Random(34151513);
+        var obj1 = TargetClass.Create(rand);
+        var objContractless = new TargetClassContractless(obj1);
+
+        var f = new DynamicCodeDumper_TargetClassContractlessFormatter3();
+        var w = new JsonWriter();
+        f.Serialize(ref w, objContractless, Utf8Json.Resolvers.StandardResolver.Instance);
+
+        Console.WriteLine(w.ToString());
+        var r = new JsonReader(w.ToUtf8ByteArray());
+
+        var v = f.Deserialize(ref r, Utf8Json.Resolvers.StandardResolver.Instance);
+        Console.WriteLine(v);
 
         //var s1 = Encoding.UTF8.GetBytes("\"あいうえお\"");
         //var s1 = Encoding.UTF8.GetBytes("\"あいう\\tえお\"");
@@ -70,7 +85,7 @@ class Program
         //    Console.WriteLine(item);
         //}
 
-        var writer = new JsonWriter();
+        //var writer = new JsonWriter();
         //new SimplePersonFormatter().Serialize(ref writer, new SimplePerson { Age = 99, FirstName = "foo", LastName = "baz" }, null);
         //var reader = new JsonReader(writer.ToUtf8ByteArray());
         //dynamic v = Utf8Json.Formatters.PrimitiveObjectFormatter.Default.Deserialize(ref reader, null);
@@ -88,7 +103,7 @@ class Program
         xss.Add(40);
         xss.Add(50);
 
-        
+
 
 #else
         switcher.Run(args);
@@ -484,6 +499,12 @@ public class SerializeCheck
     }
 
     [Benchmark]
+    public byte[] Utf8JsonSerializer_Generated()
+    {
+        return JsonSerializer.Serialize(p, Utf8Json.Resolvers.StandardResolver.Instance);
+    }
+
+    [Benchmark]
     public byte[] MessagePackCSharp()
     {
         return MessagePack.MessagePackSerializer.Serialize(p2);
@@ -495,33 +516,33 @@ public class SerializeCheck
         return MessagePack.MessagePackSerializer.Serialize(p, MessagePack.Resolvers.ContractlessStandardResolver.Instance);
     }
 
-    [Benchmark]
-    public byte[] _Jil()
-    {
-        return utf8.GetBytes(Jil.JSON.Serialize(p));
-    }
+    //[Benchmark]
+    //public byte[] _Jil()
+    //{
+    //    return utf8.GetBytes(Jil.JSON.Serialize(p));
+    //}
 
-    [Benchmark]
-    public void _JilTextWriter()
-    {
-        using (var ms = new MemoryStream())
-        using (var sw = new StreamWriter(ms, utf8))
-        {
-            Jil.JSON.Serialize(p, sw);
-        }
-    }
+    //[Benchmark]
+    //public void _JilTextWriter()
+    //{
+    //    using (var ms = new MemoryStream())
+    //    using (var sw = new StreamWriter(ms, utf8))
+    //    {
+    //        Jil.JSON.Serialize(p, sw);
+    //    }
+    //}
 
-    [Benchmark]
-    public byte[] _JsonNet()
-    {
-        return utf8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(p));
-    }
+    //[Benchmark]
+    //public byte[] _JsonNet()
+    //{
+    //    return utf8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(p));
+    //}
 
-    [Benchmark]
-    public byte[] _NetJson()
-    {
-        return utf8.GetBytes(NetJSON.NetJSON.Serialize(p));
-    }
+    //[Benchmark]
+    //public byte[] _NetJson()
+    //{
+    //    return utf8.GetBytes(NetJSON.NetJSON.Serialize(p));
+    //}
 }
 
 [Config(typeof(BenchmarkConfig))]
@@ -606,12 +627,15 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
 
     public void Serialize(ref JsonWriter writer, SimplePerson value, IJsonFormatterResolver formatterResolver)
     {
+        if (value == null) { writer.WriteNull(); return; }
+
         UnsafeMemory64.WriteRaw7(ref writer, nameCaches[0]); // optimize byte->byte copy we know src size.
         writer.WriteInt32(value.Age);
         UnsafeMemory64.WriteRaw13(ref writer, nameCaches[1]);
         writer.WriteString(value.FirstName);
         UnsafeMemory64.WriteRaw12(ref writer, nameCaches[2]);
         writer.WriteString(value.LastName);
+
         writer.WriteEndObject();
     }
 
@@ -619,14 +643,17 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
     {
         if (reader.ReadIsNull()) return null;
 
-        var result = new SimplePerson();
-
         reader.ReadIsBeginObjectWithVerify(); // "{"
+
+        int age = default(int);
+        string firstName = default(string);
+        string lastName = default(string);
+
         var count = 0;
         while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count)) // "}", skip "," when count != 0
         {
             // automata lookup
-            var key = reader.ReadPropertyNameSegmentUnsafe();
+            var key = reader.ReadPropertyNameSegmentUnescaped();
 
             int switchKey;
             if (!dictionary.TryGetValue(key, out switchKey)) switchKey = -1;
@@ -634,13 +661,13 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             switch (switchKey)
             {
                 case 0:
-                    result.Age = reader.ReadInt32();
+                    age = reader.ReadInt32();
                     break;
                 case 1:
-                    result.FirstName = reader.ReadString();
+                    firstName = reader.ReadString();
                     break;
                 case 2:
-                    result.LastName = reader.ReadString();
+                    lastName = reader.ReadString();
                     break;
                 default:
                     reader.ReadNextBlock();
@@ -648,6 +675,288 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             }
         }
 
+        var result = new SimplePerson() { Age = age, FirstName = firstName, LastName = lastName };
         return result;
+    }
+}
+
+namespace Utf8Json.Formatters
+{
+
+    public class TargetClassContractless
+    {
+        public sbyte Number1 { get; set; }
+        public short Number2 { get; set; }
+        public int Number3 { get; set; }
+        public long Number4 { get; set; }
+        public byte Number5 { get; set; }
+        public ushort Number6 { get; set; }
+        public uint Number7 { get; set; }
+        public ulong Number8 { get; set; }
+        //public float Number9 { get; set; }
+        //public double Number10 { get; set; }
+        public string Str { get; set; }
+        public int[] Array { get; set; }
+
+        public TargetClassContractless()
+        {
+
+        }
+
+        public TargetClassContractless(TargetClass tc)
+        {
+            this.Number1 = tc.Number1;
+            this.Number2 = tc.Number2;
+            this.Number3 = tc.Number3;
+            this.Number4 = tc.Number4;
+            this.Number5 = tc.Number5;
+            this.Number6 = tc.Number6;
+            this.Number7 = tc.Number7;
+            this.Number8 = tc.Number8;
+            //this.Number9 = tc.Number9;
+            //this.Number10 = tc.Number10;
+            this.Str = tc.Str;
+            this.Array = tc.Array;
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    public struct LongUnion
+    {
+        [FieldOffset(0)]
+        public int Int1;
+        [FieldOffset(1)]
+        public int Int2;
+
+        [FieldOffset(0)]
+        public float Float;
+
+        [FieldOffset(0)]
+        public double Double;
+
+        [FieldOffset(0)]
+        public ulong Long;
+    }
+
+    public class TargetClass
+    {
+        public sbyte Number1 { get; set; }
+        public short Number2 { get; set; }
+
+        public int Number3 { get; set; }
+
+        public long Number4 { get; set; }
+
+        public byte Number5 { get; set; }
+        public ushort Number6 { get; set; }
+        public uint Number7 { get; set; }
+        public ulong Number8 { get; set; }
+        //[Key(8)]
+        //[ProtoBuf.ProtoMember(9)]
+        //public float Number9 { get; set; }
+        //[Key(9)]
+        //[ProtoBuf.ProtoMember(10)]
+        //public double Number10 { get; set; }
+        public string Str { get; set; }
+        public int[] Array { get; set; }
+
+        public static TargetClass Create(Random random)
+        {
+            unchecked
+            {
+                return new TargetClass
+                {
+                    Number1 = (sbyte)random.Next(),
+                    Number2 = (short)random.Next(),
+                    Number3 = (int)random.Next(),
+                    Number4 = (long)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
+                    Number5 = (byte)random.Next(),
+                    Number6 = (ushort)random.Next(),
+                    Number7 = (uint)random.Next(),
+                    Number8 = (ulong)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
+                    //Number9 = (float)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Float,
+                    //Number10 = (double)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Double,
+                    //Str = "FooBarBazBaz",
+                    //Array = new[] { 1, 10, 100, 1000, 10000, 100000 }
+                };
+            }
+        }
+    }
+
+    public sealed class DynamicCodeDumper_TargetClassContractlessFormatter3 : IJsonFormatter<TargetClassContractless>
+    {
+        private readonly byte[][] stringByteKeys;
+        public DynamicCodeDumper_TargetClassContractlessFormatter3()
+        {
+            this.stringByteKeys = new byte[][]
+            {
+                JsonWriter.GetEncodedPropertyNameWithBeginObject("Number1"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number2"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number3"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number4"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number5"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number6"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number7"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number8"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Str"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Array"),
+            };
+        }
+        public void Serialize(ref JsonWriter ptr, TargetClassContractless targetClassContractless, IJsonFormatterResolver jsonFormatterResolver)
+        {
+            if (targetClassContractless == null)
+            {
+                ptr.WriteNull();
+                return;
+            }
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[0]);
+            ptr.WriteSByte(targetClassContractless.Number1);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[1]);
+            ptr.WriteInt16(targetClassContractless.Number2);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[2]);
+            ptr.WriteInt32(targetClassContractless.Number3);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[3]);
+            ptr.WriteInt64(targetClassContractless.Number4);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[4]);
+            ptr.WriteByte(targetClassContractless.Number5);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[5]);
+            ptr.WriteUInt16(targetClassContractless.Number6);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[6]);
+            ptr.WriteUInt32(targetClassContractless.Number7);
+            UnsafeMemory64.WriteRaw11(ref ptr, this.stringByteKeys[7]);
+            ptr.WriteUInt64(targetClassContractless.Number8);
+            UnsafeMemory64.WriteRaw7(ref ptr, this.stringByteKeys[8]);
+            ptr.WriteString(targetClassContractless.Str);
+            UnsafeMemory64.WriteRaw9(ref ptr, this.stringByteKeys[9]);
+            JsonFormatterResolverExtensions.GetFormatterWithVerify<int[]>(jsonFormatterResolver).Serialize(ref ptr, targetClassContractless.Array, jsonFormatterResolver);
+            ptr.WriteEndObject();
+        }
+        public unsafe TargetClassContractless Deserialize(ref JsonReader ptr, IJsonFormatterResolver jsonFormatterResolver)
+        {
+            if (ptr.ReadIsNull())
+            {
+                return null;
+            }
+            ptr.ReadIsBeginObjectWithVerify();
+            byte[] bufferUnsafe = ptr.GetBufferUnsafe();
+            string str = default;
+            int[] array = default;
+            sbyte number = default;
+            short number2 = default;
+            int number3 = default;
+            long number4 = default;
+            byte number5 = default;
+            ushort number6 = default;
+            uint number7 = default;
+            ulong number8 = default;
+            fixed (byte* ptr2 = &bufferUnsafe[0])
+            {
+                int num = default;
+                while (!ptr.ReadIsEndObjectWithSkipValueSeparator(ref num))
+                {
+                    ArraySegment<byte> arraySegment = ptr.ReadPropertyNameSegmentUnescaped();
+                    byte* ptr3 = ptr2 + arraySegment.Offset;
+                    int count = arraySegment.Count;
+                    if (count != 0)
+                    {
+                        ulong key = AutomataKeyGen.GetKey(ref ptr3, ref count);
+                        if (key < 14762478557558094uL)
+                        {
+                            if (key < 13918053627426126uL)
+                            {
+                                if (count == 0)
+                                {
+                                    if (key == 7500883uL)
+                                    {
+                                        str = ptr.ReadString();
+                                        continue;
+                                    }
+                                    if (key == 521325933121uL)
+                                    {
+                                        array = JsonFormatterResolverExtensions.GetFormatterWithVerify<int[]>(jsonFormatterResolver).Deserialize(ref ptr, jsonFormatterResolver);
+                                        continue;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (count == 0)
+                                {
+                                    if (key == 13918053627426126uL)
+                                    {
+                                        number = ptr.ReadSByte();
+                                        continue;
+                                    }
+                                    if (key == 14199528604136782uL)
+                                    {
+                                        number2 = ptr.ReadInt16();
+                                        continue;
+                                    }
+                                    if (key == 14481003580847438uL)
+                                    {
+                                        number3 = ptr.ReadInt32();
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (key < 15325428510979406uL)
+                            {
+                                if (count == 0)
+                                {
+                                    if (key == 14762478557558094uL)
+                                    {
+                                        number4 = ptr.ReadInt64();
+                                        continue;
+                                    }
+                                    if (key == 15043953534268750uL)
+                                    {
+                                        number5 = ptr.ReadByte();
+                                        continue;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (count == 0)
+                                {
+                                    if (key == 15325428510979406uL)
+                                    {
+                                        number6 = ptr.ReadUInt16();
+                                        continue;
+                                    }
+                                    if (key == 15606903487690062uL)
+                                    {
+                                        number7 = ptr.ReadUInt32();
+                                        continue;
+                                    }
+                                    if (key == 15888378464400718uL)
+                                    {
+                                        number8 = ptr.ReadUInt64();
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ptr.ReadNextBlock();
+                }
+            }
+            return new TargetClassContractless
+            {
+                Number1 = number,
+                Number2 = number2,
+                Number3 = number3,
+                Number4 = number4,
+                Number5 = number5,
+                Number6 = number6,
+                Number7 = number7,
+                Number8 = number8,
+                Str = str,
+                Array = array
+            };
+        }
     }
 }

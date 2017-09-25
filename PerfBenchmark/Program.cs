@@ -21,9 +21,11 @@ class Program
         // args = new string[] { "0" };
 
 #if DEBUG
-        // var b = new StandardBenchmark();
-
+        var b = new DeserializeBenchmark();
+        b.Utf8JsonSerializer();
 #else
+
+
         switcher.Run(args);
 #endif
     }
@@ -37,7 +39,7 @@ public class BenchmarkConfig : ManualConfig
         Add(MemoryDiagnoser.Default);
 
         var baseConfig = Job.ShortRun.WithLaunchCount(1).WithTargetCount(1).WithWarmupCount(1);
-        // Add(baseConfig.With(Runtime.Clr).With(Jit.RyuJit).With(Platform.X64));
-        Add(baseConfig.With(Runtime.Core).With(Jit.RyuJit).With(CsProjCoreToolchain.NetCoreApp20));
+        Add(baseConfig.With(Runtime.Clr).With(Jit.RyuJit).With(Platform.X64));
+        //Add(baseConfig.With(Runtime.Core).With(Jit.RyuJit).With(CsProjCoreToolchain.NetCoreApp20));
     }
 }

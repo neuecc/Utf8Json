@@ -53,6 +53,14 @@ namespace Utf8Json.Internal.Emit
         // WithArgument(for ref, out) helper
 
         /// <summary>
+        /// Get MethodInfo from Expression for Instance(void) method.
+        /// </summary>
+        public static MethodInfo GetMethodInfo<TArg1, TArg2>(Expression<Action<TArg1, TArg2>> expression)
+        {
+            return GetMethodInfoCore(expression);
+        }
+
+        /// <summary>
         /// Get MethodInfo from Expression for Instance(with result) method.
         /// </summary>
         public static MethodInfo GetMethodInfo<T, TArg1, TR>(Expression<Func<T, TArg1, TR>> expression)

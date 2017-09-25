@@ -38,10 +38,9 @@ namespace Utf8Json.Internal
             if (bytes[offset] == '-')
             {
                 sign = -1;
-                offset++;
             }
 
-            for (int i = offset; i < bytes.Length; i++)
+            for (int i = ((sign == -1) ? offset + 1 : offset); i < bytes.Length; i++)
             {
                 if (!IsNumber(bytes[i]))
                 {

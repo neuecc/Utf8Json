@@ -6,13 +6,13 @@ using Utf8Json.Internal;
 
 namespace Utf8Json.Formatters
 {
-    public class DateTimeFormatter : IJsonFormatter<DateTime>
+    public sealed class DateTimeFormatter : IJsonFormatter<DateTime>
     {
         readonly string formatString;
 
         public DateTimeFormatter()
         {
-            this.formatString = "";
+            this.formatString = null;
         }
 
         public DateTimeFormatter(string formatString)
@@ -20,7 +20,7 @@ namespace Utf8Json.Formatters
             this.formatString = formatString;
         }
 
-        public void Serialize(ref JsonWriter writer,  DateTime value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, DateTime value, IJsonFormatterResolver formatterResolver)
         {
             writer.WriteString(value.ToString(formatString));
         }
@@ -28,15 +28,22 @@ namespace Utf8Json.Formatters
         public DateTime Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var str = reader.ReadString();
-            return DateTime.ParseExact(str, formatString, CultureInfo.InvariantCulture);
+            if (formatString == null)
+            {
+                return DateTime.Parse(str, CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                return DateTime.ParseExact(str, formatString, CultureInfo.InvariantCulture);
+            }
         }
     }
 
-    public class ISO8601DateTimeFormatter : IJsonFormatter<DateTime>
+    public sealed class ISO8601DateTimeFormatter : IJsonFormatter<DateTime>
     {
         public static readonly IJsonFormatter<DateTime> Default = new ISO8601DateTimeFormatter();
 
-        public void Serialize(ref JsonWriter writer,  DateTime value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, DateTime value, IJsonFormatterResolver formatterResolver)
         {
             var year = value.Year;
             var month = value.Month;
@@ -255,11 +262,66 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public class ISO8601DateTimeOffsetFormatter : IJsonFormatter<DateTimeOffset>
+    public sealed class UnixTimestampDateTimeFormatter : IJsonFormatter<DateTime>
+    {
+        static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        public void Serialize(ref JsonWriter writer, DateTime value, IJsonFormatterResolver formatterResolver)
+        {
+            var ticks = (long)(value.ToUniversalTime() - UnixEpoch).TotalSeconds;
+            writer.WriteQuotation();
+            writer.WriteInt64(ticks);
+            writer.WriteQuotation();
+        }
+
+        public DateTime Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var str = reader.ReadStringSegmentUnsafe();
+            int readCount;
+            var ticks = NumberConverter.ReadUInt64(str.Array, str.Offset, out readCount);
+
+            return UnixEpoch.AddSeconds(ticks);
+        }
+    }
+
+    public sealed class DateTimeOffsetFormatter : IJsonFormatter<DateTimeOffset>
+    {
+        readonly string formatString;
+
+        public DateTimeOffsetFormatter()
+        {
+            this.formatString = null;
+        }
+
+        public DateTimeOffsetFormatter(string formatString)
+        {
+            this.formatString = formatString;
+        }
+
+        public void Serialize(ref JsonWriter writer, DateTimeOffset value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteString(value.ToString(formatString));
+        }
+
+        public DateTimeOffset Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var str = reader.ReadString();
+            if (formatString == null)
+            {
+                return DateTimeOffset.Parse(str, CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                return DateTimeOffset.ParseExact(str, formatString, CultureInfo.InvariantCulture);
+            }
+        }
+    }
+
+    public sealed class ISO8601DateTimeOffsetFormatter : IJsonFormatter<DateTimeOffset>
     {
         public static readonly IJsonFormatter<DateTimeOffset> Default = new ISO8601DateTimeOffsetFormatter();
 
-        public void Serialize(ref JsonWriter writer,  DateTimeOffset value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, DateTimeOffset value, IJsonFormatterResolver formatterResolver)
         {
             var year = value.Year;
             var month = value.Month;
@@ -448,25 +510,196 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public class UnixTimestampDateTimeFormatter : IJsonFormatter<DateTime>
+    public sealed class TimeSpanFormatter : IJsonFormatter<TimeSpan>
     {
-        static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        readonly string formatString;
 
-        public void Serialize(ref JsonWriter writer,  DateTime value, IJsonFormatterResolver formatterResolver)
+        public TimeSpanFormatter()
         {
-            var ticks = (long)(value.ToUniversalTime() - UnixEpoch).TotalSeconds;
-            writer.WriteQuotation();
-            writer.WriteInt64(ticks);
-            writer.WriteQuotation();
+            this.formatString = null;
         }
 
-        public DateTime Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public TimeSpanFormatter(string formatString)
+        {
+            this.formatString = formatString;
+        }
+
+        public void Serialize(ref JsonWriter writer, TimeSpan value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteString(value.ToString(formatString));
+        }
+
+        public TimeSpan Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var str = reader.ReadString();
+            if (formatString == null)
+            {
+                return TimeSpan.Parse(str, CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                return TimeSpan.ParseExact(str, formatString, CultureInfo.InvariantCulture);
+            }
+        }
+    }
+
+    public sealed class ISO8601TimeSpanFormatter : IJsonFormatter<TimeSpan>
+    {
+        public static readonly IJsonFormatter<TimeSpan> Default = new ISO8601TimeSpanFormatter();
+
+        public void Serialize(ref JsonWriter writer, TimeSpan value, IJsonFormatterResolver formatterResolver)
+        {
+            var day = value.Days;
+            var hour = value.Hours;
+            var minute = value.Minutes;
+            var second = value.Seconds;
+            var nanosecond = value.Ticks % TimeSpan.TicksPerSecond;
+
+            const int maxDayLength = 8 + 1; // {Day}.
+            const int baseLength = 8 + 2; // {Hour}:{Minute}:{Second} + quotation
+            const int nanosecLength = 8; // .{nanoseconds}
+
+            writer.EnsureCapacity(baseLength + ((maxDayLength == 0) ? 0 : maxDayLength) + ((nanosecond == 0) ? 0 : nanosecLength) + 6);
+
+            writer.WriteRawUnsafe((byte)'\"');
+
+            if (day != 0)
+            {
+                writer.WriteInt32(day);
+                writer.WriteRawUnsafe((byte)'.');
+            }
+
+            if (hour < 10)
+            {
+                writer.WriteRawUnsafe((byte)'0');
+            }
+            writer.WriteInt32(hour);
+            writer.WriteRawUnsafe((byte)':');
+
+            if (minute < 10)
+            {
+                writer.WriteRawUnsafe((byte)'0');
+            }
+            writer.WriteInt32(minute);
+            writer.WriteRawUnsafe((byte)':');
+
+            if (second < 10)
+            {
+                writer.WriteRawUnsafe((byte)'0');
+            }
+            writer.WriteInt32(second);
+
+            if (nanosecond != 0)
+            {
+                writer.WriteRawUnsafe((byte)'.');
+                writer.WriteInt64(nanosecond);
+            }
+
+            writer.WriteRawUnsafe((byte)'\"');
+        }
+
+        public TimeSpan Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var str = reader.ReadStringSegmentUnsafe();
-            int readCount;
-            var ticks = NumberConverter.ReadUInt64(str.Array, str.Offset, out readCount);
+            var array = str.Array;
+            var i = str.Offset;
 
-            return UnixEpoch.AddSeconds(ticks);
+            // check day exists
+            bool hasDay = false;
+            {
+                bool foundDot = false;
+                bool foundColon = false;
+                for (int j = i; j < str.Count; j++)
+                {
+                    if (array[j] == '.')
+                    {
+                        if (foundColon)
+                        {
+                            break;
+                        }
+                        foundDot = true;
+                    }
+                    else if (array[j] == ':')
+                    {
+                        if (foundDot)
+                        {
+                            hasDay = true;
+                        }
+                        foundColon = true;
+                    }
+                }
+            }
+
+            var day = 0;
+            if (hasDay)
+            {
+                var poolArray = BufferPool.Default.Rent();
+                try
+                {
+                    for (; array[i] != '.'; i++)
+                    {
+                        poolArray[day++] = array[i];
+                    }
+                    day = new JsonReader(poolArray).ReadInt32();
+                    i++; // skip '.'
+                }
+                finally
+                {
+                    BufferPool.Default.Return(poolArray);
+                }
+            }
+
+            var hour = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+            if (array[i++] != (byte)':') goto ERROR;
+            var minute = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+            if (array[i++] != (byte)':') goto ERROR;
+            var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+
+            int millisecond = 0;
+            if (i < str.Count && array[i] == '.')
+            {
+                i++;
+                int? milli1 = null;
+                int? milli2 = null;
+                int? milli3 = null;
+
+                if (i < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
+                milli1 = array[i];
+                i++;
+
+                if (i < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
+                milli2 = array[i];
+                i++;
+
+                if (i < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
+                milli3 = array[i];
+                i++;
+
+                // others, lack of precision
+                while (i < str.Count && NumberConverter.IsNumber(array[i]))
+                {
+                    i++;
+                }
+
+                CREATE_MICROSEC:
+                if (milli3 != null)
+                {
+                    millisecond = (milli1.Value - (byte)'0') * 100 + (milli2.Value - (byte)'0') * 10 + (milli3.Value - (byte)'0');
+                }
+                else if (milli2 != null)
+                {
+                    millisecond = (milli1.Value - (byte)'0') * 10 + (milli2.Value - (byte)'0');
+                }
+                else if (milli1 != null)
+                {
+                    millisecond = (milli1.Value - (byte)'0');
+                }
+            }
+
+            return new TimeSpan(day, hour, minute, second, millisecond);
+
+            ERROR:
+            throw new InvalidOperationException("invalid datetime format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));
         }
     }
 }

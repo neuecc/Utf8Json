@@ -13,6 +13,8 @@ namespace Utf8Json
 
     public struct JsonReader
     {
+        static readonly ArraySegment<byte> nullTokenSegment = new ArraySegment<byte>(new byte[] { 110, 117, 108, 108 }, 0, 4);
+
         readonly byte[] bytes;
         int offset;
 
@@ -39,6 +41,16 @@ namespace Utf8Json
             {
                 return offset < bytes.Length;
             }
+        }
+
+        public byte[] GetBufferUnsafe()
+        {
+            return bytes;
+        }
+
+        public int GetCurrentOffsetUnsafe()
+        {
+            return offset;
         }
 
         public JsonToken GetCurrentJsonToken()
@@ -397,6 +409,8 @@ namespace Utf8Json
 
         void ReadStringSegmentCore(out byte[] resultBytes, out int resultOffset, out int resultLength)
         {
+            // SkipWhiteSpace is already called from IsNull
+
             byte[] builder = null;
             var builderOffset = 0;
             char[] codePointStringBuffer = null;
@@ -544,6 +558,8 @@ namespace Utf8Json
 
         public ArraySegment<byte> ReadStringSegmentUnsafe()
         {
+            if (ReadIsNull()) return nullTokenSegment;
+
             byte[] bytes;
             int offset;
             int length;
@@ -553,6 +569,8 @@ namespace Utf8Json
 
         public string ReadString()
         {
+            if (ReadIsNull()) return null;
+
             byte[] bytes;
             int offset;
             int length;
@@ -570,8 +588,9 @@ namespace Utf8Json
         }
 
         /// <summary>ReadStringSegmentUnsafe + ReadIsNameSeparatorWithVerify</summary>
-        public ArraySegment<byte> ReadPropertyNameSegmentUnsafe()
+        public ArraySegment<byte> ReadPropertyNameSegmentUnescaped()
         {
+            // TODO:must change to unescaped!!!
             var key = ReadStringSegmentUnsafe();
             ReadIsNameSeparatorWithVerify();
             return key;

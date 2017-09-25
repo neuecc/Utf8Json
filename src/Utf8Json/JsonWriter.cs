@@ -14,9 +14,6 @@ namespace Utf8Json
     {
         static readonly byte[] emptyBytes = new byte[0];
 
-        [ThreadStatic]
-        static char[] charSingleBuffer;
-
         // write direct from UnsafeMemory
 #if NETSTANDARD
         internal
@@ -230,6 +227,33 @@ namespace Utf8Json
                 buffer[offset + 4] = (byte)'e';
                 offset += 5;
             }
+        }
+
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void WriteTrue()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 4);
+            buffer[offset + 0] = (byte)'t';
+            buffer[offset + 1] = (byte)'r';
+            buffer[offset + 2] = (byte)'u';
+            buffer[offset + 3] = (byte)'e';
+            offset += 4;
+        }
+
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        public void WriteFalse()
+        {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 5);
+            buffer[offset + 0] = (byte)'f';
+            buffer[offset + 1] = (byte)'a';
+            buffer[offset + 2] = (byte)'l';
+            buffer[offset + 3] = (byte)'s';
+            buffer[offset + 4] = (byte)'e';
+            offset += 5;
         }
 
 #if NETSTANDARD

@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection;
+using Utf8Json.Internal.Emit;
 
 namespace Utf8Json.Internal
 {
@@ -186,10 +187,10 @@ namespace Utf8Json.Internal
 
         // IL Emit
 
-        //public void EmitMatch(ILGenerator il, LocalBuilder p, LocalBuilder rest, LocalBuilder key, Action<KeyValuePair<string, int>> onFound, Action onNotFound)
-        //{
-        //    root.EmitSearchNext(il, p, rest, key, onFound, onNotFound);
-        //}
+        public void EmitMatch(ILGenerator il, LocalBuilder p, LocalBuilder rest, LocalBuilder key, Action<KeyValuePair<string, int>> onFound, Action onNotFound)
+        {
+            root.EmitSearchNext(il, p, rest, key, onFound, onNotFound);
+        }
 
         class AutomataNode : IComparable<AutomataNode>
         {
@@ -345,120 +346,120 @@ namespace Utf8Json.Internal
             }
 
             // SearchNext(ref byte* p, ref int rest, ref ulong key)
-            //public void EmitSearchNext(ILGenerator il, LocalBuilder p, LocalBuilder rest, LocalBuilder key, Action<KeyValuePair<string, int>> onFound, Action onNotFound)
-            //{
-            //    // key = AutomataKeyGen.GetKey(ref p, ref rest);
-            //    il.EmitLdloca(p);
-            //    il.EmitLdloca(rest);
-            //    il.EmitCall(AutomataKeyGen.GetKeyMethod);
-            //    il.EmitStloc(key);
+            public void EmitSearchNext(ILGenerator il, LocalBuilder p, LocalBuilder rest, LocalBuilder key, Action<KeyValuePair<string, int>> onFound, Action onNotFound)
+            {
+                // key = AutomataKeyGen.GetKey(ref p, ref rest);
+                il.EmitLdloca(p);
+                il.EmitLdloca(rest);
+                il.EmitCall(AutomataKeyGen.GetKeyMethod);
+                il.EmitStloc(key);
 
-            //    // match children.
-            //    EmitSearchNextCore(il, p, rest, key, onFound, onNotFound, nexts, count);
-            //}
+                // match children.
+                EmitSearchNextCore(il, p, rest, key, onFound, onNotFound, nexts, count);
+            }
 
-            //static void EmitSearchNextCore(ILGenerator il, LocalBuilder p, LocalBuilder rest, LocalBuilder key, Action<KeyValuePair<string, int>> onFound, Action onNotFound, AutomataNode[] nexts, int count)
-            //{
-            //    if (count < 4)
-            //    {
-            //        // linear-search
-            //        var valueExists = nexts.Take(count).Where(x => x.Value != -1).ToArray();
-            //        var childrenExists = nexts.Take(count).Where(x => x.HasChildren).ToArray();
-            //        var gotoSearchNext = il.DefineLabel();
-            //        var gotoNotFound = il.DefineLabel();
+            static void EmitSearchNextCore(ILGenerator il, LocalBuilder p, LocalBuilder rest, LocalBuilder key, Action<KeyValuePair<string, int>> onFound, Action onNotFound, AutomataNode[] nexts, int count)
+            {
+                if (count < 4)
+                {
+                    // linear-search
+                    var valueExists = nexts.Take(count).Where(x => x.Value != -1).ToArray();
+                    var childrenExists = nexts.Take(count).Where(x => x.HasChildren).ToArray();
+                    var gotoSearchNext = il.DefineLabel();
+                    var gotoNotFound = il.DefineLabel();
 
-            //        {
-            //            il.EmitLdloc(rest);
-            //            if (childrenExists.Length != 0 && valueExists.Length == 0)
-            //            {
+                    {
+                        il.EmitLdloc(rest);
+                        if (childrenExists.Length != 0 && valueExists.Length == 0)
+                        {
 
-            //                il.Emit(OpCodes.Brfalse, gotoNotFound); // if(rest == 0)
-            //            }
-            //            else
-            //            {
-            //                il.Emit(OpCodes.Brtrue, gotoSearchNext); // if(rest != 0)
-            //            }
-            //        }
-            //        {
-            //            var ifValueNexts = Enumerable.Range(0, Math.Max(valueExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
-            //            for (int i = 0; i < valueExists.Length; i++)
-            //            {
-            //                var notFoundLabel = il.DefineLabel();
-            //                if (i != 0)
-            //                {
-            //                    il.MarkLabel(ifValueNexts[i - 1]);
-            //                }
+                            il.Emit(OpCodes.Brfalse, gotoNotFound); // if(rest == 0)
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Brtrue, gotoSearchNext); // if(rest != 0)
+                        }
+                    }
+                    {
+                        var ifValueNexts = Enumerable.Range(0, Math.Max(valueExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
+                        for (int i = 0; i < valueExists.Length; i++)
+                        {
+                            var notFoundLabel = il.DefineLabel();
+                            if (i != 0)
+                            {
+                                il.MarkLabel(ifValueNexts[i - 1]);
+                            }
 
-            //                il.EmitLdloc(key);
-            //                il.EmitULong(valueExists[i].Key);
-            //                il.Emit(OpCodes.Bne_Un, notFoundLabel);
-            //                // found
-            //                onFound(new KeyValuePair<string, int>(valueExists[i].originalKey, valueExists[i].Value));
+                            il.EmitLdloc(key);
+                            il.EmitULong(valueExists[i].Key);
+                            il.Emit(OpCodes.Bne_Un, notFoundLabel);
+                            // found
+                            onFound(new KeyValuePair<string, int>(valueExists[i].originalKey, valueExists[i].Value));
 
-            //                // notfound
-            //                il.MarkLabel(notFoundLabel);
-            //                if (i != valueExists.Length - 1)
-            //                {
-            //                    il.Emit(OpCodes.Br, ifValueNexts[i]);
-            //                }
-            //                else
-            //                {
-            //                    onNotFound();
-            //                }
-            //            }
-            //        }
+                            // notfound
+                            il.MarkLabel(notFoundLabel);
+                            if (i != valueExists.Length - 1)
+                            {
+                                il.Emit(OpCodes.Br, ifValueNexts[i]);
+                            }
+                            else
+                            {
+                                onNotFound();
+                            }
+                        }
+                    }
 
-            //        il.MarkLabel(gotoSearchNext);
-            //        var ifRecNext = Enumerable.Range(0, Math.Max(childrenExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
-            //        for (int i = 0; i < childrenExists.Length; i++)
-            //        {
-            //            var notFoundLabel = il.DefineLabel();
-            //            if (i != 0)
-            //            {
-            //                il.MarkLabel(ifRecNext[i - 1]);
-            //            }
+                    il.MarkLabel(gotoSearchNext);
+                    var ifRecNext = Enumerable.Range(0, Math.Max(childrenExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
+                    for (int i = 0; i < childrenExists.Length; i++)
+                    {
+                        var notFoundLabel = il.DefineLabel();
+                        if (i != 0)
+                        {
+                            il.MarkLabel(ifRecNext[i - 1]);
+                        }
 
-            //            il.EmitLdloc(key);
-            //            il.EmitULong(childrenExists[i].Key);
-            //            il.Emit(OpCodes.Bne_Un, notFoundLabel);
-            //            // found
-            //            childrenExists[i].EmitSearchNext(il, p, rest, key, onFound, onNotFound);
-            //            // notfound
-            //            il.MarkLabel(notFoundLabel);
-            //            if (i != childrenExists.Length - 1)
-            //            {
-            //                il.Emit(OpCodes.Br, ifRecNext[i]);
-            //            }
-            //            else
-            //            {
-            //                onNotFound();
-            //            }
-            //        }
+                        il.EmitLdloc(key);
+                        il.EmitULong(childrenExists[i].Key);
+                        il.Emit(OpCodes.Bne_Un, notFoundLabel);
+                        // found
+                        childrenExists[i].EmitSearchNext(il, p, rest, key, onFound, onNotFound);
+                        // notfound
+                        il.MarkLabel(notFoundLabel);
+                        if (i != childrenExists.Length - 1)
+                        {
+                            il.Emit(OpCodes.Br, ifRecNext[i]);
+                        }
+                        else
+                        {
+                            onNotFound();
+                        }
+                    }
 
-            //        il.MarkLabel(gotoNotFound);
-            //        onNotFound();
-            //    }
-            //    else
-            //    {
-            //        // binary-search
-            //        var midline = count / 2;
-            //        var mid = nexts[midline].Key;
-            //        var l = nexts.Take(count).Take(midline).ToArray();
-            //        var r = nexts.Take(count).Skip(midline).ToArray();
+                    il.MarkLabel(gotoNotFound);
+                    onNotFound();
+                }
+                else
+                {
+                    // binary-search
+                    var midline = count / 2;
+                    var mid = nexts[midline].Key;
+                    var l = nexts.Take(count).Take(midline).ToArray();
+                    var r = nexts.Take(count).Skip(midline).ToArray();
 
-            //        var gotoRight = il.DefineLabel();
+                    var gotoRight = il.DefineLabel();
 
-            //        // if(key < mid)
-            //        il.EmitLdloc(key);
-            //        il.EmitULong(mid);
-            //        il.Emit(OpCodes.Bge, gotoRight);
-            //        EmitSearchNextCore(il, p, rest, key, onFound, onNotFound, l, l.Length);
+                    // if(key < mid)
+                    il.EmitLdloc(key);
+                    il.EmitULong(mid);
+                    il.Emit(OpCodes.Bge, gotoRight);
+                    EmitSearchNextCore(il, p, rest, key, onFound, onNotFound, l, l.Length);
 
-            //        // else
-            //        il.MarkLabel(gotoRight);
-            //        EmitSearchNextCore(il, p, rest, key, onFound, onNotFound, r, r.Length);
-            //    }
-            //}
+                    // else
+                    il.MarkLabel(gotoRight);
+                    EmitSearchNextCore(il, p, rest, key, onFound, onNotFound, r, r.Length);
+                }
+            }
         }
     }
 
