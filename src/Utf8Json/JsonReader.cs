@@ -283,7 +283,7 @@ namespace Utf8Json
 
         public void ReadIsBeginArrayWithVerify()
         {
-            if (!ReadIsBeginArray()) throw CreateParsingException("{");
+            if (!ReadIsBeginArray()) throw CreateParsingException("[");
         }
 
         public bool ReadIsEndArray()
@@ -298,6 +298,11 @@ namespace Utf8Json
             {
                 return false;
             }
+        }
+
+        public void ReadIsEndArrayWithVerify()
+        {
+            if (!ReadIsEndArray()) throw CreateParsingException("]");
         }
 
         public bool ReadIsEndArrayWithSkipValueSeparator(ref int count)
@@ -349,6 +354,10 @@ namespace Utf8Json
             {
                 return false;
             }
+        }
+        public void ReadIsEndObjectWithVerify()
+        {
+            if (!ReadIsEndObject()) throw CreateParsingException("}");
         }
 
         public bool ReadIsEndObjectWithSkipValueSeparator(ref int count)
@@ -590,8 +599,40 @@ namespace Utf8Json
         /// <summary>ReadStringSegmentUnsafe + ReadIsNameSeparatorWithVerify</summary>
         public ArraySegment<byte> ReadPropertyNameSegmentUnescaped()
         {
-            // TODO:must change to unescaped!!!
-            var key = ReadStringSegmentUnsafe();
+            ArraySegment<byte> key;
+            if (ReadIsNull())
+            {
+                key = nullTokenSegment;
+            }
+            else
+            {
+                // SkipWhiteSpace is already called from IsNull
+                if (bytes[offset++] != '\"') throw CreateParsingException("\"");
+
+                var from = offset;
+
+                for (int i = offset; i < bytes.Length; i++)
+                {
+                    if (bytes[i] == (char)'\"')
+                    {
+                        // is escape?
+                        if (bytes[i - 1] == (char)'\\')
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            offset = i + 1;
+                            goto OK;
+                        }
+                    }
+                }
+                throw new JsonParsingException("not found end string.");
+
+                OK:
+                key = new ArraySegment<byte>(bytes, from, offset - from - 1); // remove \"
+            }
+
             ReadIsNameSeparatorWithVerify();
             return key;
         }
@@ -803,7 +844,11 @@ namespace Utf8Json
                 case JsonToken.Number:
                     for (int i = offset; i < bytes.Length; i++)
                     {
-                        if (IsWordBreak(bytes[i])) return;
+                        if (IsWordBreak(bytes[i]))
+                        {
+                            offset = i;
+                            return;
+                        }
                     }
                     break;
                 case JsonToken.None:

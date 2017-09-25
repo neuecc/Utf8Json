@@ -144,7 +144,7 @@ namespace Utf8Json.Formatters
 
             for (int i = 0; i < names.Length; i++)
             {
-                nameValueMapping.Add(StringEncoding.UTF8.GetBytes(names[i]), (T)values.GetValue(i));
+                nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i]), (T)values.GetValue(i));
                 valueNameMapping[(T)values.GetValue(i)] = names[i];
             }
 

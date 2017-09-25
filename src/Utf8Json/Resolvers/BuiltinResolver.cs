@@ -63,27 +63,24 @@ namespace Utf8Json.Resolvers
                 {typeof(Nullable<byte>), NullableByteFormatter.Default},
                 {typeof(Nullable<sbyte>), NullableSByteFormatter.Default},
             
-            
                 // StandardClassLibraryFormatter
                 
-                //{typeof(DateTime), DateTimeFormatter.Default},
-                //{typeof(char), CharFormatter.Default},
-                //{typeof(Nullable<DateTime>), NullableDateTimeFormatter.Default},
-                //{typeof(Nullable<char>), NullableCharFormatter.Default},
+                // DateTime can be configure easily so does not register nullable formatter for fallback mechanism.
+                {typeof(DateTime), ISO8601DateTimeFormatter.Default}, // ISO8601
+                {typeof(TimeSpan), ISO8601TimeSpanFormatter.Default},
+                {typeof(DateTimeOffset), ISO8601DateTimeOffsetFormatter.Default},
 
-                //{typeof(string), NullableStringFormatter.Default},
-                //{typeof(decimal), DecimalFormatter.Default},
-                //{typeof(decimal?), new StaticNullableFormatter<decimal>(DecimalFormatter.Default)},
-                //{typeof(TimeSpan), TimeSpanFormatter.Default},
-                //{typeof(TimeSpan?), new StaticNullableFormatter<TimeSpan>(TimeSpanFormatter.Default)},
-                //{typeof(DateTimeOffset), DateTimeOffsetFormatter.Default},
-                //{typeof(DateTimeOffset?), new StaticNullableFormatter<DateTimeOffset>(DateTimeOffsetFormatter.Default)},
-                //{typeof(Guid), GuidFormatter.Default},
-                //{typeof(Guid?), new StaticNullableFormatter<Guid>(GuidFormatter.Default)},
-                //{typeof(Uri), UriFormatter.Default},
-                //{typeof(Version), VersionFormatter.Default},
-                //{typeof(StringBuilder), StringBuilderFormatter.Default},
-                //{typeof(BitArray), BitArrayFormatter.Default},
+                {typeof(string), NullableStringFormatter.Default},
+                {typeof(char), CharFormatter.Default},
+                {typeof(Nullable<char>), NullableCharFormatter.Default},
+                {typeof(decimal), DecimalFormatter.Default},
+                {typeof(decimal?), new StaticNullableFormatter<decimal>(DecimalFormatter.Default)},
+                {typeof(Guid), GuidFormatter.Default},
+                {typeof(Guid?), new StaticNullableFormatter<Guid>(GuidFormatter.Default)},
+                {typeof(Uri), UriFormatter.Default},
+                {typeof(Version), VersionFormatter.Default},
+                {typeof(StringBuilder), StringBuilderFormatter.Default},
+                {typeof(BitArray), BitArrayFormatter.Default},
             
                 // special primitive
                 {typeof(byte[]), ByteArrayFormatter.Default},
@@ -99,35 +96,35 @@ namespace Utf8Json.Resolvers
                 {typeof(Double[]), DoubleArrayFormatter.Default},
                 {typeof(Boolean[]), BooleanArrayFormatter.Default},
                 {typeof(SByte[]), SByteArrayFormatter.Default},
-                //{typeof(DateTime[]), DateTimeArrayFormatter.Default},
-                //{typeof(Char[]), CharArrayFormatter.Default},
-                //{typeof(string[]), NullableStringArrayFormatter.Default},
+
+                {typeof(Char[]), CharArrayFormatter.Default},
+                {typeof(string[]), NullableStringArrayFormatter.Default},
 
                 // well known collections
-                //{typeof(List<Int16>), new ListFormatter<Int16>()},
-                //{typeof(List<Int32>), new ListFormatter<Int32>()},
-                //{typeof(List<Int64>), new ListFormatter<Int64>()},
-                //{typeof(List<UInt16>), new ListFormatter<UInt16>()},
-                //{typeof(List<UInt32>), new ListFormatter<UInt32>()},
-                //{typeof(List<UInt64>), new ListFormatter<UInt64>()},
-                //{typeof(List<Single>), new ListFormatter<Single>()},
-                //{typeof(List<Double>), new ListFormatter<Double>()},
-                //{typeof(List<Boolean>), new ListFormatter<Boolean>()},
-                //{typeof(List<byte>), new ListFormatter<byte>()},
-                //{typeof(List<SByte>), new ListFormatter<SByte>()},
-                //{typeof(List<DateTime>), new ListFormatter<DateTime>()},
-                //{typeof(List<Char>), new ListFormatter<Char>()},
-                //{typeof(List<string>), new ListFormatter<string>()},
+                {typeof(List<Int16>), new ListFormatter<Int16>()},
+                {typeof(List<Int32>), new ListFormatter<Int32>()},
+                {typeof(List<Int64>), new ListFormatter<Int64>()},
+                {typeof(List<UInt16>), new ListFormatter<UInt16>()},
+                {typeof(List<UInt32>), new ListFormatter<UInt32>()},
+                {typeof(List<UInt64>), new ListFormatter<UInt64>()},
+                {typeof(List<Single>), new ListFormatter<Single>()},
+                {typeof(List<Double>), new ListFormatter<Double>()},
+                {typeof(List<Boolean>), new ListFormatter<Boolean>()},
+                {typeof(List<byte>), new ListFormatter<byte>()},
+                {typeof(List<SByte>), new ListFormatter<SByte>()},
+                {typeof(List<DateTime>), new ListFormatter<DateTime>()},
+                {typeof(List<Char>), new ListFormatter<Char>()},
+                {typeof(List<string>), new ListFormatter<string>()},
 
                 { typeof(ArraySegment<byte>), ByteArraySegmentFormatter.Default },
                 { typeof(ArraySegment<byte>?),new StaticNullableFormatter<ArraySegment<byte>>(ByteArraySegmentFormatter.Default) },
 
     #if NETSTANDARD
-                //{typeof(System.Numerics.BigInteger), BigIntegerFormatter.Default},
-                //{typeof(System.Numerics.BigInteger?), new StaticNullableFormatter<System.Numerics.BigInteger>(BigIntegerFormatter.Default)},
-                //{typeof(System.Numerics.Complex), ComplexFormatter.Default},
-                //{typeof(System.Numerics.Complex?), new StaticNullableFormatter<System.Numerics.Complex>(ComplexFormatter.Default)},
-                //{typeof(System.Threading.Tasks.Task), TaskUnitFormatter.Default},
+                {typeof(System.Numerics.BigInteger), BigIntegerFormatter.Default},
+                {typeof(System.Numerics.BigInteger?), new StaticNullableFormatter<System.Numerics.BigInteger>(BigIntegerFormatter.Default)},
+                {typeof(System.Numerics.Complex), ComplexFormatter.Default},
+                {typeof(System.Numerics.Complex?), new StaticNullableFormatter<System.Numerics.Complex>(ComplexFormatter.Default)},
+                {typeof(System.Threading.Tasks.Task), TaskUnitFormatter.Default},
     #endif
             };
 

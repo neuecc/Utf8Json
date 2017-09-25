@@ -5,7 +5,9 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using Utf8Json;
 using Utf8Json.Resolvers;
+using Utf8Json.Resolvers.Internal;
 
 namespace DynamicCodeDumper
 {
@@ -17,10 +19,10 @@ namespace DynamicCodeDumper
 
             try
             {
-                DynamicObjectResolver.Instance.GetFormatter<Test>();
-                DynamicObjectResolver.Instance.GetFormatter<Test2>();
-                DynamicObjectResolver.Instance.GetFormatter<TargetClassContractless>();
-                DynamicObjectResolver.Instance.GetFormatter<SimplePerson>();
+                //DynamicObjectResolver.Default.GetFormatter<Test>();
+                //DynamicObjectResolver.Default.GetFormatter<Test2>();
+                //DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
+                DynamicObjectResolver.Default.GetFormatter<SimplePerson>();
 
             }
             catch (Exception ex)
@@ -29,7 +31,7 @@ namespace DynamicCodeDumper
             }
             finally
             {
-                var a1 = DynamicObjectResolver.Instance.Save();
+                var a1 = (DynamicObjectResolver.Default as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
@@ -95,6 +97,20 @@ namespace DynamicCodeDumper
     {
         public int Age { get; set; }
         public string FirstName { get; set; }
+        [JsonFormatter(typeof(FooFormatter))]
         public string LastName { get; set; }
+    }
+
+    public class FooFormatter : IJsonFormatter<int>
+    {
+        public int Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Serialize(ref JsonWriter writer, int value, IJsonFormatterResolver formatterResolver)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

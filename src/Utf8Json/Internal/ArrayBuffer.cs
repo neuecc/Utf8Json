@@ -25,15 +25,14 @@ namespace Utf8Json.Internal
 
         public T[] ToArray()
         {
+            if (Buffer.Length == Size)
+            {
+                return Buffer;
+            }
+
             var result = new T[Size];
             Array.Copy(Buffer, result, Size);
             return result;
-        }
-
-        public void Clear(int clearLength)
-        {
-            Array.Clear(Buffer, 0, Math.Min(Buffer.Length, clearLength));
-            this.Size = 0;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Utf8Json.Internal;
 
 namespace Utf8Json.Formatters
 {
@@ -39,255 +37,233 @@ namespace Utf8Json.Formatters
 
         public T[,] Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            throw new NotImplementedException();
-            //if (reader.ReadIsNull())
-            //{
-            //    return null;
-            //}
-            //else
-            //{
-            //    var startOffset = offset;
-            //    var formatter = formatterResolver.GetFormatterWithVerify<T>();
+            if (reader.ReadIsNull()) return null;
 
-            //    var len = MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
-            //    offset += readSize;
-            //    if (len != ArrayLength) throw new InvalidOperationException("Invalid T[,] format");
+            var buffer = new ArrayBuffer<ArrayBuffer<T>>(4);
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
-            //    var iLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-            //    offset += readSize;
+            var guessInnerLength = 0;
+            var outerCount = 0;
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref outerCount))
+            {
+                var innerArray = new ArrayBuffer<T>(guessInnerLength == 0 ? 4 : guessInnerLength);
+                var innerCount = 0;
+                reader.ReadIsBeginArrayWithVerify();
+                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref innerCount))
+                {
+                    innerArray.Add(formatter.Deserialize(ref reader, formatterResolver));
+                }
 
-            //    var jLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-            //    offset += readSize;
+                guessInnerLength = innerArray.Size;
+                buffer.Add(innerArray);
+            }
 
-            //    var maxLen = MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
-            //    offset += readSize;
+            var t = new T[buffer.Size, guessInnerLength];
+            for (int i = 0; i < buffer.Size; i++)
+            {
+                for (int j = 0; j < guessInnerLength; j++)
+                {
+                    t[i, j] = buffer.Buffer[i].Buffer[j];
+                }
+            }
 
-            //    var array = new T[iLength, jLength];
-
-            //    var i = 0;
-            //    var j = -1;
-            //    for (int loop = 0; loop < maxLen; loop++)
-            //    {
-            //        if (j < jLength - 1)
-            //        {
-            //            j++;
-            //        }
-            //        else
-            //        {
-            //            j = 0;
-            //            i++;
-            //        }
-
-            //        array[i, j] = formatter.Deserialize(bytes, offset, formatterResolver, out readSize);
-            //        offset += readSize;
-            //    }
-
-            //    readSize = offset - startOffset;
-            //    return array;
-            //}
+            return t;
         }
     }
 
-    //public sealed class ThreeDimentionalArrayFormatter<T> : IJsonFormatter<T[,,]>
-    //{
-    //    const int ArrayLength = 4;
+    public sealed class ThreeDimentionalArrayFormatter<T> : IJsonFormatter<T[,,]>
+    {
+        public void Serialize(ref JsonWriter writer, T[,,] value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
-    //    public void Serialize(ref JsonWriter writer, T[,,] value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //        if (value == null)
-    //        {
-    //            writer.WriteNull();
-    //        }
-    //        else
-    //        {
-    //            var i = value.GetLength(0);
-    //            var j = value.GetLength(1);
-    //            var k = value.GetLength(2);
+                var iLength = value.GetLength(0);
+                var jLength = value.GetLength(1);
+                var kLength = value.GetLength(2);
 
-    //            var startOffset = offset;
-    //            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+                writer.WriteBeginArray();
+                for (int i = 0; i < iLength; i++)
+                {
+                    if (i != 0) writer.WriteValueSeparator();
+                    writer.WriteBeginArray();
+                    for (int j = 0; j < jLength; j++)
+                    {
+                        if (j != 0) writer.WriteValueSeparator();
+                        writer.WriteBeginArray();
+                        for (int k = 0; k < kLength; k++)
+                        {
+                            if (k != 0) writer.WriteValueSeparator();
+                            formatter.Serialize(ref writer, value[i, j, k], formatterResolver);
+                        }
+                        writer.WriteEndArray();
+                    }
+                    writer.WriteEndArray();
+                }
+                writer.WriteEndArray();
+            }
+        }
 
-    //            offset += MessagePackBinary.WriteArrayHeader(ref bytes, offset, ArrayLength);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, i);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, j);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, k);
+        public T[,,] Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
 
-    //            offset += MessagePackBinary.WriteArrayHeader(ref bytes, offset, value.Length);
-    //            foreach (var item in value)
-    //            {
-    //                offset += formatter.Serialize(ref bytes, offset, item, formatterResolver);
-    //            }
+            var buffer = new ArrayBuffer<ArrayBuffer<ArrayBuffer<T>>>(4);
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
-    //            return offset - startOffset;
-    //        }
-    //    }
+            var guessInnerLength2 = 0;
+            var guessInnerLength = 0;
+            var outerCount = 0;
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref outerCount))
+            {
+                var innerArray = new ArrayBuffer<ArrayBuffer<T>>(guessInnerLength == 0 ? 4 : guessInnerLength);
+                var innerCount = 0;
+                reader.ReadIsBeginArrayWithVerify();
+                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref innerCount))
+                {
+                    var innerArray2 = new ArrayBuffer<T>(guessInnerLength2 == 0 ? 4 : guessInnerLength2);
+                    var innerCount2 = 0;
+                    reader.ReadIsBeginArrayWithVerify();
+                    while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref innerCount2))
+                    {
+                        innerArray2.Add(formatter.Deserialize(ref reader, formatterResolver));
+                    }
 
-    //    public T[,,] Deserialize(JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //        if (reader.ReadIsNull())
-    //        {
-    //            readSize = 1;
-    //            return null;
-    //        }
-    //        else
-    //        {
-    //            var startOffset = offset;
-    //            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+                    guessInnerLength2 = innerArray2.Size;
+                    innerArray.Add(innerArray2);
+                }
 
-    //            var len = MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
-    //            offset += readSize;
-    //            if (len != ArrayLength) throw new InvalidOperationException("Invalid T[,,] format");
+                guessInnerLength = innerArray.Size;
+                buffer.Add(innerArray);
+            }
 
-    //            var iLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
+            var t = new T[buffer.Size, guessInnerLength, guessInnerLength2];
+            for (int i = 0; i < buffer.Size; i++)
+            {
+                for (int j = 0; j < guessInnerLength; j++)
+                {
+                    for (int k = 0; k < guessInnerLength2; k++)
+                    {
+                        t[i, j, k] = buffer.Buffer[i].Buffer[j].Buffer[k];
+                    }
+                }
+            }
 
-    //            var jLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
+            return t;
+        }
+    }
 
-    //            var kLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
+    public sealed class FourDimentionalArrayFormatter<T> : IJsonFormatter<T[,,,]>
+    {
+        public void Serialize(ref JsonWriter writer, T[,,,] value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
-    //            var maxLen = MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
-    //            offset += readSize;
+                var iLength = value.GetLength(0);
+                var jLength = value.GetLength(1);
+                var kLength = value.GetLength(2);
+                var lLength = value.GetLength(3);
 
-    //            var array = new T[iLength, jLength, kLength];
+                writer.WriteBeginArray();
+                for (int i = 0; i < iLength; i++)
+                {
+                    if (i != 0) writer.WriteValueSeparator();
+                    writer.WriteBeginArray();
+                    for (int j = 0; j < jLength; j++)
+                    {
+                        if (j != 0) writer.WriteValueSeparator();
+                        writer.WriteBeginArray();
+                        for (int k = 0; k < kLength; k++)
+                        {
+                            if (k != 0) writer.WriteValueSeparator();
+                            writer.WriteBeginArray();
+                            for (int l = 0; l < lLength; l++)
+                            {
+                                if (l != 0) writer.WriteValueSeparator();
+                                formatter.Serialize(ref writer, value[i, j, k, l], formatterResolver);
+                            }
+                            writer.WriteEndArray();
+                        }
+                        writer.WriteEndArray();
+                    }
+                    writer.WriteEndArray();
+                }
+                writer.WriteEndArray();
+            }
+        }
 
-    //            var i = 0;
-    //            var j = 0;
-    //            var k = -1;
-    //            for (int loop = 0; loop < maxLen; loop++)
-    //            {
-    //                if (k < kLength - 1)
-    //                {
-    //                    k++;
-    //                }
-    //                else if (j < jLength - 1)
-    //                {
-    //                    k = 0;
-    //                    j++;
-    //                }
-    //                else
-    //                {
-    //                    k = 0;
-    //                    j = 0;
-    //                    i++;
-    //                }
+        public T[,,,] Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
 
-    //                array[i, j, k] = formatter.Deserialize(bytes, offset, formatterResolver, out readSize);
-    //                offset += readSize;
-    //            }
+            var buffer = new ArrayBuffer<ArrayBuffer<ArrayBuffer<ArrayBuffer<T>>>>(4);
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
-    //            readSize = offset - startOffset;
-    //            return array;
-    //        }
-    //    }
-    //}
+            var guessInnerLength3 = 0;
+            var guessInnerLength2 = 0;
+            var guessInnerLength = 0;
+            var outerCount = 0;
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref outerCount))
+            {
+                var innerArray = new ArrayBuffer<ArrayBuffer<ArrayBuffer<T>>>(guessInnerLength == 0 ? 4 : guessInnerLength);
+                var innerCount = 0;
+                reader.ReadIsBeginArrayWithVerify();
+                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref innerCount))
+                {
+                    var innerArray2 = new ArrayBuffer<ArrayBuffer<T>>(guessInnerLength2 == 0 ? 4 : guessInnerLength2);
+                    var innerCount2 = 0;
+                    reader.ReadIsBeginArrayWithVerify();
+                    while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref innerCount2))
+                    {
+                        var innerArray3 = new ArrayBuffer<T>(guessInnerLength3 == 0 ? 4 : guessInnerLength3);
+                        var innerCount3 = 0;
+                        reader.ReadIsBeginArrayWithVerify();
+                        while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref innerCount3))
+                        {
+                            innerArray3.Add(formatter.Deserialize(ref reader, formatterResolver));
+                        }
+                        guessInnerLength3 = innerArray3.Size;
+                        innerArray2.Add(innerArray3);
+                    }
 
-    //public sealed class FourDimentionalArrayFormatter<T> : IJsonFormatter<T[,,,]>
-    //{
-    //    const int ArrayLength = 5;
+                    guessInnerLength2 = innerArray2.Size;
+                    innerArray.Add(innerArray2);
+                }
 
-    //    public void Serialize(ref JsonWriter writer, T[,,,] value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //        if (value == null)
-    //        {
-    //            writer.WriteNull();
-    //        }
-    //        else
-    //        {
-    //            var i = value.GetLength(0);
-    //            var j = value.GetLength(1);
-    //            var k = value.GetLength(2);
-    //            var l = value.GetLength(3);
+                guessInnerLength = innerArray.Size;
+                buffer.Add(innerArray);
+            }
 
-    //            var startOffset = offset;
-    //            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+            var t = new T[buffer.Size, guessInnerLength, guessInnerLength2, guessInnerLength3];
+            for (int i = 0; i < buffer.Size; i++)
+            {
+                for (int j = 0; j < guessInnerLength; j++)
+                {
+                    for (int k = 0; k < guessInnerLength2; k++)
+                    {
+                        for (int l = 0; l < guessInnerLength3; l++)
+                        {
+                            t[i, j, k, l] = buffer.Buffer[i].Buffer[j].Buffer[k].Buffer[l];
+                        }
+                    }
+                }
+            }
 
-    //            offset += MessagePackBinary.WriteArrayHeader(ref bytes, offset, ArrayLength);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, i);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, j);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, k);
-    //            offset += MessagePackBinary.WriteInt32(ref bytes, offset, l);
-
-    //            offset += MessagePackBinary.WriteArrayHeader(ref bytes, offset, value.Length);
-    //            foreach (var item in value)
-    //            {
-    //                offset += formatter.Serialize(ref bytes, offset, item, formatterResolver);
-    //            }
-
-    //            return offset - startOffset;
-    //        }
-    //    }
-
-    //    public T[,,,] Deserialize(JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //        if (reader.ReadIsNull())
-    //        {
-    //            readSize = 1;
-    //            return null;
-    //        }
-    //        else
-    //        {
-    //            var startOffset = offset;
-    //            var formatter = formatterResolver.GetFormatterWithVerify<T>();
-
-    //            var len = MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
-    //            offset += readSize;
-    //            if (len != ArrayLength) throw new InvalidOperationException("Invalid T[,,,] format");
-
-    //            var iLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
-
-    //            var jLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
-
-    //            var kLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
-
-    //            var lLength = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
-    //            offset += readSize;
-
-    //            var maxLen = MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
-    //            offset += readSize;
-
-    //            var array = new T[iLength, jLength, kLength, lLength];
-
-    //            var i = 0;
-    //            var j = 0;
-    //            var k = 0;
-    //            var l = -1;
-    //            for (int loop = 0; loop < maxLen; loop++)
-    //            {
-    //                if (l < lLength - 1)
-    //                {
-    //                    l++;
-    //                }
-    //                else if (k < kLength - 1)
-    //                {
-    //                    l = 0;
-    //                    k++;
-    //                }
-    //                else if (j < jLength - 1)
-    //                {
-    //                    l = 0;
-    //                    k = 0;
-    //                    j++;
-    //                }
-    //                else
-    //                {
-    //                    l = 0;
-    //                    k = 0;
-    //                    j = 0;
-    //                    i++;
-    //                }
-
-    //                array[i, j, k, l] = formatter.Deserialize(bytes, offset, formatterResolver, out readSize);
-    //                offset += readSize;
-    //            }
-
-    //            readSize = offset - startOffset;
-    //            return array;
-    //        }
-    //    }
-    //}
+            return t;
+        }
+    }
 }

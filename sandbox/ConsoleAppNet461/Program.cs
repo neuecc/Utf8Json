@@ -1,4 +1,5 @@
 ﻿using System.Security;
+using System.Reflection;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
@@ -16,6 +17,7 @@ using Utf8Json.Internal;
 using System.Collections.Generic;
 using MessagePack.Resolvers;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 
 // [assembly: AllowPartiallyTrustedCallers]
@@ -28,6 +30,7 @@ class Program
     {
         var switcher = new BenchmarkSwitcher(new[]
         {
+            typeof(AssemblyVsDynamicMethod),
             typeof(SerializeCheck),
             typeof(DeserializeCheck),
             typeof(DoubleConvertBenchmark),
@@ -41,29 +44,93 @@ class Program
 #if DEBUG
 
 
+        Utf8Json.Resolvers.CompositeResolver.RegisterAndSetAsDefault(
+            new IJsonFormatter[]{
 
-        var rand = new Random(34151513);
-        var obj1 = TargetClass.Create(rand);
-        var objContractless = new TargetClassContractless(obj1);
+            },
+           new[]
+           {
+               Utf8Json.Resolvers.EnumResolver.UnderlyingValue,
+                Utf8Json.Resolvers.StandardResolver.Default
+            });
 
-        var f = new DynamicCodeDumper_TargetClassContractlessFormatter3();
-        var w = new JsonWriter();
-        f.Serialize(ref w, objContractless, Utf8Json.Resolvers.StandardResolver.Instance);
 
-        Console.WriteLine(w.ToString());
-        var r = new JsonReader(w.ToUtf8ByteArray());
+        var person = new SimplePerson(true) { Age = 99, FirstName = "_yeah", LastName = "baz", FavoriteFruit = MyEnum.Apple };
 
-        var v = f.Deserialize(ref r, Utf8Json.Resolvers.StandardResolver.Instance);
-        Console.WriteLine(v);
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.Default));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.CamelCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.SnakeCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.ExcludeNull));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.ExcludeNullCamelCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.ExcludeNullSnakeCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivate));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateCamelCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateSnakeCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNull));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNullCamelCase));
+        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNullSnakeCase));
+
+
+        //Console.WriteLine("--------------");
+        //Console.WriteLine(JsonSerializer.ToJsonString(new { foo = "foooo", bar = "baaaaaaaaa" }));
+
+        //Console.WriteLine("--------------");
+
+        var json = JsonSerializer.NonGeneric.ToJsonString(1214141);
+        Console.WriteLine(json);
+
+        json = json.Replace("know", "know_i_know");
+
+        var re = (int)JsonSerializer.NonGeneric.Deserialize(typeof(int), json, Utf8Json.Resolvers.StandardResolver.Default);
+        Console.WriteLine(re);
+        //Console.WriteLine((re.Age, re.FirstName, re.LastName, re.FavoriteFruit));
+
+        //pz = null;
+        //var yeah = JsonSerializer.NonGeneric.Serialize(pz);
+        //Console.WriteLine(Encoding.UTF8.GetString(yeah));
+
+        //Console.WriteLine(writer.ToString());
+
+        //var reader = new JsonReader(writer.ToUtf8ByteArray());
+        //var p = f.Deserialize(ref reader, null);
+        //Console.WriteLine((p.Age, p.FirstName, p.LastName));
+        //p.ShoutFAndZ();
+
+        //JsonSerializer.NonGeneric
+
+
+        // DynamicObjectResolverAllowPrivate
+
+        //var rand = new Random(34151513);
+        //var obj1 = TargetClass.Create(rand);
+        //var objContractless = new TargetClassContractless(obj1);
+
+        //var f = new DynamicCodeDumper_TargetClassContractlessFormatter3();
+        //var w = new JsonWriter();
+        //f.Serialize(ref w, objContractless, Utf8Json.Resolvers.StandardResolver.Instance);
+
+        //Console.WriteLine(w.ToString());
+        //var r = new JsonReader(w.ToUtf8ByteArray());
+
+        //var v = f.Deserialize(ref r, Utf8Json.Resolvers.StandardResolver.Instance);
+        //Console.WriteLine(v);
 
         //var s1 = Encoding.UTF8.GetBytes("\"あいうえお\"");
-        //var s1 = Encoding.UTF8.GetBytes("\"あいう\\tえお\"");
-        //var s1 = Encoding.UTF8.GetBytes("\"あいう\tえお\t\"");
-        //var s1 = Encoding.UTF8.GetBytes("\"\\u3042\\u3044\\u3046えお\"");
-        //var s1 = Encoding.UTF8.GetBytes("\"\\uD840\\uDC0B\"");
+        //var s2 = Encoding.UTF8.GetBytes("\"あいう\\tえお\"");
+        //var s3 = Encoding.UTF8.GetBytes("\"あいう\tえお\t\"");
+        //var s4 = Encoding.UTF8.GetBytes("\"\\u3042\\u3044\\u3046えお\"");
+        //var s5 = Encoding.UTF8.GetBytes("\"\\uD840\\uDC0B\"");
 
-        //var str = new JsonReader(s1, 0).ReadString();
-        //Console.WriteLine(str);
+        //var str1 = new JsonReader(s1, 0).ReadString();
+        //var str2 = new JsonReader(s2, 0).ReadString();
+        //var str3 = new JsonReader(s3, 0).ReadString();
+        //var str4 = new JsonReader(s4, 0).ReadString();
+        //var str5 = new JsonReader(s5, 0).ReadString();
+        //Console.WriteLine(str1);
+        //Console.WriteLine(str2);
+        //Console.WriteLine(str3);
+        //Console.WriteLine(str4);
+        //Console.WriteLine(str5);
 
         //var xs = new[,]
         //{
@@ -75,33 +142,40 @@ class Program
 
 
         //var writer = new JsonWriter();
-        //f.Serialize(ref writer, xs, Utf8Json.Resolvers.BuiltinResolver.Instance);
-
+        //f.Serialize(ref writer, xs, Utf8Json.Resolvers.StandardResolver.Default);
         //Console.WriteLine(writer.ToString());
+
         //var reader = new JsonReader(writer.ToUtf8ByteArray());
-        //var ys = Int32ArrayFormatter.Default.Deserialize(ref reader, null);
-        //foreach (var item in ys)
+        //var foo = f.Deserialize(ref reader, Utf8Json.Resolvers.StandardResolver.Default);
+
+        //foreach (var item in foo)
         //{
         //    Console.WriteLine(item);
         //}
 
-        //var writer = new JsonWriter();
-        //new SimplePersonFormatter().Serialize(ref writer, new SimplePerson { Age = 99, FirstName = "foo", LastName = "baz" }, null);
-        //var reader = new JsonReader(writer.ToUtf8ByteArray());
-        //dynamic v = Utf8Json.Formatters.PrimitiveObjectFormatter.Default.Deserialize(ref reader, null);
-        //Console.WriteLine(writer.ToString());
-        //Console.WriteLine((int)v["Age"]);
-        //Console.WriteLine((string)v["FirstName"]);
-        //Console.WriteLine((string)v["LastName"]);
+        ////var ys = Int32ArrayFormatter.Default.Deserialize(ref reader, null);
+        ////foreach (var item in ys)
+        ////{
+        ////    Console.WriteLine(item);
+        ////}
+
+        ////var writer = new JsonWriter();
+        ////new SimplePersonFormatter().Serialize(ref writer, new SimplePerson { Age = 99, FirstName = "foo", LastName = "baz" }, null);
+        ////var reader = new JsonReader(writer.ToUtf8ByteArray());
+        ////dynamic v = Utf8Json.Formatters.PrimitiveObjectFormatter.Default.Deserialize(ref reader, null);
+        ////Console.WriteLine(writer.ToString());
+        ////Console.WriteLine((int)v["Age"]);
+        ////Console.WriteLine((string)v["FirstName"]);
+        ////Console.WriteLine((string)v["LastName"]);
 
 
 
-        var xss = new ArrayBuffer<int>(4);
-        xss.Add(10);
-        xss.Add(20);
-        xss.Add(30);
-        xss.Add(40);
-        xss.Add(50);
+        //var xss = new ArrayBuffer<int>(4);
+        //xss.Add(10);
+        //xss.Add(20);
+        //xss.Add(30);
+        //xss.Add(40);
+        //xss.Add(50);
 
 
 
@@ -111,16 +185,86 @@ class Program
     }
 }
 
-public enum MyEnum : long
+public class MyResolver2 : IJsonFormatterResolver
 {
-    Apple, Orange = long.MaxValue
+    // set your own composite formatter/resolvers.
+    static IJsonFormatter[] formatters = new IJsonFormatter[] { };
+    static IJsonFormatterResolver[] resolvers = new IJsonFormatterResolver[] { };
+
+    public IJsonFormatter<T> GetFormatter<T>()
+    {
+        return Cache<T>.formatter;
+    }
+
+    static class Cache<T>
+    {
+        public static readonly IJsonFormatter<T> formatter;
+
+        static Cache()
+        {
+            foreach (var item in formatters)
+            {
+                // using System.Reflection;
+                foreach (var implInterface in item.GetType().GetTypeInfo().ImplementedInterfaces)
+                {
+                    var ti = implInterface.GetTypeInfo();
+                    if (ti.IsGenericType && ti.GenericTypeArguments[0] == typeof(T))
+                    {
+                        formatter = (IJsonFormatter<T>)item;
+                        return;
+                    }
+                }
+            }
+
+            foreach (var item in resolvers)
+            {
+                var f = item.GetFormatter<T>();
+                if (f != null)
+                {
+                    formatter = f;
+                    return;
+                }
+            }
+        }
+    }
+}
+
+public enum MyEnum : int
+{
+    Apple = 100,
+    Orange = 3500
 }
 
 public class SimplePerson
 {
+    [DataMember(Name = "i_do\tnt_know")]
     public int Age { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public MyEnum FavoriteFruit { get; set; }
+
+    //readonly int f;
+    //readonly int z;
+
+    public SimplePerson()
+    {
+
+    }
+
+    public SimplePerson(bool b)
+    {
+        //z = 1234;
+    }
+
+    public SimplePerson(int f)
+    {
+        //this.f = f;
+    }
+
+    public void ShoutFAndZ()
+    {
+        //Console.WriteLine((f, z));
+    }
 }
 
 public class MyResolver : IJsonFormatterResolver
@@ -481,6 +625,27 @@ public class SwitchVsSwitch
     }
 }
 
+
+[Config(typeof(BenchmarkConfig))]
+public class AssemblyVsDynamicMethod
+{
+    SimplePerson p = new SimplePerson { Age = 99, FirstName = "foo", LastName = "baz" };
+
+    [Benchmark(Baseline = true)]
+    public byte[] DefaultResolver()
+    {
+        return JsonSerializer.Serialize(p, Utf8Json.Resolvers.StandardResolver.Default);
+    }
+
+    [Benchmark()]
+    public byte[] AllowPrivate()
+    {
+        return JsonSerializer.Serialize(p, Utf8Json.Resolvers.StandardResolver.AllowPrivate);
+    }
+}
+
+
+
 [Config(typeof(BenchmarkConfig))]
 public class SerializeCheck
 {
@@ -501,7 +666,7 @@ public class SerializeCheck
     [Benchmark]
     public byte[] Utf8JsonSerializer_Generated()
     {
-        return JsonSerializer.Serialize(p, Utf8Json.Resolvers.StandardResolver.Instance);
+        return JsonSerializer.Serialize(p, Utf8Json.Resolvers.StandardResolver.Default);
     }
 
     [Benchmark]
@@ -606,6 +771,7 @@ public class DeserializeCheck
 public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
 {
     readonly byte[][] nameCaches;
+    readonly byte[][] nameCaches2;
     readonly AutomataDictionary dictionary;
 
     public SimplePersonFormatter()
@@ -623,6 +789,13 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             {  JsonWriter.GetEncodedPropertyNameWithoutQuotation("FirstName"), 1 },
             {  JsonWriter.GetEncodedPropertyNameWithoutQuotation("LastName"), 2 },
         };
+
+        nameCaches2 = new byte[][]
+        {
+            JsonWriter.GetEncodedPropertyName("Age"), // 
+            JsonWriter.GetEncodedPropertyName("FirstName"), // 
+            JsonWriter.GetEncodedPropertyName("LastName"), // 
+        };
     }
 
     public void Serialize(ref JsonWriter writer, SimplePerson value, IJsonFormatterResolver formatterResolver)
@@ -635,6 +808,51 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
         writer.WriteString(value.FirstName);
         UnsafeMemory64.WriteRaw12(ref writer, nameCaches[2]);
         writer.WriteString(value.LastName);
+
+        writer.WriteEndObject();
+    }
+
+
+
+    public void _SerializePattern2Test(ref JsonWriter writer, SimplePerson value, IJsonFormatterResolver formatterResolver)
+    {
+        if (value == null) { writer.WriteNull(); return; }
+
+        bool wrote = false;
+        writer.WriteBeginObject();
+        // if(value.Age != nul)
+        {
+            if (wrote == false)
+            {
+                wrote = true;
+                writer.WriteValueSeparator();
+            }
+
+            UnsafeMemory64.WriteRaw7(ref writer, nameCaches2[0]);
+            writer.WriteInt32(value.Age);
+        }
+        if (value.FirstName != null)
+        {
+            if (wrote == false)
+            {
+                wrote = true;
+                writer.WriteValueSeparator();
+            }
+
+            UnsafeMemory64.WriteRaw13(ref writer, nameCaches2[1]);
+            writer.WriteString(value.FirstName);
+        }
+        if (value.LastName != null)
+        {
+            if (wrote == false)
+            {
+                wrote = true;
+                writer.WriteValueSeparator();
+            }
+
+            UnsafeMemory64.WriteRaw12(ref writer, nameCaches2[2]);
+            writer.WriteString(value.LastName);
+        }
 
         writer.WriteEndObject();
     }

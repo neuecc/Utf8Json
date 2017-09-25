@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using MessagePack.Resolvers;
 using System;
 using System.IO;
 using System.Text;
@@ -9,10 +10,10 @@ namespace PerfBenchmark
     [Config(typeof(BenchmarkConfig))]
     public class SerializeBenchmark
     {
-        static TargetClass obj1;
-        static TargetClassContractless objContractless;
+        public static TargetClass obj1;
+        public static TargetClassContractless objContractless;
 
-        static Utf8Json.IJsonFormatterResolver jsonresolver = Utf8Json.Resolvers.StandardResolver.Instance;
+        static Utf8Json.IJsonFormatterResolver jsonresolver = Utf8Json.Resolvers.StandardResolver.Default;
         Encoding utf8 = Encoding.UTF8;
 
         static SerializeBenchmark()
@@ -29,24 +30,18 @@ namespace PerfBenchmark
         }
 
         [Benchmark]
-        public byte[] Utf8Json_Handwrite()
-        {
-            return Utf8Json.JsonSerializer.Serialize(obj1, HandwriteResolver.Instance);
-        }
-
-        //[Benchmark]
         public byte[] MessagePackCSharp()
         {
             return MessagePack.MessagePackSerializer.Serialize(obj1);
         }
 
-        //[Benchmark]
+        [Benchmark]
         public byte[] MessagePackCSharpContractless()
         {
             return MessagePack.MessagePackSerializer.Serialize(objContractless, MessagePack.Resolvers.ContractlessStandardResolver.Instance);
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void Protobufnet()
         {
             using (var ms = new MemoryStream())
@@ -55,30 +50,30 @@ namespace PerfBenchmark
             }
         }
 
-        //[Benchmark]
-        public byte[] _Jil()
+        [Benchmark]
+        public byte[] Jil()
         {
-            return utf8.GetBytes(Jil.JSON.Serialize(obj1));
+            return utf8.GetBytes(global::Jil.JSON.Serialize(obj1));
         }
 
-        //[Benchmark]
-        public void _JilTextWriter()
+        [Benchmark]
+        public void JilTextWriter()
         {
             using (var ms = new MemoryStream())
             using (var sw = new StreamWriter(ms, utf8))
             {
-                Jil.JSON.Serialize(obj1, sw);
+                global::Jil.JSON.Serialize(obj1, sw);
             }
         }
 
-        //[Benchmark]
-        public byte[] _NetJson()
+        [Benchmark]
+        public byte[] NetJson()
         {
             return utf8.GetBytes(NetJSON.NetJSON.Serialize(obj1));
         }
 
-        //[Benchmark]
-        public byte[] _JsonNet()
+        [Benchmark]
+        public byte[] JsonNet()
         {
             return utf8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(obj1));
         }
@@ -87,11 +82,21 @@ namespace PerfBenchmark
     [Config(typeof(BenchmarkConfig))]
     public class DeserializeBenchmark
     {
-        byte[] json = new SerializeBenchmark().Utf8JsonSerializer();
-        byte[] msgpack1 = new SerializeBenchmark().MessagePackCSharp();
-        byte[] msgpack2 = new SerializeBenchmark().MessagePackCSharpContractless();
-        static Utf8Json.IJsonFormatterResolver jsonresolver = Utf8Json.Resolvers.StandardResolver.Instance;
-        Encoding utf8 = Encoding.UTF8;
+        static byte[] json = new SerializeBenchmark().Utf8JsonSerializer();
+        static byte[] proto;
+        static byte[] msgpack1 = new SerializeBenchmark().MessagePackCSharp();
+        static byte[] msgpack2 = new SerializeBenchmark().MessagePackCSharpContractless();
+        static Utf8Json.IJsonFormatterResolver jsonresolver = Utf8Json.Resolvers.StandardResolver.Default;
+        static Encoding utf8 = Encoding.UTF8;
+
+        static DeserializeBenchmark()
+        {
+            using (var ms = new MemoryStream())
+            {
+                ProtoBuf.Serializer.Serialize(ms, SerializeBenchmark.obj1);
+                proto = ms.ToArray();
+            }
+        }
 
         [Benchmark(Baseline = true)]
         public TargetClass Utf8JsonSerializer()
@@ -112,58 +117,40 @@ namespace PerfBenchmark
         }
 
         [Benchmark]
-        public TargetClass _Jil()
+        public TargetClass Protobufnet()
         {
-            return Jil.JSON.Deserialize<TargetClass>(utf8.GetString(json));
-        }
-
-        [Benchmark]
-        public TargetClass _JilTextReader()
-        {
-            using (var ms = new MemoryStream(json))
-            using (var sr = new StreamReader(ms, utf8))
+            using (var ms = new MemoryStream())
             {
-                return Jil.JSON.Deserialize<TargetClass>(sr);
+                return ProtoBuf.Serializer.Deserialize<TargetClass>(ms);
             }
         }
 
         [Benchmark]
-        public TargetClass _JsonNet()
+        public TargetClass Jil()
+        {
+            return global::Jil.JSON.Deserialize<TargetClass>(utf8.GetString(json));
+        }
+
+        [Benchmark]
+        public TargetClass JilTextReader()
+        {
+            using (var ms = new MemoryStream(json))
+            using (var sr = new StreamReader(ms, utf8))
+            {
+                return global::Jil.JSON.Deserialize<TargetClass>(sr);
+            }
+        }
+
+        [Benchmark]
+        public TargetClass JsonNet()
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<TargetClass>(utf8.GetString(json));
         }
 
         [Benchmark]
-        public TargetClass _NetJson()
+        public TargetClass NetJson()
         {
             return NetJSON.NetJSON.Deserialize<TargetClass>(utf8.GetString(json));
-        }
-    }
-
-    public class HandwriteResolver : IJsonFormatterResolver
-    {
-        public static IJsonFormatterResolver Instance = new HandwriteResolver();
-
-        public IJsonFormatter<T> GetFormatter<T>()
-        {
-            return Cache<T>.formatter;
-        }
-
-        static class Cache<T>
-        {
-            public static IJsonFormatter<T> formatter;
-
-            static Cache()
-            {
-                if (typeof(T) == typeof(TargetClass))
-                {
-                    formatter = (IJsonFormatter<T>)(object)new HandwriteFormatter();
-                }
-                else
-                {
-                    formatter = Utf8Json.Resolvers.StandardResolver.Instance.GetFormatter<T>();
-                }
-            }
         }
     }
 }

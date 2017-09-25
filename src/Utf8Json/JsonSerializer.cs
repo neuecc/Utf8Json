@@ -1,34 +1,138 @@
 ﻿using System;
 using System.IO;
 using Utf8Json.Internal;
+using Utf8Json.Resolvers;
 
 namespace Utf8Json
 {
-    public static class JsonSerializer
+    /// <summary>
+    /// High-Level API of Utf8Json.
+    /// </summary>
+    public static partial class JsonSerializer
     {
+        static IJsonFormatterResolver defaultResolver;
+
+        /// <summary>
+        /// FormatterResolver that used resolver less overloads. If does not set it, used StandardResolver.Default.
+        /// </summary>
+        public static IJsonFormatterResolver DefaultResolver
+        {
+            get
+            {
+                if (defaultResolver == null)
+                {
+                    defaultResolver = StandardResolver.Default;
+                }
+
+                return defaultResolver;
+            }
+        }
+
+        /// <summary>
+        /// Is resolver decided?
+        /// </summary>
+        public static bool IsInitialized
+        {
+            get
+            {
+                return defaultResolver != null;
+            }
+        }
+
+        /// <summary>
+        /// Set default resolver of Utf8Json APIs.
+        /// </summary>
+        /// <param name="resolver"></param>
+        public static void SetDefaultResolver(IJsonFormatterResolver resolver)
+        {
+            defaultResolver = resolver;
+        }
+
+        /// <summary>
+        /// Serialize to binary with default resolver.
+        /// </summary>
+        public static byte[] Serialize<T>(T obj)
+        {
+            return Serialize(obj, defaultResolver);
+        }
+
+        /// <summary>
+        /// Serialize to binary with specified resolver.
+        /// </summary>
         public static byte[] Serialize<T>(T value, IJsonFormatterResolver resolver)
         {
+            if (resolver == null) resolver = DefaultResolver;
+
             var writer = new JsonWriter(MemoryPool.GetBuffer());
             var formatter = resolver.GetFormatterWithVerify<T>();
             formatter.Serialize(ref writer, value, resolver);
             return writer.ToUtf8ByteArray();
         }
 
+        /// <summary>
+        /// Serialize to stream.
+        /// </summary>
+        public static void Serialize<T>(Stream stream, T value)
+        {
+            Serialize(stream, value, defaultResolver);
+        }
+
+        /// <summary>
+        /// Serialize to stream with specified resolver.
+        /// </summary>
         public static void Serialize<T>(Stream stream, T value, IJsonFormatterResolver resolver)
         {
-            var writer = new JsonWriter(MemoryPool.GetBuffer());
-            var formatter = resolver.GetFormatterWithVerify<T>();
-            formatter.Serialize(ref writer, value, resolver);
-            var buffer = writer.GetBuffer();
+            if (resolver == null) resolver = DefaultResolver;
+
+            var buffer = SerializeUnsafe(value, resolver);
             stream.Write(buffer.Array, buffer.Offset, buffer.Count);
         }
 
+        /// <summary>
+        /// Serialize to binary. Get the raw memory pool byte[]. The result can not share across thread and can not hold, so use quickly.
+        /// </summary>
+        public static ArraySegment<byte> SerializeUnsafe<T>(T obj)
+        {
+            return SerializeUnsafe(obj, defaultResolver);
+        }
+
+        /// <summary>
+        /// Serialize to binary with specified resolver. Get the raw memory pool byte[]. The result can not share across thread and can not hold, so use quickly.
+        /// </summary>
+        public static ArraySegment<byte> SerializeUnsafe<T>(T value, IJsonFormatterResolver resolver)
+        {
+            if (resolver == null) resolver = DefaultResolver;
+
+            var writer = new JsonWriter(MemoryPool.GetBuffer());
+            var formatter = resolver.GetFormatterWithVerify<T>();
+            formatter.Serialize(ref writer, value, resolver);
+            return writer.GetBuffer();
+        }
+
+        /// <summary>
+        /// Serialize to JsonString.
+        /// </summary>
+        public static string ToJsonString<T>(T value)
+        {
+            return ToJsonString(value, defaultResolver);
+        }
+
+        /// <summary>
+        /// Serialize to JsonString with specified resolver.
+        /// </summary>
         public static string ToJsonString<T>(T value, IJsonFormatterResolver resolver)
         {
+            if (resolver == null) resolver = DefaultResolver;
+
             var writer = new JsonWriter(MemoryPool.GetBuffer());
             var formatter = resolver.GetFormatterWithVerify<T>();
             formatter.Serialize(ref writer, value, resolver);
             return writer.ToString();
+        }
+
+        public static T Deserialize<T>(string json)
+        {
+            return Deserialize<T>(json, defaultResolver);
         }
 
         public static T Deserialize<T>(string json, IJsonFormatterResolver resolver)
@@ -36,13 +140,25 @@ namespace Utf8Json
             return Deserialize<T>(StringEncoding.UTF8.GetBytes(json), resolver);
         }
 
+        public static T Deserialize<T>(byte[] bytes)
+        {
+            return Deserialize<T>(bytes, defaultResolver);
+        }
+
         public static T Deserialize<T>(byte[] bytes, IJsonFormatterResolver resolver)
         {
             return Deserialize<T>(bytes, 0, resolver);
         }
 
+        public static T Deserialize<T>(byte[] bytes, int offset)
+        {
+            return Deserialize<T>(bytes, offset, defaultResolver);
+        }
+
         public static T Deserialize<T>(byte[] bytes, int offset, IJsonFormatterResolver resolver)
         {
+            if (resolver == null) resolver = DefaultResolver;
+
             var reader = new JsonReader(bytes, offset);
             var formatter = resolver.GetFormatterWithVerify<T>();
             return formatter.Deserialize(ref reader, resolver);
@@ -50,6 +166,8 @@ namespace Utf8Json
 
         public static T Deserialize<T>(Stream stream, IJsonFormatterResolver resolver)
         {
+            if (resolver == null) resolver = DefaultResolver;
+
 #if NETSTANDARD
             var ms = stream as MemoryStream;
             ArraySegment<byte> buf2;

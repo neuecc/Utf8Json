@@ -8,6 +8,7 @@ namespace Utf8Json.Internal.Emit
 {
     internal class MetaType
     {
+        public Type Type { get; private set; }
         public bool IsClass { get; private set; }
         public bool IsStruct { get { return !IsClass; } }
 
@@ -15,11 +16,12 @@ namespace Utf8Json.Internal.Emit
         public MetaMember[] ConstructorParameters { get; private set; }
         public MetaMember[] Members { get; private set; }
 
-        public MetaType(Type type, Func<string, string> nameMutetor)
+        public MetaType(Type type, Func<string, string> nameMutetor, bool allowPrivate)
         {
             var ti = type.GetTypeInfo();
             var isClass = ti.IsClass;
 
+            this.Type = type;
             var stringMembers = new Dictionary<string, MetaMember>();
 
             {
@@ -28,7 +30,10 @@ namespace Utf8Json.Internal.Emit
                 {
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
 
-                    var member = new MetaMember(item, nameMutetor(item.Name));
+                    var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
+                    var name = dm != null ? dm.Name : nameMutetor(item.Name);
+
+                    var member = new MetaMember(item, name, allowPrivate);
                     if (!member.IsReadable && !member.IsWritable) continue;
 
                     if (stringMembers.ContainsKey(member.Name))
@@ -43,7 +48,10 @@ namespace Utf8Json.Internal.Emit
                     if (item.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(true) != null) continue;
                     if (item.IsStatic) continue;
 
-                    var member = new MetaMember(item, nameMutetor(item.Name));
+                    var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
+                    var name = dm != null ? dm.Name : nameMutetor(item.Name);
+
+                    var member = new MetaMember(item, name, allowPrivate);
                     if (!member.IsReadable && !member.IsWritable) continue;
 
                     if (stringMembers.ContainsKey(member.Name))
@@ -55,7 +63,8 @@ namespace Utf8Json.Internal.Emit
             }
 
             // GetConstructor
-            ConstructorInfo ctor = null;
+            var ctor = ti.DeclaredConstructors.Where(x => x.IsPublic)
+                .SingleOrDefault(x => x.GetCustomAttribute<SerializationConstructorAttribute>(false) != null);
             var constructorParameters = new List<MetaMember>();
             {
                 IEnumerator<ConstructorInfo> ctorEnumerator = null;

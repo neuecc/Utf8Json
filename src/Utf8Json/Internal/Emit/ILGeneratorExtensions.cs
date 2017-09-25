@@ -142,6 +142,21 @@ namespace Utf8Json.Internal.Emit
             EmitLdloca(il, local.LocalIndex);
         }
 
+        public static void EmitTrue(this ILGenerator il)
+        {
+            EmitBoolean(il, true);
+        }
+
+        public static void EmitFalse(this ILGenerator il)
+        {
+            EmitBoolean(il, false);
+        }
+
+        public static void EmitBoolean(this ILGenerator il, bool value)
+        {
+            EmitLdc_I4(il, value ? 1 : 0);
+        }
+
         /// <summary>
         /// Pushes a supplied value of type int32 onto the evaluation stack as an int32.
         /// </summary>
@@ -189,6 +204,26 @@ namespace Utf8Json.Internal.Emit
                         il.Emit(OpCodes.Ldc_I4, value);
                     }
                     break;
+            }
+        }
+
+        public static void EmitUnboxOrCast(this ILGenerator il, Type type)
+        {
+            if (type.IsValueType)
+            {
+                il.Emit(OpCodes.Unbox_Any, type);
+            }
+            else
+            {
+                il.Emit(OpCodes.Castclass, type);
+            }
+        }
+
+        public static void EmitBoxOrDoNothing(this ILGenerator il, Type type)
+        {
+            if (type.IsValueType)
+            {
+                il.Emit(OpCodes.Box, type);
             }
         }
 

@@ -11,6 +11,7 @@ namespace Utf8Json.Internal.Emit
     internal class MetaMember
     {
         public string Name { get; private set; }
+        public string MemberName { get; private set; }
 
         public bool IsProperty { get { return PropertyInfo != null; } }
         public bool IsField { get { return FieldInfo != null; } }
@@ -20,23 +21,31 @@ namespace Utf8Json.Internal.Emit
         public FieldInfo FieldInfo { get; private set; }
         public PropertyInfo PropertyInfo { get; private set; }
 
-        public MetaMember(FieldInfo info, string name)
-        {
-            this.Name = name; ;
-            this.FieldInfo = info;
-            this.IsReadable = info.IsPublic;
-            this.IsWritable = info.IsPublic && !info.IsInitOnly;
-        }
+        MethodInfo getMethod;
+        MethodInfo setMethod;
 
-        public MetaMember(PropertyInfo info, string name)
+        public MetaMember(FieldInfo info, string name, bool allowPrivate)
         {
             this.Name = name;
-            this.PropertyInfo = info;
-            this.IsReadable = (info.GetGetMethod() != null) && info.GetGetMethod().IsPublic && !info.GetGetMethod().IsStatic;
-            this.IsWritable = (info.GetSetMethod() != null) && info.GetSetMethod().IsPublic && !info.GetSetMethod().IsStatic;
+            this.MemberName = info.Name;
+            this.FieldInfo = info;
+            this.IsReadable = allowPrivate || info.IsPublic;
+            this.IsWritable = allowPrivate || (info.IsPublic && !info.IsInitOnly);
         }
 
-        public bool IsValueType
+        public MetaMember(PropertyInfo info, string name, bool allowPrivate)
+        {
+            this.getMethod = info.GetGetMethod(true);
+            this.setMethod = info.GetSetMethod(true);
+
+            this.Name = name;
+            this.MemberName = info.Name;
+            this.PropertyInfo = info;
+            this.IsReadable = (getMethod != null) && (allowPrivate || getMethod.IsPublic) && !getMethod.IsStatic;
+            this.IsWritable = (setMethod != null) && (allowPrivate || setMethod.IsPublic) && !setMethod.IsStatic;
+        }
+
+        public bool IsDeclaredIsValueType
         {
             get
             {
@@ -61,7 +70,7 @@ namespace Utf8Json.Internal.Emit
         {
             if (IsProperty)
             {
-                il.EmitCall(PropertyInfo.GetGetMethod());
+                il.EmitCall(getMethod);
             }
             else
             {
@@ -73,7 +82,7 @@ namespace Utf8Json.Internal.Emit
         {
             if (IsProperty)
             {
-                il.EmitCall(PropertyInfo.GetSetMethod());
+                il.EmitCall(setMethod);
             }
             else
             {

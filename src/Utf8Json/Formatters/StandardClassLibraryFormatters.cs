@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
 using Utf8Json.Formatters.Internal;
 using Utf8Json.Internal;
 
@@ -239,6 +244,21 @@ namespace Utf8Json.Formatters
         }
     }
 
+    public sealed class DecimalFormatter : IJsonFormatter<decimal>
+    {
+        public static readonly IJsonFormatter<decimal> Default = new DecimalFormatter();
+
+        public void Serialize(ref JsonWriter writer, decimal value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteString(value.ToString());
+        }
+
+        public decimal Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            return decimal.Parse(reader.ReadString(), CultureInfo.InvariantCulture);
+        }
+    }
+
     public sealed class UriFormatter : IJsonFormatter<Uri>
     {
         public static readonly IJsonFormatter<Uri> Default = new UriFormatter();
@@ -347,111 +367,172 @@ namespace Utf8Json.Formatters
         }
     }
 
-    //public sealed class StringBuilderFormatter : IJsonFormatter<StringBuilder>
-    //{
-    //    public static readonly IJsonFormatter<StringBuilder> Default = new StringBuilderFormatter();
+    public sealed class StringBuilderFormatter : IJsonFormatter<StringBuilder>
+    {
+        public static readonly IJsonFormatter<StringBuilder> Default = new StringBuilderFormatter();
 
-    //    public void Serialize(ref JsonWriter writer, StringBuilder value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+        public void Serialize(ref JsonWriter writer, StringBuilder value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
+            writer.WriteString(value.ToString());
+        }
 
-    //    public StringBuilder Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
+        public StringBuilder Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+            return new StringBuilder(reader.ReadString());
+        }
+    }
 
-    //public sealed class BitArrayFormatter : IJsonFormatter<BitArray>
-    //{
-    //    public static readonly IJsonFormatter<BitArray> Default = new BitArrayFormatter();
+    // BitArray can be represents other format...
+    public sealed class BitArrayFormatter : IJsonFormatter<BitArray>
+    {
+        public static readonly IJsonFormatter<BitArray> Default = new BitArrayFormatter();
 
-    //    public void Serialize(ref JsonWriter writer, BitArray value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+        public void Serialize(ref JsonWriter writer, BitArray value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
 
-    //    public BitArray Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
+            writer.WriteBeginArray();
+            for (int i = 0; i < value.Length; i++)
+            {
+                writer.WriteBoolean(value[i]);
+            }
+            writer.WriteEndArray();
+        }
 
-    //public sealed class BigIntegerFormatter : IJsonFormatter<BigInteger>
-    //{
-    //    public static readonly IJsonFormatter<BigInteger> Default = new BigIntegerFormatter();
+        public BitArray Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+            reader.ReadIsBeginArrayWithVerify();
+            var c = 0;
+            var buffer = new ArrayBuffer<bool>();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref c))
+            {
+                buffer.Add(reader.ReadBoolean());
+            }
+            return new BitArray(buffer.ToArray());
+        }
+    }
 
-    //    public void Serialize(ref JsonWriter writer, BigInteger value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+    public sealed class BigIntegerFormatter : IJsonFormatter<BigInteger>
+    {
+        public static readonly IJsonFormatter<BigInteger> Default = new BigIntegerFormatter();
 
-    //    public BigInteger Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
+        public void Serialize(ref JsonWriter writer, BigInteger value, IJsonFormatterResolver formatterResolver)
+        {
+            // JSON.NET writes Integer format, not compatible.
+            writer.WriteString(value.ToString());
+        }
 
-    //public sealed class ComplexFormatter : IJsonFormatter<Complex>
-    //{
-    //    public static readonly IJsonFormatter<Complex> Default = new ComplexFormatter();
+        public BigInteger Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var s = reader.ReadString();
+            return BigInteger.Parse(s, CultureInfo.InvariantCulture);
+        }
+    }
 
-    //    public void Serialize(ref JsonWriter writer, Complex value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+    // Convert to [Real, Imaginary]
+    public sealed class ComplexFormatter : IJsonFormatter<Complex>
+    {
+        public static readonly IJsonFormatter<Complex> Default = new ComplexFormatter();
 
-    //    public Complex Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
+        public void Serialize(ref JsonWriter writer, Complex value, IJsonFormatterResolver formatterResolver)
+        {
+            writer.WriteBeginArray();
+            writer.WriteDouble(value.Real);
+            writer.WriteDouble(value.Imaginary);
+            writer.WriteEndArray();
+        }
 
-    //public sealed class LazyFormatter : IJsonFormatter<Lazy>
-    //{
-    //    public static readonly IJsonFormatter<Lazy> Default = new LazyFormatter();
+        public Complex Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            reader.ReadIsBeginArrayWithVerify();
+            var real = reader.ReadDouble();
+            reader.ReadIsValueSeparatorWithVerify();
+            var imaginary = reader.ReadDouble();
+            reader.ReadIsEndArrayWithVerify();
 
-    //    public void Serialize(ref JsonWriter writer, Lazy value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+            return new Complex(real, imaginary);
+        }
+    }
 
-    //    public Lazy Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
-    //public sealed class TaskUnitFormatter : IJsonFormatter<TaskUnit>
-    //{
-    //    public static readonly IJsonFormatter<TaskUnit> Default = new TaskUnitFormatter();
+    public sealed class LazyFormatter<T> : IJsonFormatter<Lazy<T>>
+    {
+        public void Serialize(ref JsonWriter writer, Lazy<T> value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
+            formatterResolver.GetFormatterWithVerify<T>().Serialize(ref writer, value.Value, formatterResolver);
+        }
 
-    //    public void Serialize(ref JsonWriter writer, TaskUnit value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+        public Lazy<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
 
-    //    public TaskUnit Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
-    //public sealed class TaskValueFormatter : IJsonFormatter<TaskValue>
-    //{
-    //    public static readonly IJsonFormatter<TaskValue> Default = new TaskValueFormatter();
+            // deserialize immediately(no delay, because capture byte[] causes memory leak)
+            var v = formatterResolver.GetFormatterWithVerify<T>().Deserialize(ref reader, formatterResolver);
+            return new Lazy<T>(() => v);
+        }
+    }
 
-    //    public void Serialize(ref JsonWriter writer, TaskValue value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+    public sealed class TaskUnitFormatter : IJsonFormatter<Task>
+    {
+        public static readonly IJsonFormatter<Task> Default = new TaskUnitFormatter();
+        static readonly Task CompletedTask = Task.FromResult<object>(null);
 
-    //    public TaskValue Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
-    //public sealed class ValueTaskFormatter : IJsonFormatter<ValueTask>
-    //{
-    //    public static readonly IJsonFormatter<ValueTask> Default = new ValueTaskFormatter();
+        public void Serialize(ref JsonWriter writer, Task value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
 
-    //    public void Serialize(ref JsonWriter writer, ValueTask value, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
+            value.Wait(); // wait!
+            writer.WriteNull();
+        }
 
-    //    public ValueTask Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-    //    {
-    //    }
-    //}
+        public Task Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (!reader.ReadIsNull()) throw new InvalidOperationException("Invalid input");
+
+            return CompletedTask;
+        }
+    }
+
+    public sealed class TaskValueFormatter<T> : IJsonFormatter<Task<T>>
+    {
+        public void Serialize(ref JsonWriter writer, Task<T> value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
+
+            // value.Result -> wait...!
+            formatterResolver.GetFormatterWithVerify<T>().Serialize(ref writer, value.Result, formatterResolver);
+        }
+
+        public Task<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+
+            var v = formatterResolver.GetFormatterWithVerify<T>().Deserialize(ref reader, formatterResolver);
+            return Task.FromResult(v);
+        }
+    }
+
+    public sealed class ValueTaskFormatter<T> : IJsonFormatter<ValueTask<T>>
+    {
+        public void Serialize(ref JsonWriter writer, ValueTask<T> value, IJsonFormatterResolver formatterResolver)
+        {
+            // value.Result -> wait...!
+            formatterResolver.GetFormatterWithVerify<T>().Serialize(ref writer, value.Result, formatterResolver);
+        }
+
+        public ValueTask<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var v = formatterResolver.GetFormatterWithVerify<T>().Deserialize(ref reader, formatterResolver);
+            return new ValueTask<T>(v);
+        }
+    }
 }
 
 namespace Utf8Json.Formatters.Internal
 {
-    // reduce static constructor generate size on generics(especially IL2CPP on Unity)
     internal static class StandardClassLibraryFormatterHelper
     {
         internal static readonly byte[][] keyValuePairName;
