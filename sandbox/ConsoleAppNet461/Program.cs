@@ -45,23 +45,32 @@ class Program
 #if DEBUG
 
 
-        Utf8Json.Resolvers.CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatterResolver[]{
-            GeneratedResolver.Instance,
-            Utf8Json.Resolvers.StandardResolver.Default });
+            var p = new Person { Age = 99, Name = "foobar" };
+
+            // Object -> byte[] (UTF8)
+            byte[] result = JsonSerializer.Serialize(p);
 
 
-        var s = JsonSerializer.Serialize(new SimplePerson {  Age = 99, LastName="foo" });
+            // byte[] -> Object
+            var p2 = JsonSerializer.Deserialize<Person>(result);
 
-        Console.WriteLine(Encoding.UTF8.GetString(s));
+            // Object -> byte[]
+            var json = JsonSerializer.ToJsonString(p2);
 
-        var hu = JsonSerializer.Deserialize<SimplePerson>(s);
-        Console.WriteLine(hu.Age);
+            // Write to Stream
+            JsonSerializer.Serialize(stream, p2);
 
 
 #else
         switcher.Run(args);
 #endif
     }
+}
+
+public class Person
+{
+    public int Age { get; set; }
+    public string Name { get; set; }
 }
 
 public interface IInterface

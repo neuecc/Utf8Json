@@ -6,7 +6,7 @@ Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, U
 
 // TODO:graph
 
-Utf8Json does not beat MessagePack for C#(binary), but shows a similar memory consumption(there is no additional memory allocation) and higher performance than other JSON serializers.
+Utf8Json does not beat MessagePack for C#(binary), but shows a similar memory consumption(there is no additional memory allocation) and achieves higher performance than other JSON serializers.
 
 The crucial difference is that read and write directly to UTF8 binaries means that there is no overhead. Normaly serialization requires serialize to `Stream` or `byte[]`, it requires additional UTF8.GetBytes cost or StreamReader/Writer overhead(it is very slow!).
 
@@ -80,72 +80,41 @@ And official Extension Packages for support other library(ImmutableCollection) o
 
 ```
 Install-Package MessagePack.ImmutableCollection
+Install-Package MessagePack.UnityShims
 Install-Package MessagePack.AspNetCoreMvcFormatter
 ```
+
+for Unity, download from releases(TODO:link) page, providing .unitypackage. for Unity details, see Unity section. // TODO:link
 
 QuickStart, you can call `Utf8Json.JsonSerializer`.`Serialize/Deserialize`.
 
 ```csharp
-// 
-byte[] result = JsonSerializer.Serialize();
+var p = new Person { Age = 99, Name = "foobar" };
+
+// Object -> byte[] (UTF8)
+byte[] result = JsonSerializer.Serialize(p);
 
 
+// byte[] -> Object
+var p2 = JsonSerializer.Deserialize<Person>(result);
 
-JsonSerializer.Deserialize();
+// Object -> String
+var json = JsonSerializer.ToJsonString(p2);
 
-
-// 
-JsonSerializer.ToJsonString();
+// Write to Stream
+JsonSerializer.Serialize(stream, p2);
 ```
 
 In default, you can serialize all public members. You can customize serialize to private, exclude null, change DateTime format(default is ISO8601), enum handling, etc. see the [TODO] section.
 
 Performance of Serialize
 ---
+This image is what code is generated when object serializing.
 
-// image
-
-* Cached
-
-
-* High-level API uses internal memory pool, don't allocate working memory under 64K
-* Struct JsonWriter does not allocate any more and wrie underlying byte[] directly, don't use TextWriter
-* Avoid boxing all codes, all platforms(include Unity/IL2CPP)
-* Heavyly tuned dynamic il code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L963)
-* Call Primitive API directly when il code generation knows target is primitive
-* Getting cached generated formatter on static generic field(don't use dictinary-cache because dictionary lookup is overhead)
-* Cache property name with delimiter("{", ",") and optimized fixed sized binary copy in IL, see: [UnsafeMemory.cs](https://github.com/neuecc/MessagePack-CSharp/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/MessagePack/Internal/UnsafeMemory.cs)
-
-
-
-
-
-
-
-Reduce branch of variable length format when il code generation knows target(integer/string) range
-
-Don't use IEnumerable<T> abstraction on iterate collection, see:CollectionFormatterBase and inherited collection formatters
-
-
-
-
-Uses optimized type key dictionary for non-generic methods, see: ThreadsafeTypeKeyHashTable
-
-
-
-
-
-
-
-
-
-
-
-releated to [dotnet/coreclr - issue #9786 Optimize Buffer.MemoryCopy](https://github.com/dotnet/coreclr/pull/9786)
-
-
+![image](https://user-images.githubusercontent.com/46207/30877753-a1105aaa-a335-11e7-9d4a-fb706aa37a54.png)
 
 ```csharp
+// Disassemble generated serializer code.
 public sealed class PersonFormatter : IJsonFormatter<Person>
 {
     private readonly byte[][] stringByteKeys;
@@ -177,19 +146,31 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
 }
 ```
 
-WriteRaw7(7 byte memory copy, sizeof(long) copy * 2) + WriteInt32(itoa algorithm requires some branch and copy memory by digits) + WriteRaw8(8 byte memory copy, sizeof(long) copy * 1) + WriteString(two-path encoding, search escape char + Encoding.UTF8.GetBytes) + WriteEndObject(write `}` directly.
+Object to JSON's main serialization cost is write property name. Utf8Json create cache at first and after that only do memory copy. Optimize part1, concatenate "{", ":" and "." to cached  propertyname. Optimize part2, use optimized custom memory copy method(see: [UnsafeMemory.cs](https://github.com/neuecc/MessagePack-CSharp/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/MessagePack/Internal/UnsafeMemory.cs)). Normally memory copy is used `Buffer.BlockCopy` but it has some overhead when target binary is small enough, releated to [dotnet/coreclr - issue #9786 Optimize Buffer.MemoryCopy](https://github.com/dotnet/coreclr/pull/9786). Utf8Json don't use `Buffer.BlockCopy` and generates length specialized copy code that can reduce branch cost.
 
-This is the everything of serialization cost, probably it will be the smallest.
+Number conversion is often high cost. If target encoding is UTF8 only, we can use `itoa` algorithm so avoid `int.ToString` and UTF8 encode cost. Especialy double-conversion, Utf8Json is ported [ google/double-conversion](https://github.com/google/double-conversion) algorithm, it is fast `dtoa` and `atod` works.
+
+Other optimize techniques.
+
+* High-level API uses internal memory pool, don't allocate working memory under 64K
+* Struct JsonWriter does not allocate any more and wrie underlying byte[] directly, don't use TextWriter
+* Avoid boxing all codes, all platforms(include Unity/IL2CPP)
+* Heavyly tuned dynamic il code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L963)
+* Call Primitive API directly when il code generation knows target is primitive
+* Getting cached generated formatter on static generic field(don't use dictinary-cache because dictionary lookup is overhead)
+* Don't use IEnumerable<T> abstraction on iterate collection, specialized each collection types, see:[CollectionFormatter.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Formatters/CollectionFormatters.cs)
+* Uses optimized type key dictionary for non-generic methods, see: [ThreadsafeTypeKeyHashTable.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Internal/ThreadsafeTypeKeyHashTable.cs)
 
 Performance of Deserialize
 ---
+When deserializing, requires property name to target member name matching. Utf8Json avoid string key decode for matching, generate [automata](https://en.wikipedia.org/wiki/Automata_theory) based il inlining code.
 
-// image
+![image](https://user-images.githubusercontent.com/46207/29754771-216b40e2-8bc7-11e7-8310-1c3602e80a08.png)
 
-* Avoid string key decode for lookup map(string key) key and uses automata based name lookup with il inlining code generation, see: AutomataDictionary
-
+use raw byte[] slice and try to match each `long type` (per 8 character, if it is not enough, pad with 0).
 
 ```csharp
+// Disassemble generated serializer code.
 public sealed class PersonFormatter : IJsonFormatter<Person>
 {
     // public sealed Serialize(ref JsonWriter writer, Person person, IJsonFormatterResolver jsonFormatterResolver)
@@ -208,7 +189,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
             int num;
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref num)) // "}" or ","
             {
-                // get unescaped string-span for property name match
+                // don't decode string, get raw slice
                 ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentUnescaped();
                 byte* ptr3 = ptr2 + arraySegment.Offset;
                 int count = arraySegment.Count;
@@ -243,6 +224,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
 }
 ```
 
+Of course number conversion(decode to string -> try parse) is high cost. Utf8Json directly convert byte[] to number by atoi/atod algorithm.
 
 Built-in support types
 ---
@@ -298,9 +280,6 @@ Resolvers and Configuration(DateTime format, SnakeCase, etc...)
 ---
 
 
-Extensions
-----
-
 Which serializer should be used
 ---
 The performance of binary(protobuf, msgpack, avro, etc...) vs text(json, xml, yaml, etc...) depends on the implementation. However, binary has advantage basically. Utf8Json write directly to `byte[]` it is close to the binary serializer. But especialy `double` is still slower than binary write(Utf8Json uses [google/double-conversion](https://github.com/google/double-conversion/) algorithm, it is good but there are many processes, it can not be the fastest), write `string` requires escape and large payload must pay copy cost.
@@ -331,6 +310,8 @@ High-Level API uses memory pool internaly to avoid unnecessary memory allocation
 
 Low-Level API(IJsonFormatter)
 ---
+
+// TODO:JsonFormatter?
 
 
 Primitive API(JsonReader/JsonWriter)
@@ -492,21 +473,27 @@ StandardResolver has 12 option resolvers it combinate
 
 for example `StandardResolver.SnakeCase`, `StandardResolver.ExcludeNullCamelCase`, `StandardResolver.AllowPrivateExcludeNullSnakeCase`. `StandardResolver.Default` is AllowPrivate:False, ExcludeNull:False, NameMutate:Original.
 
-
-
-
 It is the only configuration point to assemble the resolver's priority. In most cases, it is sufficient to have one custom resolver globally. CompositeResolver will be its helper.
 
+// TODO:Is Composite Resolver?
 
 
 
+// Resolvers?
 
 
 
+// TODO:Build own resolver?
 
-
-IJsonFormatterAttribute
+JsonFormatterAttribute
 ---
+JsonFormatterAttribute is lightweight extension point. This is like JSON.NET's JsonConverterAttribute. You can change to use formatter per type and member.
+
+// TODO:per type/ per property JsonFormatterAttribute
+
+
+// TODO:builtin formatters(DateTime, Enum, Etc...)
+
 
 
 Text Protocol Foundation
@@ -534,11 +521,50 @@ Pre Code Generation(Unity/Xamarin Supports)
 ---
 Utf8Json generates object formatter dynamically by [ILGenerator](https://msdn.microsoft.com/en-us/library/system.reflection.emit.ilgenerator.aspx). It is fast and transparently generated at run time. But it does not work on AOT environment(Xamarin, Unity IL2CPP, etc.).
 
-If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is located in `packages\Utf8Json.*.*.*\tools\Utf8Json.UniversalCodeGenerator.exe` or includes for unity's package. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code.
+If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is located in `packages\Utf8Json.*.*.*\tools\(win|mac|linux)\Utf8Json.UniversalCodeGenerator.exe` or includes for unity's package. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
 
+```
+arguments help:
+  -i, --inputFiles=VALUE        [optional]Input path of cs files(',' separated)
+  -d, --inputDirs=VALUE         [optional]Input path of dirs(',' separated)
+  -o, --output=VALUE            [required]Output file path
+  -f, --allowInternal           [optional, default=false]Allow generate internal(friend)
+  -c, --conditionalsymbol=VALUE [optional, default=empty]conditional compiler symbol
+  -r, --resolvername=VALUE      [optional, default=GeneratedResolver]Set resolver name
+  -n, --namespace=VALUE         [optional, default=MessagePack]Set namespace root name
+```
 
+```csharp
+// Simple usage(directory)
+Utf8Json.UniversalCodeGenerator.exe -d "..\src\Shared\Request,..\src\Shared\Response" -o "Utf8JsonGenerated.cs"
+```
 
+If you create DLL by msbuild project, you can use Pre/Post build event or hook your Unity's post/pre process.
 
+```xml
+<PropertyGroup>
+    <PreBuildEvent>
+        Utf8Json.UniversalCodeGenerator.exe, here is useful for analyze/generate target is self project.
+    </PreBuildEvent>
+    <PostBuildEvent>
+        Utf8Json.UniversalCodeGenerator.exe, here is useful for analyze target is another project.
+    </PostBuildEvent>
+</PropertyGroup>
+```
+
+In default, generates resolver to Utf8Json.Resolvers.GeneratedResolver and formatters generates to Utf8Json.Formatters.***. And application launch, you need to set Resolver at first.
+
+```csharp
+// CompositeResolver is singleton helper for use custom resolver.
+// Ofcourse you can also make custom resolver.
+Utf8Json.Resolvers.CompositeResolver.RegisterAndSetAsDefault(
+    // use generated resolver first, and combine many other generated/custom resolvers
+    Utf8Json.Resolvers.GeneratedResolver.Instance,
+
+    // set StandardResolver or your use resolver chain
+    Utf8Json.StandardResolver.Default,
+);
+```
 
 How to Build
 ---
