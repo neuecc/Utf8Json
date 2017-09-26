@@ -520,6 +520,7 @@ public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolv
     writer.WriteEndArray(); // "]"
 }
 ```
+
 Resolver
 ---
 `IJsonFormatterResolver` is storage of typed serializers. Serializer api accepts resolver and can customize serialization.
@@ -541,7 +542,7 @@ StandardResolver has 12 option resolvers it combinate
 
 for example `StandardResolver.SnakeCase`, `StandardResolver.ExcludeNullCamelCase`, `StandardResolver.AllowPrivateExcludeNullSnakeCase`. `StandardResolver.Default` is AllowPrivate:False, ExcludeNull:False, NameMutate:Original.
 
-Assemble the resolver's priority is the only configuration point of Utf8Json. It is too simple but well works. In most cases, it is sufficient to have one custom resolver globally. CompositeResolver will be its helper.
+Assemble the resolver's priority is the only configuration point of Utf8Json. It is too simple but well works. In most cases, it is sufficient to have one custom resolver globally. CompositeResolver will be its helper. It is also necessary to use extension resolver like `Utf8Json.ImmutableCollection` that add support for for System.Collections.Immutable library. It adds `ImmutableArray<>`, `ImmutableList<>`, `ImmutableDictionary<,>`, `ImmutableHashSet<>`, `ImmutableSortedDictionary<,>`, `ImmutableSortedSet<>`, `ImmutableQueue<>`, `ImmutableStack<>`, `IImmutableList<>`, `IImmutableDictionary<,>`, `IImmutableQueue<>`, `IImmutableSet<>`, `IImmutableStack<>` serialization support.
 
 ```csharp
 // use global-singleton CompositeResolver.
