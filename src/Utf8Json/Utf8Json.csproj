@@ -33,9 +33,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="JsonSerializer.NonGeneric.cs" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="*.meta" />
+        <None Remove="Resolvers\*.meta" />
+        <None Remove="Internal\*.meta" />
+        <None Remove="Formatters\*.meta" />
+    </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />

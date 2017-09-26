@@ -41,6 +41,9 @@ namespace Utf8Json.Resolvers.Internal
         internal static readonly IJsonFormatterResolver[] CompositeResolverBase = new[]
         {
             BuiltinResolver.Instance, // Builtin
+#if !NETSTANDARD
+            Utf8Json.Unity.UnityResolver.Instance,
+#endif
             EnumResolver.Default,     // Enum(default => string)
             DynamicGenericResolver.Instance, // T[], List<T>, etc...
             AttributeFormatterResolver.Instance // [JsonFormatter]

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using MessagePack.Resolvers;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using Utf8Json.Resolvers;
 
 
 // [assembly: AllowPartiallyTrustedCallers]
@@ -44,145 +45,34 @@ class Program
 #if DEBUG
 
 
-        Utf8Json.Resolvers.CompositeResolver.RegisterAndSetAsDefault(
-            new IJsonFormatter[]{
-
-            },
-           new[]
-           {
-               Utf8Json.Resolvers.EnumResolver.UnderlyingValue,
-                Utf8Json.Resolvers.StandardResolver.Default
-            });
+        Utf8Json.Resolvers.CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatterResolver[]{
+            GeneratedResolver.Instance,
+            Utf8Json.Resolvers.StandardResolver.Default });
 
 
-        var person = new SimplePerson(true) { Age = 99, FirstName = "_yeah", LastName = "baz", FavoriteFruit = MyEnum.Apple };
+        var s = JsonSerializer.Serialize(new SimplePerson {  Age = 99, LastName="foo" });
 
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.Default));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.CamelCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.SnakeCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.ExcludeNull));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.ExcludeNullCamelCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.ExcludeNullSnakeCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivate));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateCamelCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateSnakeCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNull));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNullCamelCase));
-        //Console.WriteLine(JsonSerializer.ToJsonString(person, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNullSnakeCase));
+        Console.WriteLine(Encoding.UTF8.GetString(s));
 
-
-        //Console.WriteLine("--------------");
-        //Console.WriteLine(JsonSerializer.ToJsonString(new { foo = "foooo", bar = "baaaaaaaaa" }));
-
-        //Console.WriteLine("--------------");
-
-        var json = JsonSerializer.NonGeneric.ToJsonString(1214141);
-        Console.WriteLine(json);
-
-        json = json.Replace("know", "know_i_know");
-
-        var re = (int)JsonSerializer.NonGeneric.Deserialize(typeof(int), json, Utf8Json.Resolvers.StandardResolver.Default);
-        Console.WriteLine(re);
-        //Console.WriteLine((re.Age, re.FirstName, re.LastName, re.FavoriteFruit));
-
-        //pz = null;
-        //var yeah = JsonSerializer.NonGeneric.Serialize(pz);
-        //Console.WriteLine(Encoding.UTF8.GetString(yeah));
-
-        //Console.WriteLine(writer.ToString());
-
-        //var reader = new JsonReader(writer.ToUtf8ByteArray());
-        //var p = f.Deserialize(ref reader, null);
-        //Console.WriteLine((p.Age, p.FirstName, p.LastName));
-        //p.ShoutFAndZ();
-
-        //JsonSerializer.NonGeneric
-
-
-        // DynamicObjectResolverAllowPrivate
-
-        //var rand = new Random(34151513);
-        //var obj1 = TargetClass.Create(rand);
-        //var objContractless = new TargetClassContractless(obj1);
-
-        //var f = new DynamicCodeDumper_TargetClassContractlessFormatter3();
-        //var w = new JsonWriter();
-        //f.Serialize(ref w, objContractless, Utf8Json.Resolvers.StandardResolver.Instance);
-
-        //Console.WriteLine(w.ToString());
-        //var r = new JsonReader(w.ToUtf8ByteArray());
-
-        //var v = f.Deserialize(ref r, Utf8Json.Resolvers.StandardResolver.Instance);
-        //Console.WriteLine(v);
-
-        //var s1 = Encoding.UTF8.GetBytes("\"あいうえお\"");
-        //var s2 = Encoding.UTF8.GetBytes("\"あいう\\tえお\"");
-        //var s3 = Encoding.UTF8.GetBytes("\"あいう\tえお\t\"");
-        //var s4 = Encoding.UTF8.GetBytes("\"\\u3042\\u3044\\u3046えお\"");
-        //var s5 = Encoding.UTF8.GetBytes("\"\\uD840\\uDC0B\"");
-
-        //var str1 = new JsonReader(s1, 0).ReadString();
-        //var str2 = new JsonReader(s2, 0).ReadString();
-        //var str3 = new JsonReader(s3, 0).ReadString();
-        //var str4 = new JsonReader(s4, 0).ReadString();
-        //var str5 = new JsonReader(s5, 0).ReadString();
-        //Console.WriteLine(str1);
-        //Console.WriteLine(str2);
-        //Console.WriteLine(str3);
-        //Console.WriteLine(str4);
-        //Console.WriteLine(str5);
-
-        //var xs = new[,]
-        //{
-        //    { 1, 2, 3, 4, 9 },
-        //    { 4, 5, 6, 7, 10 },
-        //    { 10, 5, 6, 7, 10000 },
-        //};
-        //var f = new TwoDimentionalArrayFormatter<int>();
-
-
-        //var writer = new JsonWriter();
-        //f.Serialize(ref writer, xs, Utf8Json.Resolvers.StandardResolver.Default);
-        //Console.WriteLine(writer.ToString());
-
-        //var reader = new JsonReader(writer.ToUtf8ByteArray());
-        //var foo = f.Deserialize(ref reader, Utf8Json.Resolvers.StandardResolver.Default);
-
-        //foreach (var item in foo)
-        //{
-        //    Console.WriteLine(item);
-        //}
-
-        ////var ys = Int32ArrayFormatter.Default.Deserialize(ref reader, null);
-        ////foreach (var item in ys)
-        ////{
-        ////    Console.WriteLine(item);
-        ////}
-
-        ////var writer = new JsonWriter();
-        ////new SimplePersonFormatter().Serialize(ref writer, new SimplePerson { Age = 99, FirstName = "foo", LastName = "baz" }, null);
-        ////var reader = new JsonReader(writer.ToUtf8ByteArray());
-        ////dynamic v = Utf8Json.Formatters.PrimitiveObjectFormatter.Default.Deserialize(ref reader, null);
-        ////Console.WriteLine(writer.ToString());
-        ////Console.WriteLine((int)v["Age"]);
-        ////Console.WriteLine((string)v["FirstName"]);
-        ////Console.WriteLine((string)v["LastName"]);
-
-
-
-        //var xss = new ArrayBuffer<int>(4);
-        //xss.Add(10);
-        //xss.Add(20);
-        //xss.Add(30);
-        //xss.Add(40);
-        //xss.Add(50);
-
+        var hu = JsonSerializer.Deserialize<SimplePerson>(s);
+        Console.WriteLine(hu.Age);
 
 
 #else
         switcher.Run(args);
 #endif
     }
+}
+
+public interface IInterface
+{
+    string Huga { get; }
+}
+
+public class MyClassInter : IInterface
+{
+    [System.Runtime.Serialization.DataMember]
+    public string Huga { get; set; }
 }
 
 public class MyResolver2 : IJsonFormatterResolver
@@ -240,12 +130,14 @@ public class SimplePerson
     [DataMember(Name = "i_do\tnt_know")]
     public int Age { get; set; }
     public string FirstName { get; set; }
+    [IgnoreDataMember]
     public string LastName { get; set; }
     public MyEnum FavoriteFruit { get; set; }
 
     //readonly int f;
     //readonly int z;
 
+        
     public SimplePerson()
     {
 
@@ -871,7 +763,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
         while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count)) // "}", skip "," when count != 0
         {
             // automata lookup
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
 
             int switchKey;
             if (!dictionary.TryGetValue(key, out switchKey)) switchKey = -1;
@@ -1072,7 +964,7 @@ namespace Utf8Json.Formatters
                 int num = default;
                 while (!ptr.ReadIsEndObjectWithSkipValueSeparator(ref num))
                 {
-                    ArraySegment<byte> arraySegment = ptr.ReadPropertyNameSegmentUnescaped();
+                    ArraySegment<byte> arraySegment = ptr.ReadPropertyNameSegmentRaw();
                     byte* ptr3 = ptr2 + arraySegment.Offset;
                     int count = arraySegment.Count;
                     if (count != 0)

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
 {
-#pragma warning disable CS0660
-#pragma warning disable CS0661
+#pragma warning disable 660
+#pragma warning disable 661
 
     internal struct Iterator
     {
@@ -93,8 +93,8 @@ namespace Utf8Json.Internal.DoubleConversion
         }
     }
 
-#pragma warning restore CS0661
-#pragma warning restore CS0660
+#pragma warning restore 661
+#pragma warning restore 660
 
     // C# API
     internal static partial class StringToDoubleConverter

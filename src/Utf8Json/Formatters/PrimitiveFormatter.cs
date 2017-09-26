@@ -26,7 +26,7 @@ namespace Utf8Json.Formatters
 
         public SByte DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadSByte(key.Array, key.Offset, out _);
         }
@@ -73,7 +73,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadSByte(key.Array, key.Offset, out _);
         }
@@ -156,7 +156,7 @@ namespace Utf8Json.Formatters
 
         public Int16 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadInt16(key.Array, key.Offset, out _);
         }
@@ -203,7 +203,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadInt16(key.Array, key.Offset, out _);
         }
@@ -286,7 +286,7 @@ namespace Utf8Json.Formatters
 
         public Int32 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadInt32(key.Array, key.Offset, out _);
         }
@@ -333,7 +333,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadInt32(key.Array, key.Offset, out _);
         }
@@ -416,7 +416,7 @@ namespace Utf8Json.Formatters
 
         public Int64 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadInt64(key.Array, key.Offset, out _);
         }
@@ -463,7 +463,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadInt64(key.Array, key.Offset, out _);
         }
@@ -546,7 +546,7 @@ namespace Utf8Json.Formatters
 
         public Byte DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadByte(key.Array, key.Offset, out _);
         }
@@ -593,7 +593,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadByte(key.Array, key.Offset, out _);
         }
@@ -623,7 +623,7 @@ namespace Utf8Json.Formatters
 
         public UInt16 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadUInt16(key.Array, key.Offset, out _);
         }
@@ -670,7 +670,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadUInt16(key.Array, key.Offset, out _);
         }
@@ -753,7 +753,7 @@ namespace Utf8Json.Formatters
 
         public UInt32 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadUInt32(key.Array, key.Offset, out _);
         }
@@ -800,7 +800,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadUInt32(key.Array, key.Offset, out _);
         }
@@ -883,7 +883,7 @@ namespace Utf8Json.Formatters
 
         public UInt64 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadUInt64(key.Array, key.Offset, out _);
         }
@@ -930,7 +930,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadUInt64(key.Array, key.Offset, out _);
         }
@@ -1013,7 +1013,7 @@ namespace Utf8Json.Formatters
 
         public Single DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadSingle(key.Array, key.Offset, out _);
         }
@@ -1060,7 +1060,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadSingle(key.Array, key.Offset, out _);
         }
@@ -1143,7 +1143,7 @@ namespace Utf8Json.Formatters
 
         public Double DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadDouble(key.Array, key.Offset, out _);
         }
@@ -1190,7 +1190,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadDouble(key.Array, key.Offset, out _);
         }
@@ -1273,7 +1273,7 @@ namespace Utf8Json.Formatters
 
         public Boolean DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadBoolean(key.Array, key.Offset, out _);
         }
@@ -1320,7 +1320,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadPropertyNameSegmentRaw();
             int _;
             return NumberConverter.ReadBoolean(key.Array, key.Offset, out _);
         }

@@ -177,7 +177,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -226,7 +226,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -281,7 +281,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -342,7 +342,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -409,7 +409,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -482,7 +482,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -561,7 +561,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);
@@ -646,7 +646,7 @@ namespace Utf8Json.Formatters
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 dictionary.TryGetValue(keyString, out key);

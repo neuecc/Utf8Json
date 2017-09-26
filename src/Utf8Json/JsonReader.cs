@@ -515,6 +515,9 @@ namespace Utf8Json
                 }
             }
 
+            resultLength = 0;
+            resultBytes = null;
+            resultOffset = 0;
             throw CreateParsingException("\"");
 
             END:
@@ -596,10 +599,10 @@ namespace Utf8Json
             return key;
         }
 
-        /// <summary>ReadStringSegmentUnsafe + ReadIsNameSeparatorWithVerify</summary>
-        public ArraySegment<byte> ReadPropertyNameSegmentUnescaped()
+        /// <summary>Get raw string-span(do not unescape) + ReadIsNameSeparatorWithVerify</summary>
+        public ArraySegment<byte> ReadPropertyNameSegmentRaw()
         {
-            ArraySegment<byte> key;
+            ArraySegment<byte> key = default(ArraySegment<byte>);
             if (ReadIsNull())
             {
                 key = nullTokenSegment;

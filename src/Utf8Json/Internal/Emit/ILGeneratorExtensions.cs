@@ -22,7 +22,7 @@ namespace Utf8Json.Internal.Emit
         {
             this.il = il;
             this.i = i;
-            this.@ref = type.IsClass ? false : true;
+            this.@ref = (type.IsClass || type.IsInterface || type.IsAbstract) ? false : true;
         }
 
         public void EmitLoad()

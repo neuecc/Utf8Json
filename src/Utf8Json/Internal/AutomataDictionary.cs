@@ -90,7 +90,6 @@ namespace Utf8Json.Internal
 
         public unsafe void Add(byte[] bytes, int value)
         {
-            var bytes = Encoding.UTF8.GetBytes(str);
             var offset = 0;
 
             var node = root;

@@ -18,7 +18,7 @@ namespace Utf8Json.Formatters
             if (value == null) { writer.WriteNull(); return; }
 
             writer.WriteBeginArray();
-            var formatter = formatterResolver.GetFormatter<T>();
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
             if (value.Length != 0)
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
@@ -36,7 +36,7 @@ namespace Utf8Json.Formatters
             if (reader.ReadIsNull()) return null;
 
             var count = 0;
-            var formatter = formatterResolver.GetFormatter<T>();
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
             var workingArea = arrayPool.Rent();
             try
@@ -78,7 +78,7 @@ namespace Utf8Json.Formatters
             var count = value.Count;
 
             writer.WriteBeginArray();
-            var formatter = formatterResolver.GetFormatter<T>();
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
             if (count != 0)
             {
                 formatter.Serialize(ref writer, value.Array[offset], formatterResolver);
@@ -97,7 +97,7 @@ namespace Utf8Json.Formatters
             if (reader.ReadIsNull()) return default(ArraySegment<T>);
 
             var count = 0;
-            var formatter = formatterResolver.GetFormatter<T>();
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
             var workingArea = arrayPool.Rent();
             try
@@ -133,7 +133,7 @@ namespace Utf8Json.Formatters
             if (value == null) { writer.WriteNull(); return; }
 
             writer.WriteBeginArray();
-            var formatter = formatterResolver.GetFormatter<T>();
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
             if (value.Count != 0)
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
@@ -151,7 +151,7 @@ namespace Utf8Json.Formatters
             if (reader.ReadIsNull()) return null;
 
             var count = 0;
-            var formatter = formatterResolver.GetFormatter<T>();
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
             var list = new List<T>();
             reader.ReadIsBeginArrayWithVerify();
@@ -479,7 +479,7 @@ namespace Utf8Json.Formatters
                 var count = 0;
                 while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
                 {
-                    var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                    var keyString = reader.ReadPropertyNameSegmentRaw();
                     int key;
 #if NETSTANDARD
                     CollectionFormatterHelper.groupingAutomata.TryGetValue(keyString, out key);
@@ -652,7 +652,7 @@ namespace Utf8Json.Formatters
             if (reader.ReadIsNull()) return null;
 
             var count = 0;
-            var formatter = formatterResolver.GetFormatter<object>();
+            var formatter = formatterResolver.GetFormatterWithVerify<object>();
 
             var list = new T();
             reader.ReadIsBeginArrayWithVerify();
@@ -697,7 +697,7 @@ namespace Utf8Json.Formatters
             if (reader.ReadIsNull()) return null;
 
             var count = 0;
-            var formatter = formatterResolver.GetFormatter<object>();
+            var formatter = formatterResolver.GetFormatterWithVerify<object>();
 
             var list = new List<object>();
             reader.ReadIsBeginArrayWithVerify();

@@ -2,11 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 using Utf8Json.Formatters.Internal;
 using Utf8Json.Internal;
+
+#if NETSTANDARD
+using System.Numerics;
+using System.Threading.Tasks;
+#endif
 
 namespace Utf8Json.Formatters
 {
@@ -352,7 +355,7 @@ namespace Utf8Json.Formatters
             var count = 0;
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var keyString = reader.ReadPropertyNameSegmentUnescaped();
+                var keyString = reader.ReadPropertyNameSegmentRaw();
                 int key;
 #if NETSTANDARD
                 StandardClassLibraryFormatterHelper.keyValuePairAutomata.TryGetValue(keyString, out key);
@@ -426,6 +429,8 @@ namespace Utf8Json.Formatters
             return new BitArray(buffer.ToArray());
         }
     }
+
+#if NETSTANDARD
 
     public sealed class BigIntegerFormatter : IJsonFormatter<BigInteger>
     {
@@ -542,6 +547,8 @@ namespace Utf8Json.Formatters
             return new ValueTask<T>(v);
         }
     }
+
+#endif
 }
 
 namespace Utf8Json.Formatters.Internal

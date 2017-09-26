@@ -236,6 +236,8 @@ namespace Utf8Json.Formatters
         }
     }
 
+#if NETSTANDARD
+
     public sealed class ReadOnlyDictionaryFormatter<TKey, TValue> : DictionaryFormatterBase<TKey, TValue, Dictionary<TKey, TValue>, ReadOnlyDictionary<TKey, TValue>>
     {
         protected override void Add(ref Dictionary<TKey, TValue> collection, int index, TKey key, TValue value)
@@ -285,6 +287,8 @@ namespace Utf8Json.Formatters
             return new ConcurrentDictionary<TKey, TValue>();
         }
     }
+
+#endif
 
     public sealed class NonGenericDictionaryFormatter<T> : IJsonFormatter<T>
         where T : class, System.Collections.IDictionary, new()

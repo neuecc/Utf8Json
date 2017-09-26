@@ -25,7 +25,6 @@ namespace Utf8Json.Formatters
             if (value == null) { writer.WriteNull(); return; }
 
             var type = value.GetType();
-            var ti = type.GetTypeInfo();
 
             if (type == typeof(object))
             {

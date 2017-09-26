@@ -512,6 +512,7 @@ namespace Utf8Json.Formatters
 
     public sealed class TimeSpanFormatter : IJsonFormatter<TimeSpan>
     {
+#if NETSTANDARD
         readonly string formatString;
 
         public TimeSpanFormatter()
@@ -523,15 +524,21 @@ namespace Utf8Json.Formatters
         {
             this.formatString = formatString;
         }
+#endif
 
         public void Serialize(ref JsonWriter writer, TimeSpan value, IJsonFormatterResolver formatterResolver)
         {
+#if NETSTANDARD
             writer.WriteString(value.ToString(formatString));
+#else
+            writer.WriteString(value.ToString());
+#endif
         }
 
         public TimeSpan Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var str = reader.ReadString();
+#if NETSTANDARD
             if (formatString == null)
             {
                 return TimeSpan.Parse(str, CultureInfo.InvariantCulture);
@@ -540,6 +547,9 @@ namespace Utf8Json.Formatters
             {
                 return TimeSpan.ParseExact(str, formatString, CultureInfo.InvariantCulture);
             }
+#else
+            return TimeSpan.Parse(str);
+#endif
         }
     }
 

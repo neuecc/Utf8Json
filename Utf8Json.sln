@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E2F54E97-DBD4-46C9-AE10-0D4394889F25}"
 EndProject
@@ -24,6 +24,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utf8Json.AspNetCoreMvcFormatter", "src\Utf8Json.AspNetCoreMvcFormatter\Utf8Json.AspNetCoreMvcFormatter.csproj", "{D32F3243-0511-4995-BE08-F6F82D8F7C85}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PerfBenchmark", "sandbox\PerfBenchmark\PerfBenchmark.csproj", "{8F7C9DEC-7B36-4704-A5FE-7B59F766EB67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utf8Json.CodeGenerator", "src\Utf8Json.CodeGenerator\Utf8Json.CodeGenerator.csproj", "{32B23162-7C3E-458B-A721-392B453FF1C5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utf8Json.UniversalCodeGenerator", "src\Utf8Json.UniversalCodeGenerator\Utf8Json.UniversalCodeGenerator.csproj", "{E9F023EE-3B1D-411E-AB70-49C895778603}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utf8Json.UnityShims", "src\Utf8Json.UnityShims\Utf8Json.UnityShims.csproj", "{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +86,24 @@ Global
 		{8F7C9DEC-7B36-4704-A5FE-7B59F766EB67}.DumpAsm|Any CPU.Build.0 = DumpAsm|Any CPU
 		{8F7C9DEC-7B36-4704-A5FE-7B59F766EB67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F7C9DEC-7B36-4704-A5FE-7B59F766EB67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32B23162-7C3E-458B-A721-392B453FF1C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32B23162-7C3E-458B-A721-392B453FF1C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32B23162-7C3E-458B-A721-392B453FF1C5}.DumpAsm|Any CPU.ActiveCfg = Debug|Any CPU
+		{32B23162-7C3E-458B-A721-392B453FF1C5}.DumpAsm|Any CPU.Build.0 = Debug|Any CPU
+		{32B23162-7C3E-458B-A721-392B453FF1C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32B23162-7C3E-458B-A721-392B453FF1C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9F023EE-3B1D-411E-AB70-49C895778603}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9F023EE-3B1D-411E-AB70-49C895778603}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9F023EE-3B1D-411E-AB70-49C895778603}.DumpAsm|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9F023EE-3B1D-411E-AB70-49C895778603}.DumpAsm|Any CPU.Build.0 = Debug|Any CPU
+		{E9F023EE-3B1D-411E-AB70-49C895778603}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9F023EE-3B1D-411E-AB70-49C895778603}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}.DumpAsm|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}.DumpAsm|Any CPU.Build.0 = Debug|Any CPU
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,6 +117,9 @@ Global
 		{6297FDF5-1F3E-486F-A808-0F1AB9865789} = {E2F54E97-DBD4-46C9-AE10-0D4394889F25}
 		{D32F3243-0511-4995-BE08-F6F82D8F7C85} = {E2F54E97-DBD4-46C9-AE10-0D4394889F25}
 		{8F7C9DEC-7B36-4704-A5FE-7B59F766EB67} = {F1550987-10B3-4D54-8A74-06160EC00F16}
+		{32B23162-7C3E-458B-A721-392B453FF1C5} = {E2F54E97-DBD4-46C9-AE10-0D4394889F25}
+		{E9F023EE-3B1D-411E-AB70-49C895778603} = {E2F54E97-DBD4-46C9-AE10-0D4394889F25}
+		{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98} = {E2F54E97-DBD4-46C9-AE10-0D4394889F25}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B746BCB5-7190-4187-A08B-0D1714A61F70}

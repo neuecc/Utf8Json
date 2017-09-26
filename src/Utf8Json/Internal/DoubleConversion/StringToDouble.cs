@@ -508,7 +508,7 @@ namespace Utf8Json.Internal.DoubleConversion
             double double_previous = new Double(double_guess).PreviousDouble();
 
             float f1 = (float)(double_previous);
-            float f2 = float_guess;
+            // float f2 = float_guess;
             float f3 = (float)(double_next);
             float f4;
             if (is_correct)

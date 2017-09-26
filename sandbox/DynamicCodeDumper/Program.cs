@@ -19,24 +19,13 @@ namespace DynamicCodeDumper
 
             try
             {
-                //DynamicObjectResolver.Default.GetFormatter<Test>();
-                //DynamicObjectResolver.Default.GetFormatter<Test2>();
-                //DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
-                DynamicObjectResolver.Default.GetFormatter<Person>();
-                DynamicObjectResolver.Default.GetFormatter<PersonSample>();
+                DynamicObjectResolver.Default.GetFormatter<Test>();
+                DynamicObjectResolver.Default.GetFormatter<Test2>();
+                DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
+                 DynamicObjectResolver.Default.GetFormatter<Person>();
+                DynamicObjectResolver.Default.GetFormatter<IInterface>();
 
 
-                var p = new Person
-                {
-                    Name = "John",
-                    Addresses = new[]
-                    {
-                        new Address { Street = "St." },
-                        new Address { Street = "Ave." }
-                    }
-                };
-
-                var result = JsonSerializer.Serialize(p);
 
             }
             catch (Exception ex)
@@ -77,6 +66,18 @@ namespace DynamicCodeDumper
             }
         }
     }
+
+
+    public interface IInterface
+    {
+        string Huga { get; }
+    }
+
+    public class MyClassInter : IInterface
+    {
+        public string Huga { get; set; }
+    }
+
 
     internal static class CheckCheck
     {

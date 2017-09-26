@@ -287,3 +287,4 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 /sandbox/PerfBenchmark/BenchmarkDotNet.Artifacts/results
+/src/Utf8Json.UnityClient/Library

@@ -19,7 +19,7 @@ namespace Utf8Json.Internal.Emit
         public MetaType(Type type, Func<string, string> nameMutetor, bool allowPrivate)
         {
             var ti = type.GetTypeInfo();
-            var isClass = ti.IsClass;
+            var isClass = ti.IsClass || ti.IsInterface || ti.IsAbstract;
 
             this.Type = type;
             var stringMembers = new Dictionary<string, MetaMember>();
@@ -76,12 +76,6 @@ namespace Utf8Json.Internal.Emit
                     {
                         ctor = ctorEnumerator.Current;
                     }
-                }
-
-                // struct allows null ctor
-                if (ctor == null && isClass)
-                {
-                    throw new InvalidOperationException("can't find public constructor. type:" + type.FullName);
                 }
 
                 if (ctor != null)

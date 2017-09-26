@@ -214,7 +214,6 @@ namespace Utf8Json
 
                 public CompiledMethods(Type type)
                 {
-                    var ti = type.GetTypeInfo();
                     {
                         var dm = new DynamicMethod("serialize1", typeof(byte[]), new[] { typeof(object), typeof(IJsonFormatterResolver) });
                         var il = dm.GetILGenerator();

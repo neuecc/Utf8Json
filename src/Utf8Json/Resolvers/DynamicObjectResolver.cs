@@ -860,8 +860,6 @@ namespace Utf8Json.Resolvers.Internal
             var index = 0;
             foreach (var item in info.Members.Where(x => x.IsReadable))
             {
-                byte[] rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
-
                 if (excludeNull)
                 {
                     il.MarkLabel(labels[index]);
@@ -896,6 +894,8 @@ namespace Utf8Json.Resolvers.Internal
                 emitStringByteKeys();
                 il.EmitLdc_I4(index);
                 il.Emit(OpCodes.Ldelem_Ref);
+#if NETSTANDARD
+                byte[] rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
                 if (rawField.Length < 32)
                 {
                     if (UnsafeMemory.Is32Bit)
@@ -911,6 +911,9 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     il.EmitCall(EmitInfo.UnsafeMemory_MemoryCopy);
                 }
+#else
+                il.EmitCall(EmitInfo.JsonWriter.WriteRaw);
+#endif
 
                 // EmitValue
                 EmitSerializeValue(typeInfo, item, il, index, tryEmitLoadCustomFormatter, argWriter, argValue, argResolver);
@@ -964,6 +967,14 @@ namespace Utf8Json.Resolvers.Internal
 
         static void BuildDeserialize(Type type, MetaType info, ILGenerator il, Func<int, MetaMember, bool> tryEmitLoadCustomFormatter, int firstArgIndex)
         {
+            if (info.IsClass && info.BestmatchConstructor == null)
+            {
+                il.Emit(OpCodes.Ldstr, "generated serializer for " + type.Name + " does not support deserialize.");
+                il.Emit(OpCodes.Newobj, EmitInfo.InvalidOperationExceptionConstructor);
+                il.Emit(OpCodes.Throw);
+                return;
+            }
+
             var argReader = new ArgumentField(il, firstArgIndex);
             var argResolver = new ArgumentField(il, firstArgIndex + 1);
 
@@ -1195,8 +1206,11 @@ namespace Utf8Json.Resolvers.Internal
         internal static class EmitInfo
         {
             public static readonly ConstructorInfo ObjectCtor = typeof(object).GetTypeInfo().DeclaredConstructors.First(x => x.GetParameters().Length == 0);
+
             public static readonly MethodInfo GetFormatterWithVerify = typeof(JsonFormatterResolverExtensions).GetRuntimeMethod("GetFormatterWithVerify", new[] { typeof(IJsonFormatterResolver) });
+#if NETSTANDARD
             public static readonly MethodInfo UnsafeMemory_MemoryCopy = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer, byte[] src) => UnsafeMemory.MemoryCopy(ref writer, src));
+#endif
             public static readonly ConstructorInfo InvalidOperationExceptionConstructor = typeof(System.InvalidOperationException).GetTypeInfo().DeclaredConstructors.First(x => { var p = x.GetParameters(); return p.Length == 1 && p[0].ParameterType == typeof(string); });
             public static readonly MethodInfo GetTypeFromHandle = ExpressionUtility.GetMethodInfo(() => Type.GetTypeFromHandle(default(RuntimeTypeHandle)));
 
@@ -1228,6 +1242,7 @@ namespace Utf8Json.Resolvers.Internal
                 public static readonly MethodInfo GetEncodedPropertyName = ExpressionUtility.GetMethodInfo(() => Utf8Json.JsonWriter.GetEncodedPropertyName(default(string)));
 
                 public static readonly MethodInfo WriteNull = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer) => writer.WriteNull());
+                public static readonly MethodInfo WriteRaw = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer) => writer.WriteRaw(default(byte[])));
                 public static readonly MethodInfo WriteBeginObject = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer) => writer.WriteBeginObject());
                 public static readonly MethodInfo WriteEndObject = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer) => writer.WriteEndObject());
                 public static readonly MethodInfo WriteValueSeparator = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer) => writer.WriteValueSeparator());
@@ -1242,7 +1257,7 @@ namespace Utf8Json.Resolvers.Internal
                 public static readonly MethodInfo ReadIsNull = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.ReadIsNull());
                 public static readonly MethodInfo ReadIsBeginObjectWithVerify = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.ReadIsBeginObjectWithVerify());
                 public static readonly MethodInfo ReadIsEndObjectWithSkipValueSeparator = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader, int count) => reader.ReadIsEndObjectWithSkipValueSeparator(ref count));
-                public static readonly MethodInfo ReadPropertyNameSegmentUnsafe = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.ReadPropertyNameSegmentUnescaped());
+                public static readonly MethodInfo ReadPropertyNameSegmentUnsafe = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.ReadPropertyNameSegmentRaw());
                 public static readonly MethodInfo ReadNextBlock = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.ReadNextBlock());
                 public static readonly MethodInfo GetBufferUnsafe = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.GetBufferUnsafe());
                 public static readonly MethodInfo GetCurrentOffsetUnsafe = ExpressionUtility.GetMethodInfo((Utf8Json.JsonReader reader) => reader.GetCurrentOffsetUnsafe());
@@ -1254,8 +1269,8 @@ namespace Utf8Json.Resolvers.Internal
 
             internal static class JsonFormatterAttr
             {
-                internal static readonly MethodInfo FormatterType = ExpressionUtility.GetPropertyInfo((Utf8Json.JsonFormatterAttribute attr) => attr.FormatterType).GetMethod;
-                internal static readonly MethodInfo Arguments = ExpressionUtility.GetPropertyInfo((Utf8Json.JsonFormatterAttribute attr) => attr.Arguments).GetMethod;
+                internal static readonly MethodInfo FormatterType = ExpressionUtility.GetPropertyInfo((Utf8Json.JsonFormatterAttribute attr) => attr.FormatterType).GetGetMethod();
+                internal static readonly MethodInfo Arguments = ExpressionUtility.GetPropertyInfo((Utf8Json.JsonFormatterAttribute attr) => attr.Arguments).GetGetMethod();
             }
         }
 
