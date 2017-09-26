@@ -1,6 +1,6 @@
 Utf8Json - Fast JSON Serializer for C#
 ===
- [![Build status](https://ci.appveyor.com/api/projects/status/d753jtp9eat34hol?svg=true)](https://ci.appveyor.com/project/neuecc/utf8json) [![Releases](https://img.shields.io/github/release/neuecc/Utf8Json.svg)](https://github.com/neuecc/Utf8Json/releases)
+ [![Releases](https://img.shields.io/github/release/neuecc/Utf8Json.svg)](https://github.com/neuecc/Utf8Json/releases)
 
 Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, Unity and Xamarin), this serializer write/read directly to UTF8 binary so boostup performance. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
 
