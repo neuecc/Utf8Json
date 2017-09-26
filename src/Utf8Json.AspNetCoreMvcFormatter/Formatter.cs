@@ -3,19 +3,19 @@ using System.Threading.Tasks;
 
 namespace Utf8Json.AspNetCoreMvcFormatter
 {
-    public class MessagePackOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadataProvider
+    public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadataProvider
     {
         const string ContentType = "application/json";
         static readonly string[] SupportedContentTypes = new[] { ContentType };
 
         readonly IJsonFormatterResolver resolver;
 
-        public MessagePackOutputFormatter()
+        public JsonOutputFormatter()
             : this(null)
         {
 
         }
-        public MessagePackOutputFormatter(IJsonFormatterResolver resolver)
+        public JsonOutputFormatter(IJsonFormatterResolver resolver)
         {
             this.resolver = resolver ?? JsonSerializer.DefaultResolver;
         }
@@ -48,20 +48,20 @@ namespace Utf8Json.AspNetCoreMvcFormatter
         }
     }
 
-    public class MessagePackInputFormatter : IInputFormatter // , IApiRequestFormatMetadataProvider
+    public class JsonInputFormatter : IInputFormatter // , IApiRequestFormatMetadataProvider
     {
         const string ContentType = "application/json";
         static readonly string[] SupportedContentTypes = new[] { ContentType };
 
         readonly IJsonFormatterResolver resolver;
 
-        public MessagePackInputFormatter()
+        public JsonInputFormatter()
             : this(null)
         {
 
         }
 
-        public MessagePackInputFormatter(IJsonFormatterResolver resolver)
+        public JsonInputFormatter(IJsonFormatterResolver resolver)
         {
             this.resolver = resolver ?? JsonSerializer.DefaultResolver;
         }

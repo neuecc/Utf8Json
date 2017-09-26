@@ -23,20 +23,20 @@ namespace DynamicCodeDumper
                 //DynamicObjectResolver.Default.GetFormatter<Test2>();
                 //DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
                 DynamicObjectResolver.Default.GetFormatter<Person>();
-                DynamicObjectResolver.Default.GetFormatter<Address>();
+                DynamicObjectResolver.Default.GetFormatter<PersonSample>();
 
-                
-            var p = new Person
-            {
-                Name = "John",
-                Addresses = new[]
+
+                var p = new Person
                 {
+                    Name = "John",
+                    Addresses = new[]
+                    {
                         new Address { Street = "St." },
                         new Address { Street = "Ave." }
                     }
-            };
+                };
 
-            var result = JsonSerializer.Serialize(p);
+                var result = JsonSerializer.Serialize(p);
 
             }
             catch (Exception ex)
@@ -95,6 +95,12 @@ namespace DynamicCodeDumper
     {
         public string Name { get; set; }
         public object[] /*Address*/ Addresses { get; set; }
+    }
+
+    public class PersonSample
+    {
+        public int Age { get; set; }
+        public string Name { get; set; }
     }
 
 
