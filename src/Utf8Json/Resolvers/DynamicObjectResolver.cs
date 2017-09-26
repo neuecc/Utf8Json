@@ -47,7 +47,7 @@ namespace Utf8Json.Resolvers
 
 namespace Utf8Json.Resolvers.Internal
 {
-#if DEBUG && NET_35
+#if DEBUG && NET45
     public interface ISave
     {
         AssemblyBuilder Save();
@@ -57,7 +57,7 @@ namespace Utf8Json.Resolvers.Internal
     #region DynamicAssembly
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullFalseNameMutateOriginal : IJsonFormatterResolver
-#if DEBUG && NET_35
+#if DEBUG && NET45
             , ISave
 #endif
     {
@@ -78,7 +78,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET_35
+#if DEBUG && NET45
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -102,7 +102,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullFalseNameMutateCamelCase : IJsonFormatterResolver
-#if DEBUG && NET_35
+#if DEBUG && NET45
             , ISave
 #endif
     {
@@ -123,7 +123,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET_35
+#if DEBUG && NET45
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -147,7 +147,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullFalseNameMutateSnakeCase : IJsonFormatterResolver
-#if DEBUG && NET_35
+#if DEBUG && NET45
             , ISave
 #endif
     {
@@ -168,7 +168,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET_35
+#if DEBUG && NET45
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -192,7 +192,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullTrueNameMutateOriginal : IJsonFormatterResolver
-#if DEBUG && NET_35
+#if DEBUG && NET45
             , ISave
 #endif
     {
@@ -213,7 +213,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET_35
+#if DEBUG && NET45
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -237,7 +237,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullTrueNameMutateCamelCase : IJsonFormatterResolver
-#if DEBUG && NET_35
+#if DEBUG && NET45
             , ISave
 #endif
     {
@@ -258,7 +258,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET_35
+#if DEBUG && NET45
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -282,7 +282,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullTrueNameMutateSnakeCase : IJsonFormatterResolver
-#if DEBUG && NET_35
+#if DEBUG && NET45
             , ISave
 #endif
     {
@@ -303,7 +303,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET_35
+#if DEBUG && NET45
         public AssemblyBuilder Save()
         {
             return assembly.Save();

@@ -39,41 +39,24 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            CompositeResolver.RegisterAndSetAsDefault(new[] {
-            // add custome formatters, use other DateTime format.
-            new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
-        }, new[] {
-            // resolver custom types first
-            ImmutableCollectionResolver.Instance,
-            EnumResolver.UnderlyingValue,
+            var a = (IDictionary<int, int>)new Dictionary<int, int>() { { 1, 100 } };
 
-            // finaly choose standard resolver
-            StandardResolver.AllowPrivateExcludeNullSnakeCase
-        });
+            var json = JsonSerializer.ToJsonString(a);
+            Console.WriteLine(json);
+            JsonSerializer.Deserialize<IDictionary<int, int>>(json);
 
-            var a = new object();
-            var b = new object();
-            var c = new object();
-
-
-
-            var huga = JsonSerializer.ToJsonString(new Person() { Birth = DateTime.Now });
-
-
-            
-            
 
         }
     }
 
-public class Person
-{
-    public int Age { get; set; }
-    public string Name { get; set; }
+    public class Person
+    {
+        public int Age { get; set; }
+        public string Name { get; set; }
 
-    [JsonFormatter(typeof(DateTimeFormatter), "yyyy-MM-dd")]
-    public DateTime Birth { get; set; }
-}
+        [JsonFormatter(typeof(DateTimeFormatter), "yyyy-MM-dd")]
+        public DateTime Birth { get; set; }
+    }
 
 
     public class FileInfoFormatter<T> : IJsonFormatter<FileInfo>

@@ -168,7 +168,7 @@ namespace Utf8Json
         {
             if (resolver == null) resolver = DefaultResolver;
 
-#if NETSTANDARD
+#if NETSTANDARD && !NET45
             var ms = stream as MemoryStream;
             ArraySegment<byte> buf2;
             if (ms.TryGetBuffer(out buf2))

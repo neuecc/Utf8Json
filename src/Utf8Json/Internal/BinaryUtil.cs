@@ -99,7 +99,7 @@ namespace Utf8Json.Internal
 
             byte[] dst = new byte[newSize];
 
-#if NETSTANDARD
+#if NETSTANDARD && !NET45
             fixed (byte* pSrc = &src[0])
             fixed (byte* pDst = &dst[0])
             {

@@ -70,7 +70,7 @@ The approach of directly write/read from JSON binary is similar to [corefxlab/Sy
 
 Install and QuickStart
 ---
-The library provides in NuGet except for Unity. Standard library availables for .NET Standard 2.0.
+The library provides in NuGet except for Unity. Standard library availables for .NET Framework 4.5 and .NET Standard 2.0.
 
 ```
 Install-Package Utf8Json
@@ -79,9 +79,9 @@ Install-Package Utf8Json
 And official Extension Packages for support other library(ImmutableCollection) or binding for framework(ASP.NET Core MVC).
 
 ```
-Install-Package MessagePack.ImmutableCollection
-Install-Package MessagePack.UnityShims
-Install-Package MessagePack.AspNetCoreMvcFormatter
+Install-Package Utf8Json.ImmutableCollection
+Install-Package Utf8Json.UnityShims
+Install-Package Utf8Json.AspNetCoreMvcFormatter
 ```
 
 for Unity, download from [releases](https://github.com/neuecc/Utf8Json/releases) page, providing .unitypackage. for Unity details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
@@ -93,7 +93,6 @@ var p = new Person { Age = 99, Name = "foobar" };
 
 // Object -> byte[] (UTF8)
 byte[] result = JsonSerializer.Serialize(p);
-
 
 // byte[] -> Object
 var p2 = JsonSerializer.Deserialize<Person>(result);
@@ -125,7 +124,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
         this.stringByteKeys = new byte[][]
         {
             JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"), // {\"Age\":
-            JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name") // ",\"Name\":
+            JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name") // ,\"Name\":
         };
     }
 
@@ -383,7 +382,7 @@ You can see many other samples from [builtin formatters](https://github.com/neue
 
 Primitive API(JsonReader/JsonWriter)
 ---
-`JsonReader` and `JsonWriter` is most low-level API. It is mutable struct so it must pass by ref. C# 7.2 supports ref-like types(see: [csharp-7.2/span-safety.md](https://github.com/dotnet/csharplang/blob/master/proposals/csharp-7.2/span-safety.md) but not yet implements in C#, be careful to use.
+`JsonReader` and `JsonWriter` is most low-level API. It is mutable struct so it must pass by ref. C# 7.2 supports ref-like types(see: [csharp-7.2/span-safety.md](https://github.com/dotnet/csharplang/blob/master/proposals/csharp-7.2/span-safety.md)) but not yet implements in C#, be careful to use.
 
 `JsonReader` and `JsonWriter` is too primitive(performance reason), slightly odd. Internal state manages only int offset. You should manage other state(in array, in object...) manualy in outer.
 

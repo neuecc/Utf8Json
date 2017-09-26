@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
+# Visual Studio 2015
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utf8Json.UnityClient", "Utf8Json.UnityClient.csproj", "{C8C01D8D-4A60-6344-E303-020A5F611A7C}"
 EndProject
 Global

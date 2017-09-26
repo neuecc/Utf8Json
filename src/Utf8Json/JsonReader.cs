@@ -418,7 +418,7 @@ namespace Utf8Json
 
         public void ReadIsNameSeparatorWithVerify()
         {
-            if (!ReadIsNameSeparator()) throw CreateParsingException(".");
+            if (!ReadIsNameSeparator()) throw CreateParsingException(":");
         }
 
         void ReadStringSegmentCore(out byte[] resultBytes, out int resultOffset, out int resultLength)
@@ -604,8 +604,8 @@ namespace Utf8Json
             return key;
         }
 
-        /// <summary>Get raw string-span(do not unescape) + ReadIsNameSeparatorWithVerify</summary>
-        public ArraySegment<byte> ReadPropertyNameSegmentRaw()
+        /// <summary>Get raw string-span(do not unescape)</summary>
+        public ArraySegment<byte> ReadStringSegmentRaw()
         {
             ArraySegment<byte> key = default(ArraySegment<byte>);
             if (ReadIsNull())
@@ -640,7 +640,14 @@ namespace Utf8Json
                 OK:
                 key = new ArraySegment<byte>(bytes, from, offset - from - 1); // remove \"
             }
+            
+            return key;
+        }
 
+        /// <summary>Get raw string-span(do not unescape) + ReadIsNameSeparatorWithVerify</summary>
+        public ArraySegment<byte> ReadPropertyNameSegmentRaw()
+        {
+            var key = ReadStringSegmentRaw();
             ReadIsNameSeparatorWithVerify();
             return key;
         }

@@ -49,7 +49,7 @@ namespace Utf8Json.Formatters
 
         public <#= t.Name #> DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadStringSegmentRaw();
             int _;
             return NumberConverter.Read<#= t.Name #>(key.Array, key.Offset, out _);
         }
@@ -96,7 +96,7 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) return null;
 
-            var key = reader.ReadPropertyNameSegmentUnescaped();
+            var key = reader.ReadStringSegmentRaw();
             int _;
             return NumberConverter.Read<#= t.Name #>(key.Array, key.Offset, out _);
         }

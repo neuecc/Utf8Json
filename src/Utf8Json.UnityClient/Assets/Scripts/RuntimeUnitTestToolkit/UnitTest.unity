@@ -718,7 +718,6 @@ GameObject:
   - component: {fileID: 1502002503}
   - component: {fileID: 1502002502}
   - component: {fileID: 1502002501}
-  - component: {fileID: 1502002506}
   - component: {fileID: 1502002505}
   m_Layer: 5
   m_Name: Canvas
@@ -811,23 +810,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1502002500}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d25cbc05d32945240920a5de0a8d64bf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  clearButton: {fileID: 1337584758}
-  list: {fileID: 1903152286}
-  listScrollBar: {fileID: 99089801}
-  logText: {fileID: 1607029148}
-  logScrollBar: {fileID: 2074381937}
---- !u!114 &1502002506
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1502002500}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 660baed073888b8438569f57e42679b2, type: 3}
+  m_Script: {fileID: 11500000, guid: 16155e678c92ab94cafdaaedd94de614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   clearButton: {fileID: 1337584758}

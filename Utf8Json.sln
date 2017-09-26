@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E2F54E97-DBD4-46C9-AE10-0D4394889F25}"
 EndProject
@@ -29,7 +29,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utf8Json.CodeGenerator", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utf8Json.UniversalCodeGenerator", "src\Utf8Json.UniversalCodeGenerator\Utf8Json.UniversalCodeGenerator.csproj", "{E9F023EE-3B1D-411E-AB70-49C895778603}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utf8Json.UnityShims", "src\Utf8Json.UnityShims\Utf8Json.UnityShims.csproj", "{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utf8Json.UnityShims", "src\Utf8Json.UnityShims\Utf8Json.UnityShims.csproj", "{7D6E2A6A-E085-4733-9E9C-C139A4BA0F98}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{6E05599A-3850-49AD-AD11-3024DEA43E23}"
+	ProjectSection(SolutionItems) = preProject
+		docs\pack.bat = docs\pack.bat
+		docs\push.bat = docs\push.bat
+		docs\Utf8Json.AspNetCoreMvcFormatter.nuspec = docs\Utf8Json.AspNetCoreMvcFormatter.nuspec
+		docs\Utf8Json.ImmutableCollection.nuspec = docs\Utf8Json.ImmutableCollection.nuspec
+		docs\Utf8Json.nuspec = docs\Utf8Json.nuspec
+		docs\Utf8Json.UnityShims.nuspec = docs\Utf8Json.UnityShims.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,8 +50,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.DumpAsm|Any CPU.ActiveCfg = DumpAsm|Any CPU
-		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.DumpAsm|Any CPU.Build.0 = DumpAsm|Any CPU
+		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.DumpAsm|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.DumpAsm|Any CPU.Build.0 = Debug|Any CPU
 		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE4B8434-240D-4AAE-A35D-7BB664271EBC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B98F5A74-0A8B-4869-9837-91FE8A4703E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
