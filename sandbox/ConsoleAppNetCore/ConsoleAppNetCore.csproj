@@ -6,4 +6,8 @@
     <Configurations>Debug;Release;DumpAsm</Configurations>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Utf8Json\Utf8Json.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -111,7 +111,7 @@ Performance of Serialize
 ---
 This image is what code is generated when object serializing.
 
-![image](https://user-images.githubusercontent.com/46207/30877753-a1105aaa-a335-11e7-9d4a-fb706aa37a54.png)
+![image](https://user-images.githubusercontent.com/46207/30877807-c7f264d8-a335-11e7-91d8-ad1029d4ae86.png)
 
 ```csharp
 // Disassemble generated serializer code.
@@ -148,7 +148,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
 
 Object to JSON's main serialization cost is write property name. Utf8Json create cache at first and after that only do memory copy. Optimize part1, concatenate "{", ":" and "." to cached  propertyname. Optimize part2, use optimized custom memory copy method(see: [UnsafeMemory.cs](https://github.com/neuecc/MessagePack-CSharp/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/MessagePack/Internal/UnsafeMemory.cs)). Normally memory copy is used `Buffer.BlockCopy` but it has some overhead when target binary is small enough, releated to [dotnet/coreclr - issue #9786 Optimize Buffer.MemoryCopy](https://github.com/dotnet/coreclr/pull/9786). Utf8Json don't use `Buffer.BlockCopy` and generates length specialized copy code that can reduce branch cost.
 
-Number conversion is often high cost. If target encoding is UTF8 only, we can use `itoa` algorithm so avoid `int.ToString` and UTF8 encode cost. Especialy double-conversion, Utf8Json is ported [ google/double-conversion](https://github.com/google/double-conversion) algorithm, it is fast `dtoa` and `atod` works.
+Number conversion is often high cost. If target encoding is UTF8 only, we can use `itoa` algorithm so avoid `int.ToString` and UTF8 encode cost. Especialy double-conversion, Utf8Json ported [ google/double-conversion](https://github.com/google/double-conversion) algorithm, it is fast `dtoa` and `atod` works.
 
 Other optimize techniques.
 
@@ -157,8 +157,8 @@ Other optimize techniques.
 * Avoid boxing all codes, all platforms(include Unity/IL2CPP)
 * Heavyly tuned dynamic il code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L963)
 * Call Primitive API directly when il code generation knows target is primitive
-* Getting cached generated formatter on static generic field(don't use dictinary-cache because dictionary lookup is overhead)
-* Don't use IEnumerable<T> abstraction on iterate collection, specialized each collection types, see:[CollectionFormatter.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Formatters/CollectionFormatters.cs)
+* Getting cached generated formatter on static generic field(don't use dictionary-cache because lookup is overhead)
+* Don't use `IEnumerable<T>` abstraction on iterate collection, specialized each collection types, see:[CollectionFormatter.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Formatters/CollectionFormatters.cs)
 * Uses optimized type key dictionary for non-generic methods, see: [ThreadsafeTypeKeyHashTable.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Internal/ThreadsafeTypeKeyHashTable.cs)
 
 Performance of Deserialize
@@ -167,7 +167,7 @@ When deserializing, requires property name to target member name matching. Utf8J
 
 ![image](https://user-images.githubusercontent.com/46207/29754771-216b40e2-8bc7-11e7-8310-1c3602e80a08.png)
 
-use raw byte[] slice and try to match each `long type` (per 8 character, if it is not enough, pad with 0).
+use raw byte[] slice and try to match each `ulong type` (per 8 character, if it is not enough, pad with 0).
 
 ```csharp
 // Disassemble generated serializer code.
@@ -236,49 +236,79 @@ Utf8Json has sufficient extensiblity. You can add custom type support and has so
 
 Object Serialization
 ---
-MessagePack for C# can serialze your own public `Class` or `Struct`. Serialization target must marks `[MessagePackObject]` and `[Key]`. Key type can choose int or string. If key type is int, serialized format is used array. If key type is string, serialized format is used map. If you define `[MessagePackObject(keyAsPropertyName: true)]`, does not require `KeyAttribute`.
+Utf8Json can serialze your own public `Class` or `Struct`. In default, serializer search all public instance member(field or property) and uses there member name as json property name. If you want to avoid serialization target, you can use `[IgnoreDataMember]` attribute of `System.Runtime.Serialization` to target member. If you want to change property name, you can use `[DataMember(Name = string)]` attribute of `System.Runtime.Serialization`.
 
-All patterns serialization target are public instance member(field or property). If you want to avoid serialization target, you can add `[IgnoreMember]` to target member.
+Utf8Json has other option, allows private/internal member serialization, convert property name to camelCalse/snake_case, if value is null does not create property. Or you can use a different DateTime format(default is ISO8601). The details, please read [ExtensionPoint](https://github.com/neuecc/Utf8Json#extension-pointijsonformatterresolver) section. Here is sample.
 
-> target class must be public, does not allows private, internal class.
+```csharp
+// default serializer change to allow private/exclude null/snake_case serializer.
+JsonSerializer.SetDefaultResolver(StandardResolver.AllowPrivateExcludeNullSnakeCase);
 
-Which should uses int key or string key? I recommend use int key because faster and compact than string key. But string key has key name information, it is useful for debugging.
+var json = JsonSerializer.ToJsonString(new Person { Age = 23, FirstName = null, LastName = "Foo" });
 
-MessagePackSerializer requests target must put attribute is for robustness. If class is grown, you need to be conscious of versioning. MessagePackSerializer uses default value if key does not exists. If uses int key, should be start from 0 and should be sequential. If unnecessary properties come out, please make a missing number. Reuse is bad. Also, if Int Key's jump number is too large, it affects binary size.
-
-
-
-
-I don't need type, I want to use like BinaryFormatter! You can use as typeless resolver and helpers. Please see [Typeless section](https://github.com/neuecc/MessagePack-CSharp#typeless).
-
-Resolver is key customize point of MessagePack for C#. Details, please see [extension point](https://github.com/neuecc/MessagePack-CSharp#extension-pointiformatterresolver).
-
-
-You can use `[DataContract]` instead of `[MessagePackObject]`. If type is marked DataContract, you can use `[DataMember]` instead of `[Key]` and `[IgnoreDataMember]` instead of `[IgnoreMember]`.
-
-`[DataMember(Order = int)]` is same as `[Key(int)]`, `[DataMember(Name = string)]` is same as `[Key(string)]`. If use `[DataMember]`, same as `[Key(nameof(propertyname)]`.
-
-Using DataContract makes it a shared class library and you do not have to refer to MessagePack for C#. However, it is not included in analysis by Analyzer or code generation by `mpc.exe`. Also, functions like `UnionAttribute`, `MessagePackFormatterAttribute`, `SerializationConstructorAttribute` etc can not be used. For this reason, I recommend that you use the MessagePack for C# attribute basically.
-
-
+// {"age":23,"last_name":"Foo"}
+Console.WriteLine(json);
+```
 
 Serialize ImmutableObject(SerializationConstructor)
+---
+Utf8Json can deserialize immutable object like this.
 
-Object Type Serialization
+```
+public struct CustomPoint
+{
+    public readonly int X;
+    public readonly int Y;
 
+    public CustomPoint(int x, int y)
+    {
+        this.X = x;
+        this.Y = y;
+    }
+}
+```
 
+Utf8Json choose constructor with the most matched argument by name(ignore case).
 
+> MessagePack for C# choose `least` matched argument, please be aware of the opposite. This is design miss of MessagePack for C#.
+
+If can not match automatically, you can specify to use constructor manually by `[SerializationConstructorAttribute]`.
+
+```csharp
+public class CustomPoint
+{
+    public readonly int X;
+    public readonly int Y;
+
+    public CustomPoint(int x, int y)
+    {
+        this.X = x;
+        this.Y = y;
+    }
+
+    // used this constructor.
+    [SerializationConstructor]
+    public CustomPoint(int x)
+    {
+        this.X = x;
+    }
+}
+```
 
 Dynamic Deserialization
 ---
+If use JsonSerializer.Deserialize<object> or JsonSerializer.Deserialize<dynamic>, convert json to `bool`, `double`, `string`, `IDictionary<string, object>`, `List<object>`.
 
-MessagePackSerializer.Deserialize<dynamic>
+```csharp
+// dynamic json deserialize
+var json = JsonSerializer.Deserialize<dynamic>(@"{""foo"":""json"",""bar"":100,""nest"":{""foobar"":true}}");
 
+var r1 = json["foo"]; // "json" - dynamic(string)
+var r2 = json["bar"]; // 100 - dynamic(double), it can cast to int or other number.
+var r3 = json["nest"]["foobar"]; // true
+```
 
-
-Resolvers and Configuration(DateTime format, SnakeCase, etc...)
----
-
+If target is object, you access by string indexer.
 
 Which serializer should be used
 ---
@@ -310,9 +340,46 @@ High-Level API uses memory pool internaly to avoid unnecessary memory allocation
 
 Low-Level API(IJsonFormatter)
 ---
+IJsonFormatter is serializer by each type. For example `Int32Formatter : IJsonFormatter<Int32>` represents Int32 JSON serializer.
 
-// TODO:JsonFormatter?
+```csharp
+public interface IJsonFormatter<T> : IJsonFormatter
+{
+    void Serialize(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver);
+    T Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver);
+}
+```
 
+Many builtin formatters exists under Utf8Json.Formatters. You can get sub type serializer by `formatterResolver.GetFormatter<T>`. Here is sample of write own formatter.
+
+```csharp
+// serialize fileinfo as string fullpath.
+public class FileInfoFormatter<T> : IJsonFormatter<FileInfo>
+{
+    public void Serialize(ref JsonWriter writer, FileInfo value, IJsonFormatterResolver formatterResolver)
+    {
+        if (value == null) { writer.WriteNull(); return; }
+
+        // if target type is primitive, you can also use writer.Write***.
+        formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.FullName, formatterResolver);
+    }
+
+    public FileInfo Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+    {
+        if (reader.ReadIsNull()) return null;
+
+        // if target type is primitive, you can also use reader.Read***.
+        var path = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, formatterResolver);
+        return new FileInfo(path);
+    }
+}
+```
+
+Created formatter needs to register to IFormatterResolver. Please see [Extension Point](https://github.com/neuecc/Utf8Json#extension-pointijsonformatterresolver) section.
+
+You can see many other samples from [builtin formatters](https://github.com/neuecc/Utf8Json/tree/master/src/Utf8Json/Formatters).
+
+> If target type requires support dictionary key, you need to implements `IObjectPropertyNameFormatter<T>`, too.
 
 Primitive API(JsonReader/JsonWriter)
 ---
@@ -324,6 +391,8 @@ Primitive API(JsonReader/JsonWriter)
 
 | Method | Description |
 | --- | --- |
+| AdvanceOffset | Advance offset manually. |
+| SkipWhiteSpace | Skip whitespace. |
 | ReadNext | Skip JSON token. |
 | ReadNextBlock | Skip JSON token with sub structures(array/object). This is useful for create deserializer. |
 | ReadIsNull | If is null return true. |

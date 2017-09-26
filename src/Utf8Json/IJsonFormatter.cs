@@ -15,7 +15,7 @@ namespace Utf8Json
         T Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver);
     }
 
-    public interface IObjectPropertyNameFormatter<T> : IJsonFormatter<T>
+    public interface IObjectPropertyNameFormatter<T>
     {
         void SerializeToPropertyName(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver);
         T DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver);

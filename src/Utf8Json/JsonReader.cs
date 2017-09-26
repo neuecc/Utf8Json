@@ -43,6 +43,11 @@ namespace Utf8Json
             }
         }
 
+        public void AdvanceOffset(int offset)
+        {
+            this.offset += offset;
+        }
+
         public byte[] GetBufferUnsafe()
         {
             return bytes;
@@ -196,7 +201,7 @@ namespace Utf8Json
             }
         }
 
-        void SkipWhiteSpace()
+        public void SkipWhiteSpace()
         {
             // eliminate array bound check
             for (int i = offset; i < bytes.Length; i++)

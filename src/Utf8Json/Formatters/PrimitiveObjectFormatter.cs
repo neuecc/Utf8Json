@@ -121,23 +121,23 @@ namespace Utf8Json.Formatters
                     }
                 case JsonToken.BeginArray:
                     {
-                        var array = new ArrayBuffer<object>(4);
+                        var list = new List<object>(4);
                         reader.ReadIsBeginArrayWithVerify();
                         var count = 0;
                         while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
                         {
-                            array.Add(Deserialize(ref reader, formatterResolver));
+                            list.Add(Deserialize(ref reader, formatterResolver));
                         }
-                        return array.ToArray();
+                        return list;
                     }
                 case JsonToken.Number:
                     return reader.ReadDouble();
                 case JsonToken.String:
                     return reader.ReadString();
                 case JsonToken.True:
-                    return true;
+                    return reader.ReadBoolean(); // require advance
                 case JsonToken.False:
-                    return false;
+                    return reader.ReadBoolean(); // require advance
                 case JsonToken.ValueSeparator:
                 case JsonToken.NameSeparator:
                 case JsonToken.EndArray:

@@ -35,7 +35,7 @@ namespace Utf8Json.Formatters
                         if (e.MoveNext())
                         {
                             var item = e.Current;
-                            keyFormatter.Serialize(ref writer, item.Key, formatterResolver);
+                            keyFormatter.SerializeToPropertyName(ref writer, item.Key, formatterResolver);
                             writer.WriteNameSeparator();
                             valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                         }
@@ -48,7 +48,7 @@ namespace Utf8Json.Formatters
                         {
                             writer.WriteValueSeparator();
                             var item = e.Current;
-                            keyFormatter.Serialize(ref writer, item.Key, formatterResolver);
+                            keyFormatter.SerializeToPropertyName(ref writer, item.Key, formatterResolver);
                             writer.WriteNameSeparator();
                             valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                         }
@@ -105,7 +105,7 @@ namespace Utf8Json.Formatters
                 var i = 0;
                 while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
                 {
-                    var key = keyFormatter.Deserialize(ref reader, formatterResolver);
+                    var key = keyFormatter.DesrializeFromPropertyName(ref reader, formatterResolver);
                     reader.ReadIsNameSeparatorWithVerify();
                     var value = valueFormatter.Deserialize(ref reader, formatterResolver);
                     Add(ref dict, i - 1, key, value);

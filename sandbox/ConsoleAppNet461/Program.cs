@@ -45,20 +45,22 @@ class Program
 #if DEBUG
 
 
-            var p = new Person { Age = 99, Name = "foobar" };
+       
 
-            // Object -> byte[] (UTF8)
-            byte[] result = JsonSerializer.Serialize(p);
+            //var p = new Person { Age = 99, Name = "foobar" };
+
+            //// Object -> byte[] (UTF8)
+            //byte[] result = JsonSerializer.Serialize(p);
 
 
-            // byte[] -> Object
-            var p2 = JsonSerializer.Deserialize<Person>(result);
+            //// byte[] -> Object
+            //var p2 = JsonSerializer.Deserialize<Person>(result);
 
-            // Object -> byte[]
-            var json = JsonSerializer.ToJsonString(p2);
+            //// Object -> byte[]
+            //var json = JsonSerializer.ToJsonString(p2);
 
-            // Write to Stream
-            JsonSerializer.Serialize(stream, p2);
+            //// Write to Stream
+            //JsonSerializer.Serialize(stream, p2);
 
 
 #else

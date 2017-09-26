@@ -126,7 +126,7 @@ namespace Utf8Json.Formatters
 namespace Utf8Json.Formatters
 {
     // can inehrit for set optimize manual serialize/deserialize func.
-    public class EnumFormatter<T> : IJsonFormatter<T>
+    public class EnumFormatter<T> : IJsonFormatter<T>, IObjectPropertyNameFormatter<T>
     {
         readonly static ByteArrayStringHashTable<T> nameValueMapping;
         readonly static Dictionary<T, string> valueNameMapping;
@@ -239,6 +239,38 @@ namespace Utf8Json.Formatters
             }
 
             throw new InvalidOperationException("Can't parse JSON to Enum format.");
+        }
+
+        public void SerializeToPropertyName(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver)
+        {
+            if (serializeByName)
+            {
+                Serialize(ref writer, value, formatterResolver);
+            }
+            else
+            {
+                writer.WriteQuotation();
+                Serialize(ref writer, value, formatterResolver);
+                writer.WriteQuotation();
+            }
+        }
+
+        public T DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (serializeByName)
+            {
+                return Deserialize(ref reader, formatterResolver);
+            }
+            else
+            {
+                var token = reader.GetCurrentJsonToken();
+                if (token != JsonToken.String) throw new InvalidOperationException("Can't parse JSON to Enum format.");
+                reader.AdvanceOffset(1); // skip \""
+                var t = Deserialize(ref reader, formatterResolver); // token is Number
+                reader.SkipWhiteSpace();
+                reader.AdvanceOffset(1); // skip \""
+                return t;
+            }
         }
     }
 }
