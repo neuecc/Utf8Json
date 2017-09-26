@@ -1,4 +1,4 @@
-Utf8Json, JSON Serializer for C#(.NET, .NET Core, Unity, Xamarin)
+Utf8Json - JSON Serializer for C#
 ===
 // TODO: badge
 
