@@ -1,8 +1,8 @@
-Utf8Json - JSON Serializer for C#
+Utf8Json - Fast JSON Serializer for C#
 ===
 // TODO: badge
 
-Definitely Fastest and Zero Allocation JSON Serializer, this serializer only focus on performance of serialize/deserialize to UTF8 binary. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
+Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, Unity and Xamarin), this serializer only focus on performance of serialize/deserialize to UTF8 binary. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
 
 // TODO:graph
 
@@ -60,8 +60,8 @@ public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadata
             return Task.CompletedTask;
         }
 
-        // UTF8 JSON
-        // JsonSerializer.NonGeneric.Serialize(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
+        // Utf8Json
+        // Utf8Json.JsonSerializer.NonGeneric.Serialize(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
     }
 }
 ```
