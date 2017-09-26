@@ -2,9 +2,9 @@ Utf8Json - Fast JSON Serializer for C#
 ===
 // TODO: badge
 
-Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, Unity and Xamarin), this serializer only focus on performance of serialize/deserialize to UTF8 binary. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
+Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, Unity and Xamarin), this serializer write/read directly to UTF8 binary so boostup performance. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
 
-// TODO:graph
+![image](https://user-images.githubusercontent.com/46207/30883721-11e0526e-a348-11e7-86f8-efff85a9afe0.png)
 
 Utf8Json does not beat MessagePack for C#(binary), but shows a similar memory consumption(there is no additional memory allocation) and achieves higher performance than other JSON serializers.
 
@@ -84,7 +84,7 @@ Install-Package MessagePack.UnityShims
 Install-Package MessagePack.AspNetCoreMvcFormatter
 ```
 
-for Unity, download from releases(TODO:link) page, providing .unitypackage. for Unity details, see Unity section. // TODO:link
+for Unity, download from [releases](https://github.com/neuecc/Utf8Json/releases) page, providing .unitypackage. for Unity details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
 
 QuickStart, you can call `Utf8Json.JsonSerializer`.`Serialize/Deserialize`.
 
@@ -105,7 +105,7 @@ var json = JsonSerializer.ToJsonString(p2);
 JsonSerializer.Serialize(stream, p2);
 ```
 
-In default, you can serialize all public members. You can customize serialize to private, exclude null, change DateTime format(default is ISO8601), enum handling, etc. see the [TODO] section.
+In default, you can serialize all public members. You can customize serialize to private, exclude null, change DateTime format(default is ISO8601), enum handling, etc. see the [Resolver](https://github.com/neuecc/Utf8Json#resolver) section.
 
 Performance of Serialize
 ---
@@ -153,17 +153,17 @@ Number conversion is often high cost. If target encoding is UTF8 only, we can us
 Other optimize techniques.
 
 * High-level API uses internal memory pool, don't allocate working memory under 64K
-* Struct JsonWriter does not allocate any more and wrie underlying byte[] directly, don't use TextWriter
+* Struct JsonWriter does not allocate any more and write underlying byte[] directly, don't use TextWriter
 * Avoid boxing all codes, all platforms(include Unity/IL2CPP)
-* Heavyly tuned dynamic il code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L963)
-* Call Primitive API directly when il code generation knows target is primitive
+* Heavyly tuned dynamic IL code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L1187)
+* Call Primitive API directly when IL code generation knows target is primitive
 * Getting cached generated formatter on static generic field(don't use dictionary-cache because lookup is overhead)
 * Don't use `IEnumerable<T>` abstraction on iterate collection, specialized each collection types, see:[CollectionFormatter.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Formatters/CollectionFormatters.cs)
 * Uses optimized type key dictionary for non-generic methods, see: [ThreadsafeTypeKeyHashTable.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Internal/ThreadsafeTypeKeyHashTable.cs)
 
 Performance of Deserialize
 ---
-When deserializing, requires property name to target member name matching. Utf8Json avoid string key decode for matching, generate [automata](https://en.wikipedia.org/wiki/Automata_theory) based il inlining code.
+When deserializing, requires property name to target member name matching. Utf8Json avoid string key decode for matching, generate [automata](https://en.wikipedia.org/wiki/Automata_theory) based IL inlining code.
 
 ![image](https://user-images.githubusercontent.com/46207/29754771-216b40e2-8bc7-11e7-8310-1c3602e80a08.png)
 
@@ -238,7 +238,7 @@ Object Serialization
 ---
 Utf8Json can serialze your own public `Class` or `Struct`. In default, serializer search all public instance member(field or property) and uses there member name as json property name. If you want to avoid serialization target, you can use `[IgnoreDataMember]` attribute of `System.Runtime.Serialization` to target member. If you want to change property name, you can use `[DataMember(Name = string)]` attribute of `System.Runtime.Serialization`.
 
-Utf8Json has other option, allows private/internal member serialization, convert property name to camelCalse/snake_case, if value is null does not create property. Or you can use a different DateTime format(default is ISO8601). The details, please read [ExtensionPoint](https://github.com/neuecc/Utf8Json#extension-pointijsonformatterresolver) section. Here is sample.
+Utf8Json has other option, allows private/internal member serialization, convert property name to camelCalse/snake_case, if value is null does not create property. Or you can use a different DateTime format(default is ISO8601). The details, please read [Resolver](https://github.com/neuecc/Utf8Json#resolver) section. Here is sample.
 
 ```csharp
 // default serializer change to allow private/exclude null/snake_case serializer.
@@ -375,7 +375,7 @@ public class FileInfoFormatter<T> : IJsonFormatter<FileInfo>
 }
 ```
 
-Created formatter needs to register to IFormatterResolver. Please see [Extension Point](https://github.com/neuecc/Utf8Json#extension-pointijsonformatterresolver) section.
+Created formatter needs to register to IFormatterResolver. Please see [Resolver](https://github.com/neuecc/Utf8Json#resolver) section.
 
 You can see many other samples from [builtin formatters](https://github.com/neuecc/Utf8Json/tree/master/src/Utf8Json/Formatters).
 
@@ -385,9 +385,9 @@ Primitive API(JsonReader/JsonWriter)
 ---
 `JsonReader` and `JsonWriter` is most low-level API. It is mutable struct so it must pass by ref. C# 7.2 supports ref-like types(see: [csharp-7.2/span-safety.md](https://github.com/dotnet/csharplang/blob/master/proposals/csharp-7.2/span-safety.md) but not yet implements in C#, be careful to use.
 
-`JsonReader` and `JsonWriter` is too primitive(performance reason), slightly odd. Internal state manages only int offset. All state(Is in array, object...) manage manualy.
+`JsonReader` and `JsonWriter` is too primitive(performance reason), slightly odd. Internal state manages only int offset. You should manage other state(in array, in object...) manualy in outer.
 
-* JsonReader
+**JsonReader**
 
 | Method | Description |
 | --- | --- |
@@ -455,7 +455,7 @@ public List<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatt
 }
 ```
 
-* JsonWriter
+**JsonWriter**
 
 | Method | Description |
 | --- | --- |
@@ -520,8 +520,7 @@ public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolv
     writer.WriteEndArray(); // "]"
 }
 ```
-
-Extension Point(IJsonFormatterResolver)
+Resolver
 ---
 `IJsonFormatterResolver` is storage of typed serializers. Serializer api accepts resolver and can customize serialization.
 
@@ -542,28 +541,140 @@ StandardResolver has 12 option resolvers it combinate
 
 for example `StandardResolver.SnakeCase`, `StandardResolver.ExcludeNullCamelCase`, `StandardResolver.AllowPrivateExcludeNullSnakeCase`. `StandardResolver.Default` is AllowPrivate:False, ExcludeNull:False, NameMutate:Original.
 
-It is the only configuration point to assemble the resolver's priority. In most cases, it is sufficient to have one custom resolver globally. CompositeResolver will be its helper.
+Assemble the resolver's priority is the only configuration point of Utf8Json. It is too simple but well works. In most cases, it is sufficient to have one custom resolver globally. CompositeResolver will be its helper.
 
-// TODO:Is Composite Resolver?
+```csharp
+// use global-singleton CompositeResolver.
+// This method initialize CompositeResolver and set to default MessagePackSerializer
+CompositeResolver.RegisterAndSetAsDefault(new[] {
+    // add custome formatters, use other DateTime format.
+    new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+}, new[] {
+    // resolver custom types first
+    ImmutableCollectionResolver.Instance,
+    EnumResolver.UnderlyingValue,
 
+    // finaly choose standard resolver
+    StandardResolver.AllowPrivateExcludeNullSnakeCase
+});
+```
 
+```csharp
+// select resolver per invoke.
+JsonSerializer.Serialize(a, StandardResolver.Default);
+JsonSerializer.Serialize(a, StandardResolver.SnakeCase);
+JsonSerializer.Serialize(b, CompositeResolver.Instance);
+```
 
-// Resolvers?
+You can also build own custom composite resolver.
 
+```csharp
+// create custom composite resolver per project is recommended way.
+// let's try to copy and paste:)
+public class ProjectDefaultResolver : IJsonFormatterResolver
+{
+    public static IJsonFormatterResolver Instance = new ProjectDefaultResolver();
 
+    // configure your resolver and formatters.
+    static IJsonFormatter[] formatters = new IJsonFormatter[]{
+        new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+    };
 
-// TODO:Build own resolver?
+    static readonly IJsonFormatterResolver[] resolvers = new[]
+    {
+        ImmutableCollectionResolver.Instance,
+        EnumResolver.UnderlyingValue,
+        StandardResolver.AllowPrivateExcludeNullSnakeCase
+    };
+
+    ProjectDefaultResolver()
+    {
+    }
+
+    public IJsonFormatter<T> GetFormatter<T>()
+    {
+        return FormatterCache<T>.formatter;
+    }
+
+    static class FormatterCache<T>
+    {
+        public static readonly IJsonFormatter<T> formatter;
+
+        static FormatterCache()
+        {
+            foreach (var item in formatters)
+            {
+                foreach (var implInterface in item.GetType().GetTypeInfo().ImplementedInterfaces)
+                {
+                    var ti = implInterface.GetTypeInfo();
+                    if (ti.IsGenericType && ti.GenericTypeArguments[0] == typeof(T))
+                    {
+                        formatter = (IJsonFormatter<T>)item;
+                        return;
+                    }
+                }
+            }
+
+            foreach (var item in resolvers)
+            {
+                var f = item.GetFormatter<T>();
+                if (f != null)
+                {
+                    formatter = f;
+                    return;
+                }
+            }
+        }
+    }
+}
+```
 
 JsonFormatterAttribute
 ---
 JsonFormatterAttribute is lightweight extension point. This is like JSON.NET's JsonConverterAttribute. You can change to use formatter per type and member.
 
-// TODO:per type/ per property JsonFormatterAttribute
+```csharp
+// if serializing, choosed CustomObjectFormatter.
+[JsonFormatter(typeof(CustomObjectFormatter))]
+public class CustomObject
+{
+    string internalId;
 
+    public CustomObject()
+    {
+        this.internalId = Guid.NewGuid().ToString();
+    }
 
-// TODO:builtin formatters(DateTime, Enum, Etc...)
+    class CustomObjectFormatter : IJsonFormatter<CustomObject>
+    {
+        public void Serialize(ref JsonWriter writer, CustomObject value, IJsonFormatterResolver formatterResolver)
+        {
+            formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.internalId, formatterResolver);
+        }
 
+        public CustomObject Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var id = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, formatterResolver);
+            return new CustomObject { internalId = id };
+        }
+    }
+}
+```
 
+JsonFormatter can receive parameter and can attach to member. For example, configure DateTime format.
+
+```csharp
+public class Person
+{
+    public int Age { get; set; }
+    public string Name { get; set; }
+
+    [JsonFormatter(typeof(DateTimeFormatter), "yyyy-MM-dd")]
+    public DateTime Birth { get; set; }
+}
+```
+
+`DateTime`, `DateTimeOffset`, `TimeSpan` is used ISO8601 format in default by `ISO8601DateTimeFormatter`, `ISO8601DateTimeOffsetFormatter`, `ISO8601TimeSpanFormatter` but if you want to configure format, you can use `DateTimeFormatter`, `DateTimeOffsetFormatter`, `TimeSpanFormatter` with format string argument.
 
 Text Protocol Foundation
 ---

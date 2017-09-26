@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using Utf8Json;
+using Utf8Json.Formatters;
+using Utf8Json.ImmutableCollection;
 using Utf8Json.Resolvers;
 
 namespace ConsoleAppNetCore
@@ -36,22 +39,42 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            CompositeResolver.RegisterAndSetAsDefault(new[]{
-                EnumResolver.UnderlyingValue,
-                StandardResolver.Default
-            });
+            CompositeResolver.RegisterAndSetAsDefault(new[] {
+            // add custome formatters, use other DateTime format.
+            new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+        }, new[] {
+            // resolver custom types first
+            ImmutableCollectionResolver.Instance,
+            EnumResolver.UnderlyingValue,
 
-            var dict = new Dictionary<MyEnum, int>();
-            dict.Add(MyEnum.Fruit, 100);
-            dict.Add(MyEnum.Grape, 30000);
-            dict.Add(MyEnum.Orange, 99900);
+            // finaly choose standard resolver
+            StandardResolver.AllowPrivateExcludeNullSnakeCase
+        });
 
-            var bin = JsonSerializer.Serialize(dict);
+            var a = new object();
+            var b = new object();
+            var c = new object();
 
 
-            var foo = JsonSerializer.Deserialize<Dictionary<MyEnum, int>>(bin);
+
+            var huga = JsonSerializer.ToJsonString(new Person() { Birth = DateTime.Now });
+
+
+            
+            
+
         }
     }
+
+public class Person
+{
+    public int Age { get; set; }
+    public string Name { get; set; }
+
+    [JsonFormatter(typeof(DateTimeFormatter), "yyyy-MM-dd")]
+    public DateTime Birth { get; set; }
+}
+
 
     public class FileInfoFormatter<T> : IJsonFormatter<FileInfo>
     {
@@ -70,6 +93,95 @@ namespace ConsoleAppNetCore
             // if target type is primitive, you can also use reader.Read***.
             var path = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, formatterResolver);
             return new FileInfo(path);
+        }
+    }
+
+
+    // if serializing, choosed CustomObjectFormatter.
+    [JsonFormatter(typeof(CustomObjectFormatter))]
+    public class CustomObject
+    {
+        string internalId;
+
+        public CustomObject()
+        {
+            this.internalId = Guid.NewGuid().ToString();
+        }
+
+        // serialize/deserialize internal field.
+        class CustomObjectFormatter : IJsonFormatter<CustomObject>
+        {
+            public void Serialize(ref JsonWriter writer, CustomObject value, IJsonFormatterResolver formatterResolver)
+            {
+                formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.internalId, formatterResolver);
+            }
+
+            public CustomObject Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+            {
+                var id = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, formatterResolver);
+                return new CustomObject { internalId = id };
+            }
+        }
+    }
+
+
+
+    // create custom composite resolver per project is recommended way.
+    // let's try to copy and paste:)
+    public class ProjectDefaultResolver : IJsonFormatterResolver
+    {
+        public static IJsonFormatterResolver Instance = new ProjectDefaultResolver();
+
+        // configure your resolver and formatters.
+        static IJsonFormatter[] formatters = new IJsonFormatter[]{
+        new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+    };
+
+        static readonly IJsonFormatterResolver[] resolvers = new[]
+        {
+        ImmutableCollectionResolver.Instance,
+        EnumResolver.UnderlyingValue,
+        StandardResolver.AllowPrivateExcludeNullSnakeCase
+    };
+
+        ProjectDefaultResolver()
+        {
+        }
+
+        public IJsonFormatter<T> GetFormatter<T>()
+        {
+            return FormatterCache<T>.formatter;
+        }
+
+        static class FormatterCache<T>
+        {
+            public static readonly IJsonFormatter<T> formatter;
+
+            static FormatterCache()
+            {
+                foreach (var item in formatters)
+                {
+                    foreach (var implInterface in item.GetType().GetTypeInfo().ImplementedInterfaces)
+                    {
+                        var ti = implInterface.GetTypeInfo();
+                        if (ti.IsGenericType && ti.GenericTypeArguments[0] == typeof(T))
+                        {
+                            formatter = (IJsonFormatter<T>)item;
+                            return;
+                        }
+                    }
+                }
+
+                foreach (var item in resolvers)
+                {
+                    var f = item.GetFormatter<T>();
+                    if (f != null)
+                    {
+                        formatter = f;
+                        return;
+                    }
+                }
+            }
         }
     }
 }
