@@ -88,7 +88,7 @@ Install-Package Utf8Json.AspNetCoreMvcFormatter
 
 NuGet page links - [Utf8Json](https://www.nuget.org/packages/Utf8Json), [Utf8Json.ImmutableCollection](https://www.nuget.org/packages/Utf8Json.ImmutableCollection), [Utf8Json.UnityShims](https://www.nuget.org/packages/Utf8Json.UnityShims), [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter)
 
-for Unity, download from [releases](https://github.com/neuecc/Utf8Json/releases) page, providing .unitypackage. for Unity details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
+for Unity, you can download from [releases](https://github.com/neuecc/Utf8Json/releases) page. There providing .unitypackage. Unity support details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
 
 QuickStart, you can call `Utf8Json.JsonSerializer`.`Serialize/Deserialize`.
 
@@ -703,6 +703,8 @@ for Unity
 Unity has the [JsonUtility](https://docs.unity3d.com/2017.2/Documentation/Manual/JSONSerialization.html). It is well fast but has many limitations, can not serialize/deserialize dictionary or other collections and nullable, can not root array, can not handle null correctly, etc... Utf8Json has no limitation and performance is same or better especialy convert to/from byte[], Utf8Json achieves true no zero-allocation.
 
 In Unity version, added `UnityResolver` to StandardResolver in default. It enables serialize `Vector2`, `Vector3`, `Vector4`, `Quaternion`, `Color`, `Bounds`, `Rect`.
+
+`.unitypackage` is exists in [releases](https://github.com/neuecc/Utf8Json/releases) page. Zip archives includes unitypackage and code-generator.
 
 Pre Code Generation(Unity/Xamarin Supports)
 ---
