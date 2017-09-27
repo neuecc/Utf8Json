@@ -38,21 +38,21 @@ namespace ConsoleAppNetCore
         public Sample Child { get; set; }
     }
 
+    public class Foo
+    {
+        [JsonFormatter(typeof(StaticNullableFormatter<DateTime>), typeof(DateTimeFormatter), new[] { "yyyy-mm-dd" })]
+        public DateTime MyProperty { get; set; }
+    }
+
 
     class Program
     {
         static void Main(string[] args)
         {
+            var f = new Foo() { MyProperty = DateTime.Now };
 
-            var dto = DateTime.UtcNow;
-            var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
-            var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTime>(serialized);
-            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
 
-            //serialized2.Is(serialized);
-            Console.WriteLine(serialized);
-            Console.WriteLine(serialized2);
-
+            Console.WriteLine(JsonSerializer.ToJsonString(f));
 
 
         }

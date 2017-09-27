@@ -69,7 +69,7 @@ namespace Utf8Json.CodeGenerator.Generator
                     "ternal.AutomataDictionary()\r\n            {\r\n");
             
             #line 27 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
- var index = 0; foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { 
+ var index = 0; foreach(var x in objInfo.Members) { 
             
             #line default
             #line hidden
@@ -235,7 +235,7 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("\r\n");
             
             #line 76 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
- foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { 
+ foreach(var x in objInfo.Members) { 
             
             #line default
             #line hidden

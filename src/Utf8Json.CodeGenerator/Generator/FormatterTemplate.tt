@@ -24,7 +24,7 @@ namespace <#= Namespace #>
         {
             this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
             {
-<# var index = 0; foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { #>
+<# var index = 0; foreach(var x in objInfo.Members) { #>
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("<#= x.Name #>"), <#= index++ #>},
 <# } #>
             };
@@ -73,7 +73,7 @@ namespace <#= Namespace #>
 	        throw new InvalidOperationException("generated serializer for IInterface does not support deserialize.");
 <# } else { #>
 
-<# foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { #>
+<# foreach(var x in objInfo.Members) { #>
             var __<#= x.Name #>__ = default(<#= x.Type #>);
 <# } #>
 

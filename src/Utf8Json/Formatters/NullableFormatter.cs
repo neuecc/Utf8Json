@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Utf8Json.Formatters
 {
     public sealed class NullableFormatter<T> : IJsonFormatter<T?>
@@ -37,6 +39,18 @@ namespace Utf8Json.Formatters
         public StaticNullableFormatter(IJsonFormatter<T> underlyingFormatter)
         {
             this.underlyingFormatter = underlyingFormatter;
+        }
+
+        public StaticNullableFormatter(Type formatterType, object[] formatterArguments)
+        {
+            try
+            {
+                underlyingFormatter = (IJsonFormatter<T>)Activator.CreateInstance(formatterType, formatterArguments);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Can not create formatter from JsonFormatterAttribute, check the target formatter is public and has constructor with right argument. FormatterType:" + formatterType.Name, ex);
+            }
         }
 
         public void Serialize(ref JsonWriter writer, T? value, IJsonFormatterResolver formatterResolver)
