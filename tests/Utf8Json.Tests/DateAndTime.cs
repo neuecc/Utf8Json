@@ -87,6 +87,18 @@ namespace Utf8Json.Tests
                 serialized2.Is(serialized);
             }
         }
+
+
+        [Fact]
+        public void ShortFormat()
+        {
+            JsonSerializer.Deserialize<DateTime>(JsonSerializer.Serialize("2017")).Is(new DateTime(2017, 1, 1));
+            JsonSerializer.Deserialize<DateTime>(JsonSerializer.Serialize("2017-12")).Is(new DateTime(2017, 12, 1));
+            JsonSerializer.Deserialize<DateTime>(JsonSerializer.Serialize("2017-12-30")).Is(new DateTime(2017, 12, 30));
+            JsonSerializer.Deserialize<DateTimeOffset>(JsonSerializer.Serialize("2017")).Is(new DateTimeOffset(2017, 1, 1, 0, 0, 0, TimeSpan.Zero));
+            JsonSerializer.Deserialize<DateTimeOffset>(JsonSerializer.Serialize("2017-12")).Is(new DateTimeOffset(2017, 12, 1, 0, 0, 0, TimeSpan.Zero));
+            JsonSerializer.Deserialize<DateTimeOffset>(JsonSerializer.Serialize("2017-12-30")).Is(new DateTimeOffset(2017, 12, 30, 0, 0, 0, TimeSpan.Zero));
+        }
     }
 
 }

@@ -240,6 +240,33 @@ namespace Utf8Json.Formatters
             var i = str.Offset;
             var len = str.Count;
 
+            // YYYY
+            if (len == 4)
+            {
+                var y = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                return new DateTime(y, 1, 1);
+            }
+
+            // YYYY-MM
+            if (len == 7)
+            {
+                var y = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                if (array[i++] != (byte)'-') goto ERROR;
+                var m = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                return new DateTime(y, m, 1);
+            }
+
+            // YYYY-MM-DD
+            if (len == 10)
+            {
+                var y = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                if (array[i++] != (byte)'-') goto ERROR;
+                var m = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                if (array[i++] != (byte)'-') goto ERROR;
+                var d = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                return new DateTime(y, m, d);
+            }
+
             // range-first section requires 19
             if (len < 19) goto ERROR;
 
@@ -561,6 +588,33 @@ namespace Utf8Json.Formatters
             var array = str.Array;
             var i = str.Offset;
             var len = str.Count;
+
+            // YYYY
+            if (len == 4)
+            {
+                var y = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                return new DateTimeOffset(y, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            }
+
+            // YYYY-MM
+            if (len == 7)
+            {
+                var y = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                if (array[i++] != (byte)'-') goto ERROR;
+                var m = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                return new DateTimeOffset(y, m, 1, 0, 0, 0, TimeSpan.Zero);
+            }
+
+            // YYYY-MM-DD
+            if (len == 10)
+            {
+                var y = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                if (array[i++] != (byte)'-') goto ERROR;
+                var m = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                if (array[i++] != (byte)'-') goto ERROR;
+                var d = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
+                return new DateTimeOffset(y, m, d, 0, 0, 0, TimeSpan.Zero);
+            }
 
             // range-first section requires 19
             if (array.Length < 19) goto ERROR;
