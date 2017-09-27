@@ -665,6 +665,104 @@ namespace Utf8Json.Formatters
         }
     }
 
+    public sealed class NonGenericInterfaceEnumerableFormatter : IJsonFormatter<IEnumerable>
+    {
+        public static readonly IJsonFormatter<IEnumerable> Default = new NonGenericInterfaceEnumerableFormatter();
+
+        public void Serialize(ref JsonWriter writer, IEnumerable value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            var formatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            writer.WriteBeginArray();
+
+            var i = 0;
+            foreach (var item in value)
+            {
+                if (i != 0) writer.WriteValueSeparator();
+                formatter.Serialize(ref writer, item, formatterResolver);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        public IEnumerable Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+
+            var count = 0;
+            var formatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            var list = new List<object>();
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+            {
+                list.Add(formatter.Deserialize(ref reader, formatterResolver));
+            }
+
+            return list;
+        }
+    }
+
+    public sealed class NonGenericInterfaceCollectionFormatter : IJsonFormatter<ICollection>
+    {
+        public static readonly IJsonFormatter<ICollection> Default = new NonGenericInterfaceCollectionFormatter();
+
+        public void Serialize(ref JsonWriter writer, ICollection value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            var formatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            writer.WriteBeginArray();
+            var e = value.GetEnumerator();
+            try
+            {
+                if (e.MoveNext())
+                {
+                    formatter.Serialize(ref writer, e.Current, formatterResolver);
+                    while (e.MoveNext())
+                    {
+                        writer.WriteValueSeparator();
+                        formatter.Serialize(ref writer, e.Current, formatterResolver);
+                    }
+                }
+            }
+            finally
+            {
+                var d = e as IDisposable;
+                if (d != null) d.Dispose();
+            }
+            writer.WriteEndArray();
+        }
+
+        public ICollection Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+
+            var count = 0;
+            var formatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            var list = new List<object>();
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+            {
+                list.Add(formatter.Deserialize(ref reader, formatterResolver));
+            }
+
+            return list;
+        }
+    }
+
     public sealed class NonGenericInterfaceListFormatter : IJsonFormatter<IList>
     {
         public static readonly IJsonFormatter<IList> Default = new NonGenericInterfaceListFormatter();

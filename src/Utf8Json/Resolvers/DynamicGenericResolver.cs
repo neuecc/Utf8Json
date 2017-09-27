@@ -271,7 +271,15 @@ namespace Utf8Json.Resolvers.Internal
             else
             {
                 // NonGeneric Collection
-                if (t == typeof(IList))
+                if (t == typeof(IEnumerable))
+                {
+                    return NonGenericInterfaceEnumerableFormatter.Default;
+                }
+                else if (t == typeof(ICollection))
+                {
+                    return NonGenericInterfaceCollectionFormatter.Default;
+                }
+                else if (t == typeof(IList))
                 {
                     return NonGenericInterfaceListFormatter.Default;
                 }
