@@ -435,11 +435,15 @@ namespace Utf8Json.Formatters
     {
         public static readonly TypeFormatter Default = new TypeFormatter();
 
+#if NETSTANDARD
         static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+", RegexOptions.Compiled);
+#else
+        static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+");
+#endif
+
         bool serializeAssemblyQualifiedName;
         bool deserializeSubtractAssemblyQualifiedName;
         bool throwOnError;
-
 
         public TypeFormatter()
             : this(true, true, true)
