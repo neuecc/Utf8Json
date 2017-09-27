@@ -28,6 +28,14 @@ namespace Utf8Json.Tests
             //new object[] { DateTime.MinValue.ToUniversalTime(), DateTime.MaxValue.ToUniversalTime() },
             //new object[] { (DateTime?)DateTime.UtcNow, null },
         }
+
+        [Fact]
+        public void Nullable()
+        {
+            DateTimeOffset? now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time").BaseUtcOffset.Ticks, DateTimeKind.Local);
+            var binary = JsonSerializer.Serialize(now);
+            JsonSerializer.Deserialize<DateTimeOffset?>(binary).ToString().Is(now.ToString());
+        }
     }
 
 }

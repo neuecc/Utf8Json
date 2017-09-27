@@ -40,8 +40,18 @@ namespace ConsoleAppNetCore
         static void Main(string[] args)
         {
 
-            DateTime? dt = DateTime.Now;
-            Utf8Json.JsonSerializer.Serialize(dt);
+            CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
+                // add custome formatters, use other DateTime format.
+                new DateTimeFormatter("yyyy-MM-dd HH:mm:ss"),
+                new NullableDateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+            }, new[] {
+                // resolver custom types first
+                ImmutableCollectionResolver.Instance,
+                EnumResolver.UnderlyingValue,
+
+                // finaly choose standard resolver
+                StandardResolver.AllowPrivateExcludeNullSnakeCase
+            });
 
 
         }

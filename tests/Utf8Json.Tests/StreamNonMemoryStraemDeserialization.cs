@@ -26,15 +26,15 @@ namespace Utf8Json.Tests
             this.ms = ms;
         }
 
-        public override bool CanRead => throw new NotImplementedException();
+        public override bool CanRead => ms.CanRead;
 
-        public override bool CanSeek => throw new NotImplementedException();
+        public override bool CanSeek => ms.CanSeek;
 
-        public override bool CanWrite => throw new NotImplementedException();
+        public override bool CanWrite => ms.CanWrite;
 
-        public override long Length => throw new NotImplementedException();
+        public override long Length => ms.Length;
 
-        public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public override long Position { get => ms.Position; set => ms.Position = value; }
 
         public override void Flush()
         {
@@ -48,12 +48,12 @@ namespace Utf8Json.Tests
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotImplementedException();
+            return ms.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
         {
-            throw new NotImplementedException();
+            ms.SetLength(value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)

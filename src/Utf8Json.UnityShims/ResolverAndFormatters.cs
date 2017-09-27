@@ -58,6 +58,13 @@ namespace Utf8Json.Unity
                 {typeof(global::UnityEngine.Color[]), 11 },
                 {typeof(global::UnityEngine.Bounds[]), 12 },
                 {typeof(global::UnityEngine.Rect[]), 13 },
+                {typeof(global::UnityEngine.Vector2?), 14 },
+                {typeof(global::UnityEngine.Vector3?), 15 },
+                {typeof(global::UnityEngine.Vector4?), 16 },
+                {typeof(global::UnityEngine.Quaternion?), 17 },
+                {typeof(global::UnityEngine.Color?), 18 },
+                {typeof(global::UnityEngine.Bounds?), 19 },
+                {typeof(global::UnityEngine.Rect?), 20 },
             };
         }
 
@@ -82,6 +89,13 @@ namespace Utf8Json.Unity
                 case 11: return new Utf8Json.Formatters.ArrayFormatter<UnityEngine.Color>();
                 case 12: return new Utf8Json.Formatters.ArrayFormatter<UnityEngine.Bounds>();
                 case 13: return new Utf8Json.Formatters.ArrayFormatter<UnityEngine.Rect>();
+                case 14: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Vector2>(new Utf8Json.Unity.Vector2Formatter());
+                case 15: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Vector3>(new Utf8Json.Unity.Vector3Formatter());
+                case 16: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Vector4>(new Utf8Json.Unity.Vector4Formatter());
+                case 17: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Quaternion>(new Utf8Json.Unity.QuaternionFormatter());
+                case 18: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Color>(new Utf8Json.Unity.ColorFormatter());
+                case 19: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Bounds>(new Utf8Json.Unity.BoundsFormatter());
+                case 20: return new Utf8Json.Formatters.StaticNullableFormatter<UnityEngine.Rect>(new Utf8Json.Unity.RectFormatter());
                 default: return null;
             }
         }

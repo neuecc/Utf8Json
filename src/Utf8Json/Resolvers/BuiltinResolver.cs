@@ -65,10 +65,13 @@ namespace Utf8Json.Resolvers
             
                 // StandardClassLibraryFormatter
                 
-                // DateTime can be configure easily so does not register nullable formatter for fallback mechanism.
+                // DateTime
                 {typeof(DateTime), ISO8601DateTimeFormatter.Default}, // ISO8601
                 {typeof(TimeSpan), ISO8601TimeSpanFormatter.Default},
                 {typeof(DateTimeOffset), ISO8601DateTimeOffsetFormatter.Default},
+                {typeof(DateTime?), new StaticNullableFormatter<DateTime>(ISO8601DateTimeFormatter.Default)}, // ISO8601
+                {typeof(TimeSpan?), new StaticNullableFormatter<TimeSpan>(ISO8601TimeSpanFormatter.Default)},
+                {typeof(DateTimeOffset?),new StaticNullableFormatter<DateTimeOffset>(ISO8601DateTimeOffsetFormatter.Default)},
 
                 {typeof(string), NullableStringFormatter.Default},
                 {typeof(char), CharFormatter.Default},

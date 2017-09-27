@@ -546,9 +546,11 @@ Assemble the resolver's priority is the only configuration point of Utf8Json. It
 ```csharp
 // use global-singleton CompositeResolver.
 // This method initialize CompositeResolver and set to default MessagePackSerializer
-CompositeResolver.RegisterAndSetAsDefault(new[] {
+CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
     // add custome formatters, use other DateTime format.
-    new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+    // if target type is struct, requires add nullable formatter too(use NullableXxxFormatter or StaticNullableFormatter(innerFormatter))
+    new DateTimeFormatter("yyyy-MM-dd HH:mm:ss"),
+    new NullableDateTimeFormatter("yyyy-MM-dd HH:mm:ss")
 }, new[] {
     // resolver custom types first
     ImmutableCollectionResolver.Instance,
@@ -577,7 +579,8 @@ public class ProjectDefaultResolver : IJsonFormatterResolver
 
     // configure your resolver and formatters.
     static IJsonFormatter[] formatters = new IJsonFormatter[]{
-        new DateTimeFormatter("yyyy-MM-dd HH:mm:ss")
+        new DateTimeFormatter("yyyy-MM-dd HH:mm:ss"),
+        new NullableDateTimeFormatter("yyyy-MM-dd HH:mm:ss")
     };
 
     static readonly IJsonFormatterResolver[] resolvers = new[]
