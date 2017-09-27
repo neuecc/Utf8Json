@@ -672,7 +672,7 @@ namespace Utf8Json.Resolvers.Internal
                     serializeCustomFormatters.Add(null);
                 }
             }
-            foreach (var item in serializationInfo.Members.Where(x => x.IsWritable))
+            foreach (var item in serializationInfo.Members) // not only for writable because for use ctor.
             {
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
                 if (attr != null)

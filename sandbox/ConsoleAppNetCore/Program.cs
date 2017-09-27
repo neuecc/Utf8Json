@@ -39,12 +39,11 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            var a = (IDictionary<int, int>)new Dictionary<int, int>() { { 1, 100 } };
 
-            var json = JsonSerializer.ToJsonString(a);
-            Console.WriteLine(json);
-            JsonSerializer.Deserialize<IDictionary<int, int>>(json);
+            var testData = new { Hoge = 100, Huga = true, Yaki = new { Rec = 1, T = 10 }, Nano = "nanoanno" };
+            var allow = JsonSerializer.ToJsonString(testData, StandardResolver.AllowPrivate);
 
+            Console.WriteLine(allow);
 
         }
     }

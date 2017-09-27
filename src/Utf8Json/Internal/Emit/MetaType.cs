@@ -47,6 +47,7 @@ namespace Utf8Json.Internal.Emit
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
                     if (item.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(true) != null) continue;
                     if (item.IsStatic) continue;
+                    if (item.Name.StartsWith("<")) continue; // compiler generated field(anonymous type, etc...)
 
                     var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
                     var name = (dm != null && dm.Name != null) ? dm.Name : nameMutetor(item.Name);
