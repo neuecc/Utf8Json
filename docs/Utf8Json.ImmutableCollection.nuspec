@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
         <id>Utf8Json.ImmutableCollection</id>
-        <version>1.0.0</version>
+        <version>1.0.0.1</version>
         <title>Utf8Json Extension Resolver for ImmutableCollection</title>
         <authors>neuecc</authors>
         <owners>neuecc</owners>
@@ -13,15 +13,15 @@
         <tags>Json, Serialization, Formatter, Serializer, Unity, Xamarin</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.7">
-                <dependency id="Utf8Json" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="Utf8Json" version="1.0.0.1" exclude="Build,Analyzers" />
                 <dependency id="System.Collections.Immutable" version="1.4.0" exclude="Build,Analyzers" />
             </group>
             <group targetFramework=".NETFramework4.5">
-                <dependency id="Utf8Json" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="Utf8Json" version="1.0.0.1" exclude="Build,Analyzers" />
                 <dependency id="System.Collections.Immutable" version="1.4.0" exclude="Build,Analyzers" />
             </group>
             <group targetFramework=".NETStandard2.0">
-                <dependency id="Utf8Json" version="1.0.0" exclude="Build,Analyzers" />
+                <dependency id="Utf8Json" version="1.0.0.1" exclude="Build,Analyzers" />
                 <dependency id="System.Collections.Immutable" version="1.4.0" exclude="Build,Analyzers" />
             </group>
         </dependencies>

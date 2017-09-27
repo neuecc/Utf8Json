@@ -34,12 +34,12 @@ namespace DynamicCodeDumper
             }
             finally
             {
-                var a1 = (DynamicObjectResolver.Default as ISave).Save();
+                //var a1 = (DynamicObjectResolver.Default as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
 
-                Verify(a1);
+                //Verify(a1);
             }
 
 #endif

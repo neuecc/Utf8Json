@@ -701,7 +701,7 @@ Pre Code Generation(Unity/Xamarin Supports)
 ---
 Utf8Json generates object formatter dynamically by [ILGenerator](https://msdn.microsoft.com/en-us/library/system.reflection.emit.ilgenerator.aspx). It is fast and transparently generated at run time. But it does not work on AOT environment(Xamarin, Unity IL2CPP, etc.).
 
-If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is located in `packages\Utf8Json.*.*.*\tools\(win|mac|linux)\Utf8Json.UniversalCodeGenerator.exe` or includes for unity's package. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
+If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's for unity.zip. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
 
 ```
 arguments help:
