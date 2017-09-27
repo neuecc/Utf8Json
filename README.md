@@ -66,7 +66,7 @@ public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadata
 }
 ```
 
-The approach of directly write/read from JSON binary is similar to [corefxlab/System.Text.Json](https://github.com/dotnet/corefxlab/tree/master/src/System.Text.Json/System/Text/Json). But it is not yet finished and not be general serializer.
+The approach of directly write/read from JSON binary is similar to [corefxlab/System.Text.Json](https://github.com/dotnet/corefxlab/tree/master/src/System.Text.Json/System/Text/Json) and [corefxlab/System.Text.Formatting](https://github.com/dotnet/corefxlab/wiki/System.Text.Formatting). But it is not yet finished and not be general serializer.
 
 Install and QuickStart
 ---
