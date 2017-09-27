@@ -74,13 +74,19 @@ Install and QuickStart
 ---
 The library provides in NuGet except for Unity. Standard library availables for .NET Framework 4.5 and .NET Standard 2.0.
 
-> Install-Package [Utf8Json](https://www.nuget.org/packages/Utf8Json)
+```
+Install-Package Utf8Json
+```
 
 And official Extension Packages for support other library(ImmutableCollection) or binding for framework(ASP.NET Core MVC).
 
-> Install-Package [Utf8Json.ImmutableCollection](https://www.nuget.org/packages/Utf8Json.ImmutableCollection)
-> Install-Package [Utf8Json.UnityShims](https://www.nuget.org/packages/Utf8Json.UnityShims)
-> Install-Package [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter)
+```
+Install-Package Utf8Json.ImmutableCollection
+Install-Package Utf8Json.UnityShims
+Install-Package Utf8Json.AspNetCoreMvcFormatter
+```
+
+NuGet page links - [Utf8Json](https://www.nuget.org/packages/Utf8Json), [Utf8Json.ImmutableCollection](https://www.nuget.org/packages/Utf8Json.ImmutableCollection), [Utf8Json.UnityShims](https://www.nuget.org/packages/Utf8Json.UnityShims), [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter)
 
 for Unity, download from [releases](https://github.com/neuecc/Utf8Json/releases) page, providing .unitypackage. for Unity details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
 
