@@ -15,11 +15,11 @@ namespace DynamicCodeDumper
     {
         static void Main(string[] args)
         {
-#if DUMP_ASM
+#if NET45
 
             try
             {
-                DynamicObjectResolver.Default.GetFormatter<Test>();
+                DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
                 DynamicObjectResolver.Default.GetFormatter<Test2>();
                 DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
                  DynamicObjectResolver.Default.GetFormatter<Person>();
@@ -34,12 +34,12 @@ namespace DynamicCodeDumper
             }
             finally
             {
-                //var a1 = (DynamicObjectResolver.Default as ISave).Save();
+                var a1 = (DynamicObjectResolver.Default as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
 
-                //Verify(a1);
+                Verify(a1);
             }
 
 #endif

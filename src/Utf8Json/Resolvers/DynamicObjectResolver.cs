@@ -47,7 +47,7 @@ namespace Utf8Json.Resolvers
 
 namespace Utf8Json.Resolvers.Internal
 {
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
     public interface ISave
     {
         AssemblyBuilder Save();
@@ -57,7 +57,7 @@ namespace Utf8Json.Resolvers.Internal
     #region DynamicAssembly
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullFalseNameMutateOriginal : IJsonFormatterResolver
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
             , ISave
 #endif
     {
@@ -78,7 +78,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -102,7 +102,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullFalseNameMutateCamelCase : IJsonFormatterResolver
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
             , ISave
 #endif
     {
@@ -123,7 +123,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -147,7 +147,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullFalseNameMutateSnakeCase : IJsonFormatterResolver
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
             , ISave
 #endif
     {
@@ -168,7 +168,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -192,7 +192,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullTrueNameMutateOriginal : IJsonFormatterResolver
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
             , ISave
 #endif
     {
@@ -213,7 +213,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -237,7 +237,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullTrueNameMutateCamelCase : IJsonFormatterResolver
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
             , ISave
 #endif
     {
@@ -258,7 +258,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -282,7 +282,7 @@ namespace Utf8Json.Resolvers.Internal
     }
 
     internal sealed class DynamicObjectResolverAllowPrivateFalseExcludeNullTrueNameMutateSnakeCase : IJsonFormatterResolver
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
             , ISave
 #endif
     {
@@ -303,7 +303,7 @@ namespace Utf8Json.Resolvers.Internal
         {
         }
 
-#if DEBUG && NET45
+#if DEBUG && (NET45 || NET47)
         public AssemblyBuilder Save()
         {
             return assembly.Save();
@@ -830,7 +830,7 @@ namespace Utf8Json.Resolvers.Internal
             var typeInfo = type.GetTypeInfo();
 
             // if(value == null) { writer.WriteNull(); return; }
-            if (typeInfo.IsClass)
+            if (info.IsClass)
             {
                 var elseBody = il.DefineLabel();
 
@@ -973,7 +973,7 @@ namespace Utf8Json.Resolvers.Internal
                 il.Emit(OpCodes.Newobj, EmitInfo.InvalidOperationExceptionConstructor);
                 il.Emit(OpCodes.Throw);
                 return;
-            }
+            }   
 
             var argReader = new ArgumentField(il, firstArgIndex);
             var argResolver = new ArgumentField(il, firstArgIndex + 1);
@@ -988,7 +988,7 @@ namespace Utf8Json.Resolvers.Internal
                 il.EmitCall(EmitInfo.JsonReader.ReadIsNull);
                 il.Emit(OpCodes.Brfalse_S, elseBody);
 
-                if (typeInfo.IsClass)
+                if (info.IsClass)
                 {
                     il.Emit(OpCodes.Ldnull);
                     il.Emit(OpCodes.Ret); // return;

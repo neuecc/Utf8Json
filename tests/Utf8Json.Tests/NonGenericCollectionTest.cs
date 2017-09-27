@@ -54,5 +54,13 @@ namespace Utf8Json.Tests
                 v["foo"].Is((object)(double)999.888);
             }
         }
+
+        public void IEnumerableTest()
+        {
+        }
+
+        public void ICollectionTest()
+        {
+        }
     }
 }

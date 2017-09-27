@@ -33,6 +33,10 @@ namespace ConsoleAppNetCore
         Fruit, Orange, Grape
     }
 
+    public class Sample
+    {
+        public Sample Child { get; set; }
+    }
 
 
     class Program
@@ -40,19 +44,18 @@ namespace ConsoleAppNetCore
         static void Main(string[] args)
         {
 
-            CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
-                // add custome formatters, use other DateTime format.
-                new DateTimeFormatter("yyyy-MM-dd HH:mm:ss"),
-                new NullableDateTimeFormatter("yyyy-MM-dd HH:mm:ss")
-            }, new[] {
-                // resolver custom types first
-                ImmutableCollectionResolver.Instance,
-                EnumResolver.UnderlyingValue,
+            //System.Collections.ICollection A = null;// new object[] { 1, "abc", };
 
-                // finaly choose standard resolver
-                StandardResolver.AllowPrivateExcludeNullSnakeCase
-            });
+            //var f= Utf8Json.Resolvers.StandardResolver.Default.GetFormatter<System.Collections.ICollection>();
+            var A = new Sample();
+            A.Child = A;
 
+            
+            //Console.WriteLine(f.GetType().FullName);
+            var json = Utf8Json.JsonSerializer.ToJsonString(A);
+            //Console.WriteLine(json);
+
+            
 
         }
     }
