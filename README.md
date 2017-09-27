@@ -39,7 +39,7 @@ public void JilTextWriter()
 }
 ```
 
-For example, the `OutputFormatter` of [ASP.NET Core](https://github.com/aspnet/Home) needs to write to Body(`Stream`), but using [Jil](https://github.com/kevin-montrose/Jil)'s TextWriter overload is slow. (This not means Jil is slow, for example `StreamWriter` allocate many memory(`char[1024]` and `byte[3075]`) on constructor[streamwriter.cs#L203-L204](https://github.com/Microsoft/referencesource/blob/master/mscorlib/system/io/streamwriter.cs#L203-L204) and other slow features unfortunately).
+For example, the `OutputFormatter` of [ASP.NET Core](https://github.com/aspnet/Home) needs to write to Body(`Stream`), but using [Jil](https://github.com/kevin-montrose/Jil)'s TextWriter overload is slow. (This not means Jil is slow, for example `StreamWriter` allocate many memory(`char[1024]` and `byte[3075]`) on constructor ([streamwriter.cs#L203-L204](https://github.com/Microsoft/referencesource/blob/master/mscorlib/system/io/streamwriter.cs#L203-L204)) and other slow features unfortunately).
 
 ```csharp
 // ASP.NET Core, OutputFormatter
