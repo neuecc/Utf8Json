@@ -40,10 +40,9 @@ namespace ConsoleAppNetCore
         static void Main(string[] args)
         {
 
-            var testData = new { Hoge = 100, Huga = true, Yaki = new { Rec = 1, T = 10 }, Nano = "nanoanno" };
-            var allow = JsonSerializer.ToJsonString(testData, StandardResolver.AllowPrivate);
+            DateTime? dt = DateTime.Now;
+            Utf8Json.JsonSerializer.Serialize(dt);
 
-            Console.WriteLine(allow);
 
         }
     }

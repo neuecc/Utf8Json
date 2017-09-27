@@ -164,16 +164,24 @@ namespace Utf8Json
             return formatter.Deserialize(ref reader, resolver);
         }
 
+        public static T Deserialize<T>(Stream stream)
+        {
+            return Deserialize<T>(stream, defaultResolver);
+        }
+
         public static T Deserialize<T>(Stream stream, IJsonFormatterResolver resolver)
         {
             if (resolver == null) resolver = DefaultResolver;
 
 #if NETSTANDARD && !NET45
             var ms = stream as MemoryStream;
-            ArraySegment<byte> buf2;
-            if (ms.TryGetBuffer(out buf2))
+             if (ms != null)
             {
-                return Deserialize<T>(buf2.Array, buf2.Offset, resolver);
+                ArraySegment<byte> buf2;
+                if (ms.TryGetBuffer(out buf2))
+                {
+                    return Deserialize<T>(buf2.Array, buf2.Offset, resolver);
+                }
             }
 #endif
 
