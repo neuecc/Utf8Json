@@ -80,7 +80,7 @@ namespace Utf8Json.Formatters
             var hour = value.Hour;
             var minute = value.Minute;
             var second = value.Second;
-            var nanosecond = value.Ticks % TimeSpan.TicksPerSecond;
+            var nanosec = value.Ticks % TimeSpan.TicksPerSecond;
 
             const int baseLength = 19 + 2; // {YEAR}-{MONTH}-{DAY}T{Hour}:{Minute}:{Second} + quotation
             const int nanosecLength = 8; // .{nanoseconds}
@@ -89,15 +89,15 @@ namespace Utf8Json.Formatters
             {
                 case DateTimeKind.Local:
                     // +{Hour}:{Minute}
-                    writer.EnsureCapacity(baseLength + ((nanosecond == 0) ? 0 : nanosecLength) + 6);
+                    writer.EnsureCapacity(baseLength + ((nanosec == 0) ? 0 : nanosecLength) + 6);
                     break;
                 case DateTimeKind.Utc:
                     // Z
-                    writer.EnsureCapacity(baseLength + ((nanosecond == 0) ? 0 : nanosecLength) + 1);
+                    writer.EnsureCapacity(baseLength + ((nanosec == 0) ? 0 : nanosecLength) + 1);
                     break;
                 case DateTimeKind.Unspecified:
                 default:
-                    writer.EnsureCapacity(baseLength + ((nanosecond == 0) ? 0 : nanosecLength));
+                    writer.EnsureCapacity(baseLength + ((nanosec == 0) ? 0 : nanosecLength));
                     break;
             }
 
@@ -156,10 +156,51 @@ namespace Utf8Json.Formatters
             }
             writer.WriteInt32(second);
 
-            if (nanosecond != 0)
+            if (nanosec != 0)
             {
                 writer.WriteRawUnsafe((byte)'.');
-                writer.WriteInt64(nanosecond);
+
+                if (nanosec < 10)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 100)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 1000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 10000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 100000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 1000000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+
+                writer.WriteInt64(nanosec);
             }
 
             switch (value.Kind)
@@ -197,9 +238,10 @@ namespace Utf8Json.Formatters
             var str = reader.ReadStringSegmentUnsafe();
             var array = str.Array;
             var i = str.Offset;
+            var len = str.Count;
 
             // range-first section requires 19
-            if (array.Length < 19) goto ERROR;
+            if (len < 19) goto ERROR;
 
             var year = (array[i++] - (byte)'0') * 1000 + (array[i++] - (byte)'0') * 100 + (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
             if (array[i++] != (byte)'-') goto ERROR;
@@ -215,61 +257,56 @@ namespace Utf8Json.Formatters
             if (array[i++] != (byte)':') goto ERROR;
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
-            var readCount = 19;
-            int millisecond = 0;
-            if (readCount < str.Count && array[i] == '.')
+            int ticks = 0;
+            if (i < len && array[i] == '.')
             {
                 i++;
-                readCount++;
-                int? milli1 = null;
-                int? milli2 = null;
-                int? milli3 = null;
 
-                if (readCount < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli1 = array[i];
+                // *7.
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1000000;
                 i++;
-                readCount++;
 
-                if (readCount < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli2 = array[i];
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 100000;
                 i++;
-                readCount++;
 
-                if (readCount < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli3 = array[i];
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 10000;
                 i++;
-                readCount++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1000;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 100;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 10;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1;
+                i++;
 
                 // others, lack of precision
-                while (readCount < str.Count && NumberConverter.IsNumber(array[i]))
+                while (i < len && NumberConverter.IsNumber(array[i]))
                 {
                     i++;
-                    readCount++;
-                }
-
-                CREATE_MICROSEC:
-                if (milli3 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0') * 100 + (milli2.Value - (byte)'0') * 10 + (milli3.Value - (byte)'0');
-                }
-                else if (milli2 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0') * 10 + (milli2.Value - (byte)'0');
-                }
-                else if (milli1 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0');
                 }
             }
 
+            END_TICKS:
             var kind = DateTimeKind.Unspecified;
-            if (readCount < str.Count && array[i] == 'Z')
+            if (i <= len && array[i] == 'Z')
             {
                 kind = DateTimeKind.Utc;
             }
-            else if (readCount < str.Count && array[i] == '-' || array[i] == '+')
+            else if (i < len && array[i] == '-' || array[i] == '+')
             {
-                if (!(readCount + 5 < str.Count)) goto ERROR;
+                if (!(i + 5 <= len)) goto ERROR;
 
                 kind = DateTimeKind.Local;
                 var minus = array[i++] == '-';
@@ -281,10 +318,10 @@ namespace Utf8Json.Formatters
                 var offset = new TimeSpan(h, m, 0);
                 if (minus) offset = offset.Negate();
 
-                return new DateTime(year, month, day, hour, minute, second, millisecond, DateTimeKind.Utc).Subtract(offset).ToLocalTime();
+                return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc).AddTicks(ticks).Subtract(offset).ToLocalTime();
             }
 
-            return new DateTime(year, month, day, hour, minute, second, millisecond, kind);
+            return new DateTime(year, month, day, hour, minute, second, kind).AddTicks(ticks);
 
             ERROR:
             throw new InvalidOperationException("invalid datetime format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));
@@ -387,13 +424,13 @@ namespace Utf8Json.Formatters
             var hour = value.Hour;
             var minute = value.Minute;
             var second = value.Second;
-            var nanosecond = value.Ticks % TimeSpan.TicksPerSecond;
+            var nanosec = value.Ticks % TimeSpan.TicksPerSecond;
 
             const int baseLength = 19 + 2; // {YEAR}-{MONTH}-{DAY}T{Hour}:{Minute}:{Second} + quotation
             const int nanosecLength = 8; // .{nanoseconds}
 
             // +{Hour}:{Minute}
-            writer.EnsureCapacity(baseLength + ((nanosecond == 0) ? 0 : nanosecLength) + 6);
+            writer.EnsureCapacity(baseLength + ((nanosec == 0) ? 0 : nanosecLength) + 6);
 
             writer.WriteRawUnsafe((byte)'\"');
 
@@ -450,16 +487,59 @@ namespace Utf8Json.Formatters
             }
             writer.WriteInt32(second);
 
-            if (nanosecond != 0)
+            if (nanosec != 0)
             {
                 writer.WriteRawUnsafe((byte)'.');
-                writer.WriteInt64(nanosecond);
+
+                if (nanosec < 10)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 100)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 1000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 10000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 100000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+                else if (nanosec < 1000000)
+                {
+                    writer.WriteRawUnsafe((byte)'0');
+                }
+
+                writer.WriteInt64(nanosec);
             }
 
             var localOffset = value.Offset;
+            var minus = (localOffset < TimeSpan.Zero);
+            if (minus) localOffset = localOffset.Negate();
             var h = localOffset.Hours;
             var m = localOffset.Minutes;
-            writer.WriteRawUnsafe((localOffset < TimeSpan.Zero) ? (byte)'-' : (byte)'+');
+            writer.WriteRawUnsafe(minus ? (byte)'-' : (byte)'+');
             if (h < 10)
             {
                 writer.WriteRawUnsafe((byte)'0');
@@ -480,6 +560,7 @@ namespace Utf8Json.Formatters
             var str = reader.ReadStringSegmentUnsafe();
             var array = str.Array;
             var i = str.Offset;
+            var len = str.Count;
 
             // range-first section requires 19
             if (array.Length < 19) goto ERROR;
@@ -498,56 +579,52 @@ namespace Utf8Json.Formatters
             if (array[i++] != (byte)':') goto ERROR;
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
-            var readCount = 19;
-            int millisecond = 0;
-            if (readCount < str.Count && array[i] == '.')
+            int ticks = 0;
+            if (i < len && array[i] == '.')
             {
                 i++;
-                readCount++;
-                int? milli1 = null;
-                int? milli2 = null;
-                int? milli3 = null;
 
-                if (readCount < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli1 = array[i];
+                // *7.
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1000000;
                 i++;
-                readCount++;
 
-                if (readCount < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli2 = array[i];
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 100000;
                 i++;
-                readCount++;
 
-                if (readCount < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli3 = array[i];
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 10000;
                 i++;
-                readCount++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1000;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 100;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 10;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1;
+                i++;
 
                 // others, lack of precision
-                while (readCount < str.Count && NumberConverter.IsNumber(array[i]))
+                while (i < len && NumberConverter.IsNumber(array[i]))
                 {
                     i++;
-                    readCount++;
-                }
-
-                CREATE_MICROSEC:
-                if (milli3 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0') * 100 + (milli2.Value - (byte)'0') * 10 + (milli3.Value - (byte)'0');
-                }
-                else if (milli2 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0') * 10 + (milli2.Value - (byte)'0');
-                }
-                else if (milli1 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0');
                 }
             }
 
-            if (readCount < str.Count && array[i] == '-' || array[i] == '+')
+            END_TICKS:
+
+            if (i < len && array[i] == '-' || array[i] == '+')
             {
-                if (!(readCount + 5 < str.Count)) goto ERROR;
+                if (!(i + 5 <= len)) goto ERROR;
 
                 var minus = array[i++] == '-';
 
@@ -558,10 +635,10 @@ namespace Utf8Json.Formatters
                 var offset = new TimeSpan(h, m, 0);
                 if (minus) offset = offset.Negate();
 
-                return new DateTimeOffset(year, month, day, hour, minute, second, millisecond, offset);
+                return new DateTimeOffset(year, month, day, hour, minute, second, offset).AddTicks(ticks);
             }
 
-            return new DateTimeOffset(year, month, day, hour, minute, second, millisecond, TimeSpan.Zero);
+            return new DateTimeOffset(year, month, day, hour, minute, second, TimeSpan.Zero).AddTicks(ticks);
 
             ERROR:
             throw new InvalidOperationException("invalid datetime format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));
@@ -646,8 +723,19 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<TimeSpan> Default = new ISO8601TimeSpanFormatter();
 
+        static byte[] minValue = StringEncoding.UTF8.GetBytes("\"" + TimeSpan.MinValue.ToString() + "\"");
+
         public void Serialize(ref JsonWriter writer, TimeSpan value, IJsonFormatterResolver formatterResolver)
         {
+            // can not negate, use cache
+            if (value == TimeSpan.MinValue)
+            {
+                writer.WriteRaw(minValue);
+                return;
+            }
+
+            var minus = value < TimeSpan.Zero;
+            if (minus) value = value.Negate();
             var day = value.Days;
             var hour = value.Hours;
             var minute = value.Minutes;
@@ -661,6 +749,11 @@ namespace Utf8Json.Formatters
             writer.EnsureCapacity(baseLength + ((maxDayLength == 0) ? 0 : maxDayLength) + ((nanosecond == 0) ? 0 : nanosecLength) + 6);
 
             writer.WriteRawUnsafe((byte)'\"');
+
+            if (minus)
+            {
+                writer.WriteRawUnsafe((byte)'-');
+            }
 
             if (day != 0)
             {
@@ -702,6 +795,7 @@ namespace Utf8Json.Formatters
             var str = reader.ReadStringSegmentUnsafe();
             var array = str.Array;
             var i = str.Offset;
+            var len = str.Count;
 
             // check day exists
             bool hasDay = false;
@@ -729,6 +823,14 @@ namespace Utf8Json.Formatters
                 }
             }
 
+            // check sign
+            var minus = false;
+            if (array[i] == '-')
+            {
+                minus = true;
+                i++;
+            }
+
             var day = 0;
             if (hasDay)
             {
@@ -754,48 +856,55 @@ namespace Utf8Json.Formatters
             if (array[i++] != (byte)':') goto ERROR;
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
-            int millisecond = 0;
-            if (i < str.Count && array[i] == '.')
+            int ticks = 0;
+            if (i < len && array[i] == '.')
             {
                 i++;
-                int? milli1 = null;
-                int? milli2 = null;
-                int? milli3 = null;
 
-                if (i < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli1 = array[i];
+                // *7.
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1000000;
                 i++;
 
-                if (i < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli2 = array[i];
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 100000;
                 i++;
 
-                if (i < str.Count && !NumberConverter.IsNumber(array[i])) goto CREATE_MICROSEC;
-                milli3 = array[i];
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 10000;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1000;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 100;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 10;
+                i++;
+
+                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                ticks += (array[i] - (byte)'0') * 1;
                 i++;
 
                 // others, lack of precision
-                while (i < str.Count && NumberConverter.IsNumber(array[i]))
+                while (i < len && NumberConverter.IsNumber(array[i]))
                 {
                     i++;
                 }
-
-                CREATE_MICROSEC:
-                if (milli3 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0') * 100 + (milli2.Value - (byte)'0') * 10 + (milli3.Value - (byte)'0');
-                }
-                else if (milli2 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0') * 10 + (milli2.Value - (byte)'0');
-                }
-                else if (milli1 != null)
-                {
-                    millisecond = (milli1.Value - (byte)'0');
-                }
             }
 
-            return new TimeSpan(day, hour, minute, second, millisecond);
+            END_TICKS:
+
+            // be careful to overflow
+            var ts = new TimeSpan(day, hour, minute, second);
+            var tk = TimeSpan.FromTicks(ticks);
+            return (minus)
+                ? ts.Negate().Subtract(tk)
+                : ts.Add(tk);
 
             ERROR:
             throw new InvalidOperationException("invalid datetime format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));

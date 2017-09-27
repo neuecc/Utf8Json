@@ -44,18 +44,16 @@ namespace ConsoleAppNetCore
         static void Main(string[] args)
         {
 
-            //System.Collections.ICollection A = null;// new object[] { 1, "abc", };
+            var dto = DateTime.UtcNow;
+            var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+            var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTime>(serialized);
+            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
 
-            //var f= Utf8Json.Resolvers.StandardResolver.Default.GetFormatter<System.Collections.ICollection>();
-            var A = new Sample();
-            A.Child = A;
+            //serialized2.Is(serialized);
+            Console.WriteLine(serialized);
+            Console.WriteLine(serialized2);
 
-            
-            //Console.WriteLine(f.GetType().FullName);
-            var json = Utf8Json.JsonSerializer.ToJsonString(A);
-            //Console.WriteLine(json);
 
-            
 
         }
     }

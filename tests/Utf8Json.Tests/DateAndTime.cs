@@ -12,21 +12,31 @@ namespace Utf8Json.Tests
         {
             DateTimeOffset now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time").BaseUtcOffset.Ticks, DateTimeKind.Local);
             var binary = JsonSerializer.Serialize(now);
-            JsonSerializer.Deserialize<DateTimeOffset>(binary).ToString().Is(now.ToString());
+            JsonSerializer.Deserialize<DateTimeOffset>(binary).Is(now);
 
+            foreach (var item in new[] { TimeSpan.MaxValue, TimeSpan.MinValue, TimeSpan.MaxValue.Add(TimeSpan.FromTicks(-1)), TimeSpan.MinValue.Add(TimeSpan.FromTicks(1)), TimeSpan.Zero })
+            {
+                var ts = JsonSerializer.Deserialize<TimeSpan>(JsonSerializer.Serialize(item));
+                ts.Is(item);
+            }
 
-            //foreach (var item in new [] { TimeSpan.MaxValue, TimeSpan.MinValue })
-            //{
-            //    var ts = JsonSerializer.Deserialize<TimeSpan>(JsonSerializer.Serialize(item));
-            //}
-            //new object[] { DateTimeOffset.MaxValue, DateTimeOffset.MinValue, null },
+            foreach (var item in new[] { DateTime.MaxValue, DateTime.MaxValue.AddTicks(-1), DateTime.MinValue.AddTicks(1) })
+            {
+                var ts = JsonSerializer.Deserialize<DateTime>(JsonSerializer.Serialize(item));
+                ts.Is(item);
+            }
 
             foreach (var item in new[] { DateTimeOffset.MinValue.ToUniversalTime(), DateTimeOffset.MaxValue.ToUniversalTime() })
             {
-                var ts = JsonSerializer.Deserialize<DateTime>(JsonSerializer.Serialize(item));
+                var ts = JsonSerializer.Deserialize<DateTimeOffset>(JsonSerializer.Serialize(item));
+                ts.Is(item);
             }
-            //new object[] { DateTime.MinValue.ToUniversalTime(), DateTime.MaxValue.ToUniversalTime() },
-            //new object[] { (DateTime?)DateTime.UtcNow, null },
+
+            foreach (var item in new[] { new DateTimeOffset(DateTime.MinValue.Ticks, new TimeSpan(-1, 0, 0)) })
+            {
+                var ts = JsonSerializer.Deserialize<DateTimeOffset>(JsonSerializer.Serialize(item));
+                ts.Is(item);
+            }
         }
 
         [Fact]
@@ -35,6 +45,47 @@ namespace Utf8Json.Tests
             DateTimeOffset? now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time").BaseUtcOffset.Ticks, DateTimeKind.Local);
             var binary = JsonSerializer.Serialize(now);
             JsonSerializer.Deserialize<DateTimeOffset?>(binary).ToString().Is(now.ToString());
+        }
+
+        [Fact]
+        public void Misc()
+        {
+            {
+                var dto = DateTime.UtcNow;
+                var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+                var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTime>(serialized);
+                var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+
+                serialized2.Is(serialized);
+            }
+
+            {
+                Console.WriteLine("DateTimeOffset.UtcNow");
+                var dto = DateTimeOffset.UtcNow;
+                var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+                var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTimeOffset>(serialized);
+                var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+                serialized2.Is(serialized);
+            }
+
+            {
+                Console.WriteLine("DateTime.Now");
+                var dto = DateTime.Now;
+                var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+                var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTime>(serialized);
+                var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+                serialized2.Is(serialized);
+            }
+
+
+            {
+                Console.WriteLine("DateTimeOffset.Now");
+                var dto = DateTimeOffset.Now;
+                var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+                var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTimeOffset>(serialized);
+                var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+                serialized2.Is(serialized);
+            }
         }
     }
 
