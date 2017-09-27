@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using Utf8Json.Formatters.Internal;
 using Utf8Json.Internal;
+using System.Text.RegularExpressions;
 
 #if NETSTANDARD
 using System.Numerics;
@@ -429,6 +430,57 @@ namespace Utf8Json.Formatters
             return new BitArray(buffer.ToArray());
         }
     }
+
+    public sealed class TypeFormatter : IJsonFormatter<Type>
+    {
+        public static readonly TypeFormatter Default = new TypeFormatter();
+
+        static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+", RegexOptions.Compiled);
+        bool serializeAssemblyQualifiedName;
+        bool deserializeSubtractAssemblyQualifiedName;
+        bool throwOnError;
+
+
+        public TypeFormatter()
+            : this(true, true, true)
+        {
+
+        }
+
+        public TypeFormatter(bool serializeAssemblyQualifiedName, bool deserializeSubtractAssemblyQualifiedName, bool throwOnError)
+        {
+            this.serializeAssemblyQualifiedName = serializeAssemblyQualifiedName;
+            this.deserializeSubtractAssemblyQualifiedName = deserializeSubtractAssemblyQualifiedName;
+            this.throwOnError = throwOnError;
+        }
+
+        public void Serialize(ref JsonWriter writer, Type value, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null) { writer.WriteNull(); return; }
+            if (serializeAssemblyQualifiedName)
+            {
+                writer.WriteString(value.AssemblyQualifiedName);
+            }
+            else
+            {
+                writer.WriteString(value.FullName);
+            }
+        }
+
+        public Type Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull()) return null;
+
+            var s = reader.ReadString();
+            if (deserializeSubtractAssemblyQualifiedName)
+            {
+                s = SubtractFullNameRegex.Replace(s, "");
+            }
+
+            return Type.GetType(s, throwOnError);
+        }
+    }
+
 
 #if NETSTANDARD
 

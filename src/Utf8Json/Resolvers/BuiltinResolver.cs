@@ -84,6 +84,7 @@ namespace Utf8Json.Resolvers
                 {typeof(Version), VersionFormatter.Default},
                 {typeof(StringBuilder), StringBuilderFormatter.Default},
                 {typeof(BitArray), BitArrayFormatter.Default},
+                {typeof(Type), TypeFormatter.Default},
             
                 // special primitive
                 {typeof(byte[]), ByteArrayFormatter.Default},
