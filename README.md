@@ -68,21 +68,19 @@ public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadata
 
 The approach of directly write/read from JSON binary is similar to [corefxlab/System.Text.Json](https://github.com/dotnet/corefxlab/tree/master/src/System.Text.Json/System/Text/Json) and [corefxlab/System.Text.Formatting](https://github.com/dotnet/corefxlab/wiki/System.Text.Formatting). But it is not yet finished and not be general serializer.
 
+> Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
+
 Install and QuickStart
 ---
 The library provides in NuGet except for Unity. Standard library availables for .NET Framework 4.5 and .NET Standard 2.0.
 
-```
-Install-Package Utf8Json
-```
+> Install-Package [Utf8Json](https://www.nuget.org/packages/Utf8Json)
 
 And official Extension Packages for support other library(ImmutableCollection) or binding for framework(ASP.NET Core MVC).
 
-```
-Install-Package Utf8Json.ImmutableCollection
-Install-Package Utf8Json.UnityShims
-Install-Package Utf8Json.AspNetCoreMvcFormatter
-```
+> Install-Package [Utf8Json.ImmutableCollection](https://www.nuget.org/packages/Utf8Json.ImmutableCollection)
+> Install-Package [Utf8Json.UnityShims](https://www.nuget.org/packages/Utf8Json.UnityShims)
+> Install-Package [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter)
 
 for Unity, download from [releases](https://github.com/neuecc/Utf8Json/releases) page, providing .unitypackage. for Unity details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
 
