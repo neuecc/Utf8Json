@@ -737,7 +737,7 @@ public void ConfigureServices(IServiceCollection services)
         option.OutputFormatters.Add(new JsonOutputFormatter(StandardResolver.Default));
         option.InputFormatters.Clear();
         // if does not pass, library should use JsonSerializer.DefaultResolver.
-        option.InputFormatters.Add(new MessagePackInputFormatter());
+        option.InputFormatters.Add(new JsonInputFormatter());
     });
 }
 ```
