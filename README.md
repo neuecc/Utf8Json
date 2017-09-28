@@ -71,6 +71,8 @@ public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadata
 
 The approach of directly write/read from JSON binary is similar to [corefxlab/System.Text.Json](https://github.com/dotnet/corefxlab/tree/master/src/System.Text.Json/System/Text/Json) and [corefxlab/System.Text.Formatting](https://github.com/dotnet/corefxlab/wiki/System.Text.Formatting). But it is not yet finished and not be general serializer.
 
+Corefxlab has [UTF8String](https://github.com/dotnet/corefxlab/issues/1751) and C# discussing [UTF8String Constants](https://github.com/dotnet/csharplang/issues/909) but maybe it is far future.
+
 Install and QuickStart
 ---
 The library provides in NuGet except for Unity. Standard library availables for .NET Framework 4.5 and .NET Standard 2.0.
