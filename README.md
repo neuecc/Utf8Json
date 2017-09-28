@@ -705,13 +705,13 @@ Unity has the [JsonUtility](https://docs.unity3d.com/2017.2/Documentation/Manual
 
 In Unity version, added `UnityResolver` to StandardResolver in default. It enables serialize `Vector2`, `Vector3`, `Vector4`, `Quaternion`, `Color`, `Bounds`, `Rect`.
 
-`.unitypackage` is exists in [releases](https://github.com/neuecc/Utf8Json/releases) page. Zip archives includes unitypackage and code-generator.
+`.unitypackage` is exists in [releases](https://github.com/neuecc/Utf8Json/releases) page. If you are using IL2CPP environment, requires code generator too, see following section.
 
 Pre Code Generation(Unity/Xamarin Supports)
 ---
 Utf8Json generates object formatter dynamically by [ILGenerator](https://msdn.microsoft.com/en-us/library/system.reflection.emit.ilgenerator.aspx). It is fast and transparently generated at run time. But it does not work on AOT environment(Xamarin, Unity IL2CPP, etc.).
 
-If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's for unity.zip. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
+If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's `Utf8Json.UniversalCodeGenerator.zip` that run on win/mac/linux. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
 
 ```
 arguments help:
