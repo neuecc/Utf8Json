@@ -49,12 +49,68 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            var f = new Foo() { MyProperty = DateTime.Now };
+            TestDTUtcNow();
+            TestDTOUtcNow();
+            TestDTNow();
+            TestDTONow();
+        }
+
+        static void TestDTUtcNow()
+        {
+            Console.WriteLine("DateTime.UtcNow");
+            var dto = DateTime.UtcNow;
+            var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+            var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTime>(serialized);
+            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+            if (serialized2 != serialized)
+            {
+                Console.WriteLine("Reference: {0:yyyy-MM-ddTHH:mm:ss.fffffffK}", dto);
+                Console.WriteLine("Output: {0} vs {1}", serialized, serialized2);
+            }
+        }
 
 
-            Console.WriteLine(JsonSerializer.ToJsonString(f));
+        static void TestDTOUtcNow()
+        {
+            Console.WriteLine("DateTimeOffset.UtcNow");
+            var dto = DateTimeOffset.UtcNow;
+            var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+            var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTimeOffset>(serialized);
+            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+            if (serialized2 != serialized)
+            {
+                Console.WriteLine("Reference: {0:yyyy-MM-ddTHH:mm:ss.fffffffK}", dto);
+                Console.WriteLine("Output: {0} vs {1}", serialized, serialized2);
+            }
+        }
+
+        static void TestDTNow()
+        {
+            Console.WriteLine("DateTime.Now");
+            var dto = DateTime.Now;
+            var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+            var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTime>(serialized);
+            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+            if (serialized2 != serialized)
+            {
+                Console.WriteLine("Reference: {0:yyyy-MM-ddTHH:mm:ss.fffffffK}", dto);
+                Console.WriteLine("Output: {0} vs {1}", serialized, serialized2);
+            }
+        }
 
 
+        static void TestDTONow()
+        {
+            Console.WriteLine("DateTimeOffset.Now");
+            var dto = DateTimeOffset.Now;
+            var serialized = Utf8Json.JsonSerializer.ToJsonString(dto);
+            var deSerialized = Utf8Json.JsonSerializer.Deserialize<DateTimeOffset>(serialized);
+            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+            if (serialized2 != serialized)
+            {
+                Console.WriteLine("Reference: {0:yyyy-MM-ddTHH:mm:ss.fffffffK}", dto);
+                Console.WriteLine("Output: {0} vs {1}", serialized, serialized2);
+            }
         }
     }
 
