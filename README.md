@@ -683,6 +683,64 @@ public class Person
 
 `DateTime`, `DateTimeOffset`, `TimeSpan` is used ISO8601 format in default by `ISO8601DateTimeFormatter`, `ISO8601DateTimeOffsetFormatter`, `ISO8601TimeSpanFormatter` but if you want to configure format, you can use `DateTimeFormatter`, `DateTimeOffsetFormatter`, `TimeSpanFormatter` with format string argument.
 
+Framework Integration
+--- 
+The guide of provide integrate other framework with Utf8Json. For provides customizability of serialization, can be pass the `IJsonFormatterResolver` by user and does not use `CompositeResolver` on provided library. For example, [AWS Lambda Function](http://docs.aws.amazon.com/en_us/lambda/latest/dg/dotnet-programming-model-handler-types.html)'s custom serializer.
+
+```csharp
+// with `Amazon.Lambda.Core package`
+public class Utf8JsonLambdaSerializer : Amazon.Lambda.Core.ILambdaSerializer
+{
+    // Note: Default AWS Lambda's JSON.NET Serializer uses special resolver for handle below types.
+    // Amazon.S3.Util.S3EventNotification+ResponseElementsEntity
+    // Amazon.Lambda.KinesisEvents.KinesisEvent+Record
+    // Amazon.DynamoDBv2.Model.StreamRecord
+    // Amazon.DynamoDBv2.Model.AttributeValue
+    // If you want to serialize these types, create there custom formatter and setup custom resolver.
+
+    readonly IJsonFormatterResolver resolver;
+
+    public Utf8JsonLambdaSerializer()
+    {
+        // if you want to customize other configuration change your own choose resolver directly
+        // (Lambda uses default constructor and does not exists configure chance of DefaultResolver)
+        this.resolver = JsonSerializer.DefaultResolver;
+    }
+
+    public Utf8JsonLambdaSerializer(IJsonFormatterResolver resolver)
+    {
+        this.resolver = resolver;
+    }
+
+    public void Serialize<T>(T response, Stream responseStream)
+    {
+        Utf8Json.JsonSerializer.Serialize<T>(responseStream, response, resolver);
+    }
+
+    public T Deserialize<T>(Stream requestStream)
+    {
+        return Utf8Json.JsonSerializer.Deserialize<T>(requestStream, resolver);
+    }
+}
+```
+
+Utf8Json provides for ASP.NET Core MVC formatter. [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter). This is sample of use it.
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvc().AddMvcOptions(option =>
+    {
+        option.OutputFormatters.Clear();
+        // can pass IJsonFormatterResolver for customize.
+        option.OutputFormatters.Add(new JsonOutputFormatter(StandardResolver.Default));
+        option.InputFormatters.Clear();
+        // if does not pass, library should use JsonSerializer.DefaultResolver.
+        option.InputFormatters.Add(new MessagePackInputFormatter());
+    });
+}
+```
+
 Text Protocol Foundation
 ---
 Utf8Json implements fast itoa/atoi, dtoa/atod. It can be useful for text protocol serialization. For example I'm implementing [MySqlSharp](https://github.com/neuecc/MySqlSharp/) that aims fastest MySQL Driver on C#(work in progress yet), MySQL protocol is noramlly text so requires fast parser for text protocol.
