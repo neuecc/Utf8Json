@@ -6,7 +6,7 @@ Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, U
 
 ![image](https://user-images.githubusercontent.com/46207/30883721-11e0526e-a348-11e7-86f8-efff85a9afe0.png)
 
-> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string(.NET UTF16), so Jil, NetJson and JSON.NET contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost.
+> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string(.NET UTF16), so [Jil](https://github.com/kevin-montrose/Jil/), [NetJSON](https://github.com/rpgmaker/NetJSON/) and [Json.NET](https://github.com/JamesNK/Newtonsoft.Json) contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost.
 > Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
 
 Utf8Json does not beat MessagePack for C#(binary), but shows a similar memory consumption(there is no additional memory allocation) and achieves higher performance than other JSON serializers.
@@ -70,6 +70,8 @@ public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadata
 ```
 
 The approach of directly write/read from JSON binary is similar to [corefxlab/System.Text.Json](https://github.com/dotnet/corefxlab/tree/master/src/System.Text.Json/System/Text/Json) and [corefxlab/System.Text.Formatting](https://github.com/dotnet/corefxlab/wiki/System.Text.Formatting). But it is not yet finished and not be general serializer.
+
+Corefxlab has [UTF8String](https://github.com/dotnet/corefxlab/issues/1751) and C# discussing [UTF8String Constants](https://github.com/dotnet/csharplang/issues/909) but maybe it is far future.
 
 Install and QuickStart
 ---
@@ -194,7 +196,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref num)) // "}" or ","
             {
                 // don't decode string, get raw slice
-                ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentUnescaped();
+                ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentRaw();
                 byte* ptr3 = ptr2 + arraySegment.Offset;
                 int count = arraySegment.Count;
                 if (count != 0)
@@ -405,11 +407,13 @@ Primitive API(JsonReader/JsonWriter)
 | ReadIsEndArray | If is ']' return true. |
 | ReadIsEndArrayWithVerify | If is not ']' throws exception. |
 | ReadIsEndArrayWithSkipValueSeparator | check reached ']' or advance ',' when (ref int count) is not zero. |
+| ReadIsInArray | Convinient pattern of ReadIsBeginArrayWithVerify + while(!ReadIsEndArrayWithSkipValueSeparator) |
 | ReadIsBeginObject | If is '{' return true. |
 | ReadIsBeginObjectWithVerify | If is not '{' throws exception. |
 | ReadIsEndObject | If is '}' return true. |
 | ReadIsEndObjectWithVerify | If is not '}' throws exception. |
 | ReadIsEndObjectWithSkipValueSeparator | check reached '}' or advance ',' when (ref int count) is not zero. |
+| ReadIsInObject | Convinient pattern of ReadIsBeginObjectWithVerify + while(!ReadIsEndObjectWithSkipValueSeparator). |
 | ReadIsValueSeparator |  If is ',' return true. |
 | ReadIsValueSeparatorWithVerify | If is not ',' throws exception. |
 | ReadIsNameSeparator |  If is ':' return true. |
@@ -448,9 +452,10 @@ public List<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatt
     var formatter = formatterResolver.GetFormatterWithVerify<T>();
     var list = new List<T>();
 
-    var count = 0; // managing array-count state in outer.
-    reader.ReadIsBeginArrayWithVerify(); // read '['
-    while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count)) // loop when reached ']' or advance when ','
+    var count = 0; // managing array-count state in outer(this is count, not index(index is always count - 1)
+
+    // loop helper for Array or Object, you can use ReadIsInArray/ReadIsInObject.
+    while (reader.ReadIsInArray(ref count)) // read '[' or ',' when until reached ']'
     {
         list.Add(formatter.Deserialize(ref reader, formatterResolver));
     }
@@ -568,9 +573,9 @@ CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
 
 ```csharp
 // select resolver per invoke.
-JsonSerializer.Serialize(a, StandardResolver.Default);
-JsonSerializer.Serialize(a, StandardResolver.SnakeCase);
-JsonSerializer.Serialize(b, CompositeResolver.Instance);
+JsonSerializer.Serialize(value, StandardResolver.Default);
+JsonSerializer.Serialize(value, StandardResolver.SnakeCase);
+JsonSerializer.Serialize(value, CompositeResolver.Instance);
 ```
 
 You can also build own custom composite resolver.
@@ -684,6 +689,64 @@ public class Person
 
 `DateTime`, `DateTimeOffset`, `TimeSpan` is used ISO8601 format in default by `ISO8601DateTimeFormatter`, `ISO8601DateTimeOffsetFormatter`, `ISO8601TimeSpanFormatter` but if you want to configure format, you can use `DateTimeFormatter`, `DateTimeOffsetFormatter`, `TimeSpanFormatter` with format string argument.
 
+Framework Integration
+--- 
+The guide of provide integrate other framework with Utf8Json. For provides customizability of serialization, can be pass the `IJsonFormatterResolver` by user and does not use `CompositeResolver` on provided library. For example, [AWS Lambda Function](http://docs.aws.amazon.com/en_us/lambda/latest/dg/dotnet-programming-model-handler-types.html)'s custom serializer.
+
+```csharp
+// with `Amazon.Lambda.Core package`
+public class Utf8JsonLambdaSerializer : Amazon.Lambda.Core.ILambdaSerializer
+{
+    // Note: Default AWS Lambda's JSON.NET Serializer uses special resolver for handle below types.
+    // Amazon.S3.Util.S3EventNotification+ResponseElementsEntity
+    // Amazon.Lambda.KinesisEvents.KinesisEvent+Record
+    // Amazon.DynamoDBv2.Model.StreamRecord
+    // Amazon.DynamoDBv2.Model.AttributeValue
+    // If you want to serialize these types, create there custom formatter and setup custom resolver.
+
+    readonly IJsonFormatterResolver resolver;
+
+    public Utf8JsonLambdaSerializer()
+    {
+        // if you want to customize other configuration change your own choose resolver directly
+        // (Lambda uses default constructor and does not exists configure chance of DefaultResolver)
+        this.resolver = JsonSerializer.DefaultResolver;
+    }
+
+    public Utf8JsonLambdaSerializer(IJsonFormatterResolver resolver)
+    {
+        this.resolver = resolver;
+    }
+
+    public void Serialize<T>(T response, Stream responseStream)
+    {
+        Utf8Json.JsonSerializer.Serialize<T>(responseStream, response, resolver);
+    }
+
+    public T Deserialize<T>(Stream requestStream)
+    {
+        return Utf8Json.JsonSerializer.Deserialize<T>(requestStream, resolver);
+    }
+}
+```
+
+Utf8Json provides for ASP.NET Core MVC formatter. [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter). This is sample of use it.
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvc().AddMvcOptions(option =>
+    {
+        option.OutputFormatters.Clear();
+        // can pass IJsonFormatterResolver for customize.
+        option.OutputFormatters.Add(new JsonOutputFormatter(StandardResolver.Default));
+        option.InputFormatters.Clear();
+        // if does not pass, library should use JsonSerializer.DefaultResolver.
+        option.InputFormatters.Add(new JsonInputFormatter());
+    });
+}
+```
+
 Text Protocol Foundation
 ---
 Utf8Json implements fast itoa/atoi, dtoa/atod. It can be useful for text protocol serialization. For example I'm implementing [MySqlSharp](https://github.com/neuecc/MySqlSharp/) that aims fastest MySQL Driver on C#(work in progress yet), MySQL protocol is noramlly text so requires fast parser for text protocol.
@@ -705,13 +768,13 @@ Unity has the [JsonUtility](https://docs.unity3d.com/2017.2/Documentation/Manual
 
 In Unity version, added `UnityResolver` to StandardResolver in default. It enables serialize `Vector2`, `Vector3`, `Vector4`, `Quaternion`, `Color`, `Bounds`, `Rect`.
 
-`.unitypackage` is exists in [releases](https://github.com/neuecc/Utf8Json/releases) page. Zip archives includes unitypackage and code-generator.
+`.unitypackage` is exists in [releases](https://github.com/neuecc/Utf8Json/releases) page. If you are using IL2CPP environment, requires code generator too, see following section.
 
 Pre Code Generation(Unity/Xamarin Supports)
 ---
 Utf8Json generates object formatter dynamically by [ILGenerator](https://msdn.microsoft.com/en-us/library/system.reflection.emit.ilgenerator.aspx). It is fast and transparently generated at run time. But it does not work on AOT environment(Xamarin, Unity IL2CPP, etc.).
 
-If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's for unity.zip. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
+If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's `Utf8Json.UniversalCodeGenerator.zip` that run on win/mac/linux. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
 
 ```
 arguments help:

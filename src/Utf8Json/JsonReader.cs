@@ -328,6 +328,35 @@ namespace Utf8Json
             }
         }
 
+        /// <summary>
+        /// Convinient pattern of ReadIsBeginArrayWithVerify + while(!ReadIsEndArrayWithSkipValueSeparator)
+        /// </summary>
+        public bool ReadIsInArray(ref int count)
+        {
+            if (count == 0)
+            {
+                ReadIsBeginArrayWithVerify();
+                if (ReadIsEndArray())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (ReadIsEndArray())
+                {
+                    return false;
+                }
+                else
+                {
+                    ReadIsValueSeparatorWithVerify();
+                }
+            }
+
+            count++;
+            return true;
+        }
+
         public bool ReadIsBeginObject()
         {
             SkipWhiteSpace();
@@ -381,6 +410,35 @@ namespace Utf8Json
                 }
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Convinient pattern of ReadIsBeginObjectWithVerify + while(!ReadIsEndObjectWithSkipValueSeparator)
+        /// </summary>
+        public bool ReadIsInObject(ref int count)
+        {
+            if (count == 0)
+            {
+                ReadIsBeginObjectWithVerify();
+                if (ReadIsEndObject())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (ReadIsEndObject())
+                {
+                    return false;
+                }
+                else
+                {
+                    ReadIsValueSeparatorWithVerify();
+                }
+            }
+
+            count++;
+            return true;
         }
 
         public bool ReadIsValueSeparator()
@@ -640,7 +698,7 @@ namespace Utf8Json
                 OK:
                 key = new ArraySegment<byte>(bytes, from, offset - from - 1); // remove \"
             }
-            
+
             return key;
         }
 
