@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
         <id>Utf8Json</id>
-        <version>1.0.3.1</version>
+        <version>1.0.4</version>
         <title>Utf8Json</title>
         <authors>neuecc</authors>
         <owners>neuecc</owners>

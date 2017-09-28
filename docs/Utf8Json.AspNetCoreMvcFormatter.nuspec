@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
     <metadata>
         <id>Utf8Json.AspNetCoreMvcFormatter</id>
-        <version>1.0.3.1</version>
+        <version>1.0.4</version>
         <title>Utf8Json AspNetCoreMvcFormatter</title>
         <authors>neuecc</authors>
         <owners>neuecc</owners>
@@ -13,11 +13,11 @@
         <tags>Json, Serialization, Formatter, Serializer, Unity, Xamarin, ASPNET</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.7">
-                <dependency id="Utf8Json" version="1.0.3.1" exclude="Build,Analyzers" />
+                <dependency id="Utf8Json" version="1.0.4" exclude="Build,Analyzers" />
                 <dependency id="Microsoft.AspNetCore.Mvc.Abstractions" version="2.0.0" exclude="Build,Analyzers" />
             </group>
             <group targetFramework=".NETStandard2.0">
-                <dependency id="Utf8Json" version="1.0.3.1" exclude="Build,Analyzers" />
+                <dependency id="Utf8Json" version="1.0.4" exclude="Build,Analyzers" />
                 <dependency id="Microsoft.AspNetCore.Mvc.Abstractions" version="2.0.0" exclude="Build,Analyzers" />
             </group>
         </dependencies>
