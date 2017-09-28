@@ -194,7 +194,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref num)) // "}" or ","
             {
                 // don't decode string, get raw slice
-                ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentUnescaped();
+                ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentRaw();
                 byte* ptr3 = ptr2 + arraySegment.Offset;
                 int count = arraySegment.Count;
                 if (count != 0)
