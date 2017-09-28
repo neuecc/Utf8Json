@@ -49,10 +49,40 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            TestDTUtcNow();
-            TestDTOUtcNow();
-            TestDTNow();
-            TestDTONow();
+            //var empty = Array(new int[0]);
+
+            //Console.WriteLine(empty);
+
+
+            JsonSerializer.Serialize(new { });
+        }
+
+        static (int, int[]) Array(int[] xs)
+        {
+            var list = new List<int>();
+            var json = JsonSerializer.Serialize(xs);
+            var reader = new JsonReader(json);
+            var c = 0;
+            while (reader.ReadIsInArray(ref c))
+            {
+                list.Add(reader.ReadInt32());
+            }
+            return (c, list.ToArray());
+        }
+
+        static (int, Dictionary<string, int>) Object(object xs)
+        {
+            var list = new Dictionary<string, int>();
+            var json = JsonSerializer.Serialize(xs);
+            var reader = new JsonReader(json);
+            var c = 0;
+            while (reader.ReadIsInObject(ref c))
+            {
+                var k = reader.ReadPropertyName();
+                var v = reader.ReadInt32();
+                list.Add(k, v);
+            }
+            return (c, list);
         }
 
         static void TestDTUtcNow()
