@@ -144,6 +144,8 @@ namespace Utf8Json.Formatters
                 case JsonToken.EndObject:
                     throw new InvalidOperationException("Invalid Json Token:" + token);
                 case JsonToken.Null:
+                    reader.ReadIsNull();
+                    return null;
                 case JsonToken.None:
                 default:
                     return null;

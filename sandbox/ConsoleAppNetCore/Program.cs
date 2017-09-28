@@ -49,10 +49,22 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            TestDTUtcNow();
-            TestDTOUtcNow();
-            TestDTNow();
-            TestDTONow();
+            var item = new string[] { "aaa", null, "bbb" };
+
+            //Serialize to JSON string
+            //  -> ["aaa",null,"bbb"]
+            var json = JsonSerializer.ToJsonString(item);
+
+            //Pattern1: OK
+            //  When specify explicit type
+            var result1 = JsonSerializer.Deserialize<string[]>(json);
+
+            //Pattern2: NG:
+            //  When specify dynamic type (or specify object[])
+            var result2 = JsonSerializer.Deserialize<dynamic>(json);
+
+
+
         }
 
         static void TestDTUtcNow()
