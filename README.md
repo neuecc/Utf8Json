@@ -6,7 +6,7 @@ Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, U
 
 ![image](https://user-images.githubusercontent.com/46207/30883721-11e0526e-a348-11e7-86f8-efff85a9afe0.png)
 
-> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string, so Jil, NetJson and JSON.NET contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost.
+> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string(.NET UTF16), so Jil, NetJson and JSON.NET contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost.
 > Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
 
 Utf8Json does not beat MessagePack for C#(binary), but shows a similar memory consumption(there is no additional memory allocation) and achieves higher performance than other JSON serializers.
