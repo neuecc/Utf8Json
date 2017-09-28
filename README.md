@@ -405,11 +405,13 @@ Primitive API(JsonReader/JsonWriter)
 | ReadIsEndArray | If is ']' return true. |
 | ReadIsEndArrayWithVerify | If is not ']' throws exception. |
 | ReadIsEndArrayWithSkipValueSeparator | check reached ']' or advance ',' when (ref int count) is not zero. |
+| ReadIsInArray | Convinient pattern of ReadIsBeginArrayWithVerify + while(!ReadIsEndArrayWithSkipValueSeparator) |
 | ReadIsBeginObject | If is '{' return true. |
 | ReadIsBeginObjectWithVerify | If is not '{' throws exception. |
 | ReadIsEndObject | If is '}' return true. |
 | ReadIsEndObjectWithVerify | If is not '}' throws exception. |
 | ReadIsEndObjectWithSkipValueSeparator | check reached '}' or advance ',' when (ref int count) is not zero. |
+| ReadIsInObject | Convinient pattern of ReadIsBeginObjectWithVerify + while(!ReadIsEndObjectWithSkipValueSeparator). |
 | ReadIsValueSeparator |  If is ',' return true. |
 | ReadIsValueSeparatorWithVerify | If is not ',' throws exception. |
 | ReadIsNameSeparator |  If is ':' return true. |
@@ -448,9 +450,10 @@ public List<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatt
     var formatter = formatterResolver.GetFormatterWithVerify<T>();
     var list = new List<T>();
 
-    var count = 0; // managing array-count state in outer.
-    reader.ReadIsBeginArrayWithVerify(); // read '['
-    while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count)) // loop when reached ']' or advance when ','
+    var count = 0; // managing array-count state in outer(this is count, not index(index is always count - 1)
+
+    // loop helper for Array or Object, you can use ReadIsInArray/ReadIsInObject.
+    while (reader.ReadIsInArray(ref count)) // read '[' or ',' when until reached ']'
     {
         list.Add(formatter.Deserialize(ref reader, formatterResolver));
     }
@@ -568,9 +571,9 @@ CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
 
 ```csharp
 // select resolver per invoke.
-JsonSerializer.Serialize(a, StandardResolver.Default);
-JsonSerializer.Serialize(a, StandardResolver.SnakeCase);
-JsonSerializer.Serialize(b, CompositeResolver.Instance);
+JsonSerializer.Serialize(value, StandardResolver.Default);
+JsonSerializer.Serialize(value, StandardResolver.SnakeCase);
+JsonSerializer.Serialize(value, CompositeResolver.Instance);
 ```
 
 You can also build own custom composite resolver.
