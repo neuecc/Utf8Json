@@ -16,6 +16,7 @@ class Program
         {
             typeof(SerializeBenchmark),
             typeof(DeserializeBenchmark),
+            typeof(JsonSerializeBench)
         });
 
         // args = new string[] { "0" };

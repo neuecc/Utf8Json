@@ -206,10 +206,13 @@ namespace Utf8Json.Formatters
             switch (value.Kind)
             {
                 case DateTimeKind.Local:
-                    var localOffset = TimeZoneInfo.Local.BaseUtcOffset;
+                    // should not use `BaseUtcOffset` - https://stackoverflow.com/questions/10019267/is-there-a-generic-timezoneinfo-for-central-europe
+                    var localOffset = TimeZoneInfo.Local.GetUtcOffset(value);
+                    var minus = (localOffset < TimeSpan.Zero);
+                    if (minus) localOffset = localOffset.Negate();
                     var h = localOffset.Hours;
                     var m = localOffset.Minutes;
-                    writer.WriteRawUnsafe((localOffset < TimeSpan.Zero) ? (byte)'-' : (byte)'+');
+                    writer.WriteRawUnsafe(minus ? (byte)'-' : (byte)'+');
                     if (h < 10)
                     {
                         writer.WriteRawUnsafe((byte)'0');

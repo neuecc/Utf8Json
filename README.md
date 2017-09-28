@@ -6,6 +6,9 @@ Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, U
 
 ![image](https://user-images.githubusercontent.com/46207/30883721-11e0526e-a348-11e7-86f8-efff85a9afe0.png)
 
+> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string(.NET UTF16), so [Jil](https://github.com/kevin-montrose/Jil/), [NetJSON](https://github.com/rpgmaker/NetJSON/) and [Json.NET](https://github.com/JamesNK/Newtonsoft.Json) contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost.
+> Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
+
 Utf8Json does not beat MessagePack for C#(binary), but shows a similar memory consumption(there is no additional memory allocation) and achieves higher performance than other JSON serializers.
 
 The crucial difference is that read and write directly to UTF8 binaries means that there is no overhead. Normaly serialization requires serialize to `Stream` or `byte[]`, it requires additional UTF8.GetBytes cost or StreamReader/Writer overhead(it is very slow!).
@@ -68,8 +71,6 @@ public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadata
 
 The approach of directly write/read from JSON binary is similar to [corefxlab/System.Text.Json](https://github.com/dotnet/corefxlab/tree/master/src/System.Text.Json/System/Text/Json) and [corefxlab/System.Text.Formatting](https://github.com/dotnet/corefxlab/wiki/System.Text.Formatting). But it is not yet finished and not be general serializer.
 
-> Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
-
 Install and QuickStart
 ---
 The library provides in NuGet except for Unity. Standard library availables for .NET Framework 4.5 and .NET Standard 2.0.
@@ -88,7 +89,7 @@ Install-Package Utf8Json.AspNetCoreMvcFormatter
 
 NuGet page links - [Utf8Json](https://www.nuget.org/packages/Utf8Json), [Utf8Json.ImmutableCollection](https://www.nuget.org/packages/Utf8Json.ImmutableCollection), [Utf8Json.UnityShims](https://www.nuget.org/packages/Utf8Json.UnityShims), [Utf8Json.AspNetCoreMvcFormatter](https://www.nuget.org/packages/Utf8Json.AspNetCoreMvcFormatter)
 
-for Unity, download from [releases](https://github.com/neuecc/Utf8Json/releases) page, providing .unitypackage. for Unity details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
+for Unity, you can download from [releases](https://github.com/neuecc/Utf8Json/releases) page. There providing .unitypackage. Unity support details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
 
 QuickStart, you can call `Utf8Json.JsonSerializer`.`Serialize/Deserialize`.
 
@@ -193,7 +194,7 @@ public sealed class PersonFormatter : IJsonFormatter<Person>
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref num)) // "}" or ","
             {
                 // don't decode string, get raw slice
-                ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentUnescaped();
+                ArraySegment<byte> arraySegment = reader.ReadPropertyNameSegmentRaw();
                 byte* ptr3 = ptr2 + arraySegment.Offset;
                 int count = arraySegment.Count;
                 if (count != 0)
@@ -762,11 +763,13 @@ Unity has the [JsonUtility](https://docs.unity3d.com/2017.2/Documentation/Manual
 
 In Unity version, added `UnityResolver` to StandardResolver in default. It enables serialize `Vector2`, `Vector3`, `Vector4`, `Quaternion`, `Color`, `Bounds`, `Rect`.
 
+`.unitypackage` is exists in [releases](https://github.com/neuecc/Utf8Json/releases) page. If you are using IL2CPP environment, requires code generator too, see following section.
+
 Pre Code Generation(Unity/Xamarin Supports)
 ---
 Utf8Json generates object formatter dynamically by [ILGenerator](https://msdn.microsoft.com/en-us/library/system.reflection.emit.ilgenerator.aspx). It is fast and transparently generated at run time. But it does not work on AOT environment(Xamarin, Unity IL2CPP, etc.).
 
-If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's for unity.zip. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
+If you want to run on IL2CPP(or other AOT env), you need pre-code generation. `Utf8Json.UniversalCodeGenerator.exe` is code generator of Utf8Json. It is exists in releases page's `Utf8Json.UniversalCodeGenerator.zip` that run on win/mac/linux. It is using [Roslyn](https://github.com/dotnet/roslyn) so analyze source code and created by [.NET Core](https://www.microsoft.com/net/) for cross platform application.
 
 ```
 arguments help:
