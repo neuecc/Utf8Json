@@ -389,7 +389,7 @@ You can see many other samples from [builtin formatters](https://github.com/neue
 
 Primitive API(JsonReader/JsonWriter)
 ---
-`JsonReader` and `JsonWriter` is most low-level API. It is mutable struct so it must pass by ref. C# 7.2 supports ref-like types(see: [csharp-7.2/span-safety.md](https://github.com/dotnet/csharplang/blob/master/proposals/csharp-7.2/span-safety.md)) but not yet implements in C#, be careful to use.
+`JsonReader` and `JsonWriter` is most low-level API. It is mutable struct so it must pass by ref and must does not store to field. C# 7.2 supports ref-like types(see: [csharp-7.2/span-safety.md](https://github.com/dotnet/csharplang/blob/master/proposals/csharp-7.2/span-safety.md)) but not yet implements in C#, be careful to use.
 
 `JsonReader` and `JsonWriter` is too primitive(performance reason), slightly odd. Internal state manages only int offset. You should manage other state(in array, in object...) manualy in outer.
 
