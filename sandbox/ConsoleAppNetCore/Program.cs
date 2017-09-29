@@ -53,8 +53,10 @@ namespace ConsoleAppNetCore
 
             //Console.WriteLine(empty);
 
+            var str = @"""\u041d_\u0437\\\t\u043d\u0434\u0438\u044f""";
 
-            JsonSerializer.Serialize(new { });
+            var str2 = JsonSerializer.Deserialize<string>(str);
+            Console.WriteLine(str2);
         }
 
         static (int, int[]) Array(int[] xs)

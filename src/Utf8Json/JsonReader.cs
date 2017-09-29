@@ -555,6 +555,12 @@ namespace Utf8Json
                         offset++;
                         goto END;
                     default: // string
+                        if (codePointStringOffet != 0)
+                        {
+                            if (builder == null) builder = StringBuilderCache.GetBuffer();
+                            builderOffset += StringEncoding.UTF8.GetBytes(codePointStringBuffer, 0, codePointStringOffet, builder, builderOffset);
+                            codePointStringOffet = 0;
+                        }
                         offset++;
                         continue;
                 }
