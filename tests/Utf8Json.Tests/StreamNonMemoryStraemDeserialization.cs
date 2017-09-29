@@ -9,11 +9,28 @@ namespace Utf8Json.Tests
     public class StreamNonMemoryStraemDeserializationTest
     {
         [Fact]
-        public void Foo()
+        public void ConcurrencyCheck()
         {
-            var ms = new NonMemoryStream(new MemoryStream(new byte[] { (byte)'9' }));
-            var d = JsonSerializer.Deserialize<int>(ms);
-            d.Is(9);
+            {
+                var ms = new NonMemoryStream(new MemoryStream(JsonSerializer.Serialize(123)));
+                var d = JsonSerializer.Deserialize<int>(ms);
+                d.Is(123);
+            }
+            {
+                var ms = new NonMemoryStream(new MemoryStream(JsonSerializer.Serialize(9)));
+                var d = JsonSerializer.Deserialize<int>(ms);
+                d.Is(9);
+            }
+            {
+                var ms = new MemoryStream(JsonSerializer.Serialize(123), 0, 3, true, true);
+                var d = JsonSerializer.Deserialize<int>(ms);
+                d.Is(123);
+                ms.Position = 0;
+                ms.SetLength(1);
+                JsonSerializer.Serialize(ms, 1);
+                var d2 = JsonSerializer.Deserialize<int>(ms);
+                d2.Is(1);
+            }
         }
     }
 

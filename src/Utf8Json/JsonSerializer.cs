@@ -175,19 +175,37 @@ namespace Utf8Json
 
 #if NETSTANDARD && !NET45
             var ms = stream as MemoryStream;
-             if (ms != null)
+            if (ms != null)
             {
                 ArraySegment<byte> buf2;
                 if (ms.TryGetBuffer(out buf2))
                 {
+                    // when token is number, can not use from pool(can not find end line).
+                    var token = new JsonReader(buf2.Array, buf2.Offset).GetCurrentJsonToken();
+                    if (token == JsonToken.Number)
+                    {
+                        var buf3 = new byte[buf2.Count];
+                        Buffer.BlockCopy(buf2.Array, buf2.Offset, buf3, 0, buf3.Length);
+                        return Deserialize<T>(buf3, 0, resolver);
+                    }
+
                     return Deserialize<T>(buf2.Array, buf2.Offset, resolver);
                 }
             }
 #endif
+            {
+                var buf = MemoryPool.GetBuffer();
+                var len = FillFromStream(stream, ref buf);
 
-            var buf = MemoryPool.GetBuffer();
-            FillFromStream(stream, ref buf);
-            return Deserialize<T>(buf, resolver);
+                // when token is number, can not use from pool(can not find end line).
+                var token = new JsonReader(buf).GetCurrentJsonToken();
+                if (token == JsonToken.Number)
+                {
+                    buf = BinaryUtil.FastCloneWithResize(buf, len);
+                }
+
+                return Deserialize<T>(buf, resolver);
+            }
         }
 
         static int FillFromStream(Stream input, ref byte[] buffer)
