@@ -6,8 +6,7 @@ Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, U
 
 ![image](https://user-images.githubusercontent.com/46207/30883721-11e0526e-a348-11e7-86f8-efff85a9afe0.png)
 
-> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string(.NET UTF16), so [Jil](https://github.com/kevin-montrose/Jil/), [NetJSON](https://github.com/rpgmaker/NetJSON/) and [Json.NET](https://github.com/JamesNK/Newtonsoft.Json) contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost.  
-> Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
+> This benchmark is convert object to UTF8 and UTF8 to object benchmark. It is not to string(.NET UTF16), so [Jil](https://github.com/kevin-montrose/Jil/), [NetJSON](https://github.com/rpgmaker/NetJSON/) and [Json.NET](https://github.com/JamesNK/Newtonsoft.Json) contains additional UTF8.GetBytes/UTF8.GetString call. **Definitely** means does not exists encoding/decoding cost. Benchmark code is in [sandbox/PerfBenchmark](https://github.com/neuecc/Utf8Json/tree/master/sandbox/PerfBenchmark) by [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet).
 
 > I've tested more benchmark - [Benchmark of Jil vs Utf8Json](https://github.com/neuecc/Jil) for test many dataset patterns(borrwed from  Jil Benchmark) and three input/output compare(`Object <-> byte[](Utf8), Object <-> Stream(Utf8) and Object <-> String(UTF16)`). If target is UTF8(both `byte[]` and `Stream`), Utf8Json wins and memory allocated is extremely small.
 
