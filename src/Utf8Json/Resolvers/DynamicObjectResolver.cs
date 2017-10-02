@@ -622,7 +622,7 @@ namespace Utf8Json.Resolvers.Internal
                     il.EmitLoadThis();
                     il.EmitLdfld(fi);
                     return true;
-                }, 1); // firstArgIndex:0 is this.
+                }, false, 1); // firstArgIndex:0 is this.
             }
 
             return typeBuilder.CreateTypeInfo();
@@ -717,7 +717,7 @@ namespace Utf8Json.Resolvers.Internal
                     il.Emit(OpCodes.Ldelem_Ref); // object
                     il.Emit(OpCodes.Castclass, deserializeCustomFormatters[index].GetType());
                     return true;
-                }, 1);
+                }, true, 1);
             }
 
             object serializeDelegate = serialize.CreateDelegate(typeof(AnonymousJsonSerializeAction<>).MakeGenericType(type));
@@ -965,15 +965,15 @@ namespace Utf8Json.Resolvers.Internal
             }
         }
 
-        static void BuildDeserialize(Type type, MetaType info, ILGenerator il, Func<int, MetaMember, bool> tryEmitLoadCustomFormatter, int firstArgIndex)
+        static void BuildDeserialize(Type type, MetaType info, ILGenerator il, Func<int, MetaMember, bool> tryEmitLoadCustomFormatter, bool useGetUninitializedObject, int firstArgIndex)
         {
-            if (info.IsClass && info.BestmatchConstructor == null)
+            if (info.IsClass && info.BestmatchConstructor == null && !(useGetUninitializedObject && info.IsConcreteClass))
             {
                 il.Emit(OpCodes.Ldstr, "generated serializer for " + type.Name + " does not support deserialize.");
                 il.Emit(OpCodes.Newobj, EmitInfo.InvalidOperationExceptionConstructor);
                 il.Emit(OpCodes.Throw);
                 return;
-            }   
+            }
 
             var argReader = new ArgumentField(il, firstArgIndex);
             var argResolver = new ArgumentField(il, firstArgIndex + 1);
@@ -1151,12 +1151,21 @@ namespace Utf8Json.Resolvers.Internal
         {
             if (info.IsClass)
             {
-                foreach (var item in info.ConstructorParameters)
+                if (info.BestmatchConstructor != null)
                 {
-                    var local = members.First(x => x.MemberInfo == item);
-                    il.EmitLdloc(local.LocalField);
+                    foreach (var item in info.ConstructorParameters)
+                    {
+                        var local = members.First(x => x.MemberInfo == item);
+                        il.EmitLdloc(local.LocalField);
+                    }
+                    il.Emit(OpCodes.Newobj, info.BestmatchConstructor);
                 }
-                il.Emit(OpCodes.Newobj, info.BestmatchConstructor);
+                else
+                {
+                    il.Emit(OpCodes.Ldtoken, type);
+                    il.EmitCall(EmitInfo.GetTypeFromHandle);
+                    il.EmitCall(EmitInfo.GetUninitializedObject);
+                }
 
                 foreach (var item in members.Where(x => x.MemberInfo != null && x.MemberInfo.IsWritable))
                 {
@@ -1220,6 +1229,7 @@ namespace Utf8Json.Resolvers.Internal
             public static readonly MethodInfo GetCustomAttributeJsonFormatterAttribute = ExpressionUtility.GetMethodInfo(() => CustomAttributeExtensions.GetCustomAttribute<JsonFormatterAttribute>(default(MemberInfo), default(bool)));
 
             public static readonly MethodInfo ActivatorCreateInstance = ExpressionUtility.GetMethodInfo(() => Activator.CreateInstance(default(Type), default(object[])));
+            public static readonly MethodInfo GetUninitializedObject = ExpressionUtility.GetMethodInfo(() => System.Runtime.Serialization.FormatterServices.GetUninitializedObject(default(Type)));
 
             public static MethodInfo Serialize(Type type)
             {

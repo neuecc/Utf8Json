@@ -11,6 +11,7 @@ namespace Utf8Json.Internal.Emit
         public Type Type { get; private set; }
         public bool IsClass { get; private set; }
         public bool IsStruct { get { return !IsClass; } }
+        public bool IsConcreteClass { get; private set; }
 
         public ConstructorInfo BestmatchConstructor { get; private set; }
         public MetaMember[] ConstructorParameters { get; private set; }
@@ -149,6 +150,7 @@ namespace Utf8Json.Internal.Emit
             }
 
             this.IsClass = isClass;
+            this.IsConcreteClass = isClass && !(ti.IsAbstract || ti.IsInterface);
             this.BestmatchConstructor = ctor;
             this.ConstructorParameters = constructorParameters.ToArray();
             this.Members = stringMembers.Values.ToArray();

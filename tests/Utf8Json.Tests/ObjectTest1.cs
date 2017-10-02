@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
+using Utf8Json.Resolvers;
 using Xunit;
 
 namespace Utf8Json.Tests
@@ -81,6 +83,51 @@ namespace Utf8Json.Tests
             public int z { get; set; }
         }
 
+        public interface IMyInterface
+        {
+            int MyProperty { get; set; }
+        }
+
+        public abstract class MyAbstract
+        {
+            public virtual int MyProperty { get; set; }
+        }
+
+        public class MyInterfaceNonConstructor : IMyInterface
+        {
+            [IgnoreDataMember]
+            public bool CalledConstructor { get; }
+
+            public int MyProperty { get; set; }
+
+            MyInterfaceNonConstructor()
+            {
+                this.CalledConstructor = true;
+            }
+
+            public static MyInterfaceNonConstructor Create()
+            {
+                return new MyInterfaceNonConstructor();
+            }
+        }
+
+        public class MyAbstructNonConstructor : MyAbstract
+        {
+            [IgnoreDataMember]
+            public bool CalledConstructor { get; }
+
+            public override int MyProperty { get; set; }
+
+            MyAbstructNonConstructor()
+            {
+                this.CalledConstructor = true;
+            }
+
+            public static MyAbstructNonConstructor Create()
+            {
+                return new MyAbstructNonConstructor();
+            }
+        }
 
         [Fact]
         public void SimpleTest()
@@ -220,6 +267,37 @@ namespace Utf8Json.Tests
             var v = JsonSerializer.Deserialize<LongestString>(bin);
 
             v.IsStructuralEqual(o);
+        }
+
+        [Fact]
+        public void UninitializedObjectCreation()
+        {
+            {
+                var obj = MyAbstructNonConstructor.Create();
+                obj.MyProperty = 999;
+                obj.CalledConstructor.IsTrue();
+
+                var bin = JsonSerializer.Serialize(obj, StandardResolver.AllowPrivate);
+
+                var d = JsonSerializer.Deserialize<MyAbstructNonConstructor>(bin, StandardResolver.AllowPrivate);
+                d.CalledConstructor.IsFalse();
+                d.MyProperty = 999;
+
+                Assert.Throws<InvalidOperationException>(() => JsonSerializer.Deserialize<MyAbstract>(bin, StandardResolver.AllowPrivate));
+            }
+            {
+                var obj = MyInterfaceNonConstructor.Create();
+                obj.MyProperty = 999;
+                obj.CalledConstructor.IsTrue();
+
+                var bin = JsonSerializer.Serialize(obj, StandardResolver.AllowPrivate);
+
+                var d = JsonSerializer.Deserialize<MyInterfaceNonConstructor>(bin, StandardResolver.AllowPrivate);
+                d.CalledConstructor.IsFalse();
+                d.MyProperty = 999;
+
+                Assert.Throws<InvalidOperationException>(() => JsonSerializer.Deserialize<IMyInterface>(bin, StandardResolver.AllowPrivate));
+            }
         }
     }
 }

@@ -51,27 +51,43 @@ namespace ConsoleAppNetCore
         public int z { get; set; }
     }
 
+    public interface IInterface
+    {
+        int MyProperty { get; set; }
+    }
+
+    public abstract class MyAbstract
+    {
+        public virtual int MyProperty { get; set; }
+    }
+
+    public class NonConstructor : MyAbstract
+    {
+        public override int MyProperty { get; set; }
+
+        NonConstructor()
+        {
+            Console.WriteLine("private constructor");
+        }
+
+        public static NonConstructor Create()
+        {
+            return new NonConstructor();
+        }
+    }
+
+
     class Program
     {
         static void Main(string[] args)
         {
-            //var empty = Array(new int[0]);
+            var c = NonConstructor.Create();
+            c.MyProperty = 9999;
+            Console.WriteLine("---");
+            var bin = JsonSerializer.Serialize<NonConstructor>(c);
 
-            //Console.WriteLine(empty);
-
-
-
-
-            var a = @"[  [[[[1,2,3]],9999]], 10]";
-            var reader = new JsonReader(Encoding.UTF8.GetBytes(a));
-            reader.ReadIsBeginArray();
-            reader.ReadNextBlock();
-            reader.ReadIsValueSeparatorWithVerify();
-            var i = reader.ReadInt32();
-            Console.WriteLine(i);
-            //Console.WriteLine(s.z);
-
-
+            var js = JsonSerializer.Deserialize<MyAbstract>(bin, StandardResolver.AllowPrivate);
+            Console.WriteLine(js.MyProperty);
 
         }
 
