@@ -245,6 +245,19 @@ Object Serialization
 ---
 Utf8Json can serialze your own public `Class` or `Struct`. In default, serializer search all public instance member(field or property) and uses there member name as json property name. If you want to avoid serialization target, you can use `[IgnoreDataMember]` attribute of `System.Runtime.Serialization` to target member. If you want to change property name, you can use `[DataMember(Name = string)]` attribute of `System.Runtime.Serialization`.
 
+```csharp
+// JsonSerializer.Serialize(new FooBar { FooProperty = 99, BarProperty = "BAR" });
+// Result : {"foo":99}
+public class FooBar
+{
+    [DataMember(Name = "foo")]
+    public int FooProperty { get; set; }
+
+    [IgnoreDataMember]
+    public string BarProperty { get; set; }
+}
+```
+
 Utf8Json has other option, allows private/internal member serialization, convert property name to camelCalse/snake_case, if value is null does not create property. Or you can use a different DateTime format(default is ISO8601). The details, please read [Resolver](https://github.com/neuecc/Utf8Json#resolver) section. Here is sample.
 
 ```csharp
@@ -530,6 +543,8 @@ public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolv
     writer.WriteEndArray(); // "]"
 }
 ```
+
+How to write complex type formatter, you can refer [KeyValuePairFormatter](https://github.com/neuecc/Utf8Json/blob/4a45700219ffe20a9d0dac75ddbf3a99d86f488c/src/Utf8Json/Formatters/StandardClassLibraryFormatters.cs#L369-L418), it caches string table for serialize and automata dictionary for deserialize in [outer helper class](https://github.com/neuecc/Utf8Json/blob/4a45700219ffe20a9d0dac75ddbf3a99d86f488c/src/Utf8Json/Formatters/StandardClassLibraryFormatters.cs#L644-L665). How to add the custom formatter to custom resolver, you can see [DynamicGenericResolver](https://github.com/neuecc/Utf8Json/blob/4a457002/src/Utf8Json/Resolvers/DynamicGenericResolver.cs#L122-L129) for generic formatter, [BuiltinResolver](https://github.com/neuecc/Utf8Json/blob/4a457002/src/Utf8Json/Resolvers/BuiltinResolver.cs) for nongeneric formatter.
 
 Resolver
 ---
