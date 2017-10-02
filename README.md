@@ -434,6 +434,7 @@ Primitive API(JsonReader/JsonWriter)
 | ReadIsNameSeparatorWithVerify | If is not ':' throws exception. |
 | ReadString | ReadString, unescaped. |
 | ReadStringSegmentUnsafe | ReadString block but does not decode string. Return buffer is in internal buffer pool, be careful to use.  |
+| ReadNumberSegment | Read number as buffer slice. |
 | ReadPropertyName | ReadString + ReadIsNameSeparatorWithVerify. |
 | ReadPropertyNameSegmentRaw | Get raw string-span(do not unescape) + ReadIsNameSeparatorWithVerify. |
 | ReadBoolean | ReadBoolean. |
