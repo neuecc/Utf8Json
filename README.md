@@ -531,6 +531,8 @@ public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolv
 }
 ```
 
+How to write complex type formatter, you can refer [KeyValuePairFormatter](https://github.com/neuecc/Utf8Json/blob/4a45700219ffe20a9d0dac75ddbf3a99d86f488c/src/Utf8Json/Formatters/StandardClassLibraryFormatters.cs#L369-L418), it caches string table for serialize and automata dictionary for deserialize in [outer helper class](https://github.com/neuecc/Utf8Json/blob/4a45700219ffe20a9d0dac75ddbf3a99d86f488c/src/Utf8Json/Formatters/StandardClassLibraryFormatters.cs#L644-L665). How to add the custom formatter to custom resolver, you can see [DynamicGenericResolver](https://github.com/neuecc/Utf8Json/blob/4a457002/src/Utf8Json/Resolvers/DynamicGenericResolver.cs#L122-L129) for generic formatter, [BuiltinResolver](https://github.com/neuecc/Utf8Json/blob/4a457002/src/Utf8Json/Resolvers/BuiltinResolver.cs) for nongeneric formatter.
+
 Resolver
 ---
 `IJsonFormatterResolver` is storage of typed serializers. Serializer api accepts resolver and can customize serialization.
