@@ -263,14 +263,48 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<decimal> Default = new DecimalFormatter();
 
+        readonly bool serializeAsString;
+
+        public DecimalFormatter()
+            : this(false)
+        {
+
+        }
+
+        public DecimalFormatter(bool serializeAsString)
+        {
+            this.serializeAsString = serializeAsString;
+        }
+
         public void Serialize(ref JsonWriter writer, decimal value, IJsonFormatterResolver formatterResolver)
         {
-            writer.WriteString(value.ToString(CultureInfo.InvariantCulture));
+            if (serializeAsString)
+            {
+                writer.WriteString(value.ToString(CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                // write as number format.
+                writer.WriteRaw(StringEncoding.UTF8.GetBytes(value.ToString(CultureInfo.InvariantCulture)));
+            }
         }
 
         public decimal Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            return decimal.Parse(reader.ReadString(), CultureInfo.InvariantCulture);
+            var token = reader.GetCurrentJsonToken();
+            if (token == JsonToken.Number)
+            {
+                var number = reader.ReadNumberSegment();
+                return decimal.Parse(StringEncoding.UTF8.GetString(number.Array, number.Offset, number.Count), NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+            else if (token == JsonToken.String)
+            {
+                return decimal.Parse(reader.ReadString(), NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
+            }
         }
     }
 

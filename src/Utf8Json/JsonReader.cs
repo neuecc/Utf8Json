@@ -1044,6 +1044,24 @@ namespace Utf8Json
             return v;
         }
 
+        public ArraySegment<byte> ReadNumberSegment()
+        {
+            SkipWhiteSpace();
+            var initialOffset = offset;
+            for (int i = offset; i < bytes.Length; i++)
+            {
+                if (!NumberConverter.IsNumberRepresentation(bytes[i]))
+                {
+                    offset = i;
+                    goto END;
+                }
+            }
+            offset = bytes.Length;
+
+            END:
+            return new ArraySegment<byte>(bytes, initialOffset, offset - initialOffset);
+        }
+
         internal static class StringBuilderCache
         {
             [ThreadStatic]
