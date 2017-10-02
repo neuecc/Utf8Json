@@ -129,6 +129,17 @@ namespace Utf8Json.Tests
             }
         }
 
+        public class HasIndexer
+        {
+            public int[] arr { get; set; }
+
+            public int this[int i]
+            {
+                get { return arr[i]; }
+                set { arr[i] = value; }
+            }
+        }
+
         [Fact]
         public void SimpleTest()
         {
@@ -298,6 +309,15 @@ namespace Utf8Json.Tests
 
                 Assert.Throws<InvalidOperationException>(() => JsonSerializer.Deserialize<IMyInterface>(bin, StandardResolver.AllowPrivate));
             }
+        }
+
+        [Fact]
+        public void SerializeIndexer()
+        {
+            var indexer = new HasIndexer() { arr = new[] { 1, 10, 100 } };
+            var bin = JsonSerializer.Serialize(indexer);
+            var re = JsonSerializer.Deserialize<HasIndexer>(bin);
+            re.arr.Is(1, 10, 100);
         }
     }
 }

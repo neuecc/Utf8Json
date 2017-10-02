@@ -29,6 +29,7 @@ namespace Utf8Json.Internal.Emit
                 // All public members are serialize target except [Ignore] member.
                 foreach (var item in type.GetRuntimeProperties())
                 {
+                    if (item.GetIndexParameters().Length > 0) continue; // skip indexer
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
 
                     var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
