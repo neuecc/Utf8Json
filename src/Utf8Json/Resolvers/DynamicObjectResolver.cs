@@ -978,8 +978,6 @@ namespace Utf8Json.Resolvers.Internal
             var argReader = new ArgumentField(il, firstArgIndex);
             var argResolver = new ArgumentField(il, firstArgIndex + 1);
 
-            var typeInfo = type.GetTypeInfo();
-
             // if (reader.ReadIsNull()) return null;
             {
                 var elseBody = il.DefineLabel();
