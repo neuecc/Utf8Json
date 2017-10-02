@@ -201,6 +201,9 @@ namespace Utf8Json
             }
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public void SkipWhiteSpace()
         {
             // eliminate array bound check
