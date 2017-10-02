@@ -1,29 +1,32 @@
 ﻿namespace Utf8Json
 {
+    // 0 = None, 1 ~ 4 is block token, 5 ~ 9 = value token, 10 ~ 11 = delimiter token.
+    // you can use range-check if optimization needed.
+
     public enum JsonToken : byte
     {
-        None,
+        None = 0,
         /// <summary>{</summary>
-        BeginObject,
+        BeginObject = 1,
         /// <summary>}</summary>
-        EndObject,
+        EndObject = 2,
         /// <summary>[</summary>
-        BeginArray,
+        BeginArray = 3,
         /// <summary>]</summary>
-        EndArray,
+        EndArray = 4,
         /// <summary>0~9, -</summary>
-        Number,
+        Number = 5,
         /// <summary>"</summary>
-        String,
+        String = 6,
         /// <summary>t</summary>
-        True,
+        True = 7,
         /// <summary>f</summary>
-        False,
+        False = 8,
         /// <summary>n</summary>
-        Null,
+        Null = 9,
         /// <summary>,</summary>
-        ValueSeparator,
+        ValueSeparator = 10,
         /// <summary>:</summary>
-        NameSeparator,
+        NameSeparator = 11,
     }
 }

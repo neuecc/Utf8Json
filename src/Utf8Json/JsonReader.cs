@@ -884,6 +884,14 @@ namespace Utf8Json
         public void ReadNext()
         {
             var token = GetCurrentJsonToken();
+            ReadNextCore(token);
+        }
+
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        void ReadNextCore(JsonToken token)
+        {
             switch (token)
             {
                 case JsonToken.BeginObject:
@@ -929,6 +937,7 @@ namespace Utf8Json
                             return;
                         }
                     }
+                    offset = bytes.Length;
                     break;
                 case JsonToken.None:
                 default:
@@ -966,7 +975,12 @@ namespace Utf8Json
                 case JsonToken.Number:
                 case JsonToken.NameSeparator:
                 case JsonToken.ValueSeparator:
-                    ReadNext();
+                    do
+                    {
+                        ReadNextCore(token);
+                        token = GetCurrentJsonToken();
+                    } while (stack != 0 && !((int)token < 5)); // !(None, Begin/EndObject, Begin/EndArray)
+
                     if (stack != 0)
                     {
                         ReadNextBlockCore(stack);

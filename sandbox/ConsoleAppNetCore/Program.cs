@@ -6,6 +6,8 @@ using Utf8Json;
 using Utf8Json.Formatters;
 using Utf8Json.ImmutableCollection;
 using Utf8Json.Resolvers;
+using System.Linq;
+using System.Text;
 
 namespace ConsoleAppNetCore
 {
@@ -43,7 +45,11 @@ namespace ConsoleAppNetCore
         [JsonFormatter(typeof(StaticNullableFormatter<DateTime>), typeof(DateTimeFormatter), new[] { "yyyy-mm-dd" })]
         public DateTime MyProperty { get; set; }
     }
-
+    public class MyClassZZZ
+    {
+        //public int[] foo { get; set; }
+        public int z { get; set; }
+    }
 
     class Program
     {
@@ -53,10 +59,20 @@ namespace ConsoleAppNetCore
 
             //Console.WriteLine(empty);
 
-            var str = @"""\u041d_\u0437\\\t\u043d\u0434\u0438\u044f""";
 
-            var str2 = JsonSerializer.Deserialize<string>(str);
-            Console.WriteLine(str2);
+
+
+            var a = @"[  [[[[1,2,3]],9999]], 10]";
+            var reader = new JsonReader(Encoding.UTF8.GetBytes(a));
+            reader.ReadIsBeginArray();
+            reader.ReadNextBlock();
+            reader.ReadIsValueSeparatorWithVerify();
+            var i = reader.ReadInt32();
+            Console.WriteLine(i);
+            //Console.WriteLine(s.z);
+
+
+
         }
 
         static (int, int[]) Array(int[] xs)

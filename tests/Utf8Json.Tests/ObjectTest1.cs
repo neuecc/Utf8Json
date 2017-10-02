@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -74,6 +75,11 @@ namespace Utf8Json.Tests
             public int OAFADFZEWFSDFSDFKSLJFWEFNWOZFUSEWWEFWEWFFFFFFFFFFFFFFZFEWBFOWUEGWHOUDGSOGUDSZNOFRWEUFWGOWHOGHWOG000000000000000000000000000000000000000HOGZ { get; set; }
         }
 
+        public class RecursiveReadNextBlockOverflow
+        {
+            //public int[] foo { get; set; }
+            public int z { get; set; }
+        }
 
 
         [Fact]
@@ -117,6 +123,35 @@ namespace Utf8Json.Tests
             v1_2.ABCDEFG1.Is(350); v1_2.ABCDEFG3.Is(500);
             v2_1.ABCDEFG1.Is(10); v2_1.ABCDEFG2.Is(0); v2_1.ABCDEFG3.Is(99);
             v2_2.ABCDEFG1.Is(350); v2_2.ABCDEFG2.Is(34); v2_2.ABCDEFG3.Is(500);
+        }
+
+        [Fact]
+        public void VersioningReadNextOverflow()
+        {
+            var str = "[" + string.Join(",", Enumerable.Range(1, 1000000).Select(x => x.ToString())) + "]";
+
+            var a = @"{""foo"":" + str + @",""z"":99}";
+            var s = Utf8Json.JsonSerializer.Deserialize<RecursiveReadNextBlockOverflow>(a);
+            s.z.Is(99);
+        }
+
+        [Fact]
+        public void NestedArrayVersioning()
+        {
+            {
+                var a = @"[  [[[[1,2,3]],9999]], 10]";
+                var reader = new JsonReader(Encoding.UTF8.GetBytes(a));
+                reader.ReadIsBeginArray();
+                reader.ReadNextBlock();
+                reader.ReadIsValueSeparatorWithVerify();
+                var i = reader.ReadInt32();
+                i.Is(10);
+            }
+            {
+                var a = @"{""foo"":[[[[1,2,3]],9999]],""z"":99}";
+                var s = Utf8Json.JsonSerializer.Deserialize<RecursiveReadNextBlockOverflow>(a);
+                s.z.Is(99);
+            }
         }
 
         [Fact]
