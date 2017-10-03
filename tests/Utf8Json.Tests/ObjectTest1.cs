@@ -140,6 +140,52 @@ namespace Utf8Json.Tests
             }
         }
 
+        public class SomeClass
+        {
+            public SomeClass()
+            {
+                AnotherClass = new List<AnotherClass>();
+            }
+
+            public List<AnotherClass> AnotherClass { get; set; }
+        }
+
+        public class AnotherClass
+        {
+            public int Foo { get; set; }
+        }
+
+        public class SideEffectPattern1
+        {
+            public bool B = true;
+        }
+        public class NonEmptyBase
+        {
+            public int MyProperty { get; set; }
+
+            public NonEmptyBase()
+            {
+                MyProperty = 9;
+            }
+        }
+
+        public class SideEffectPattern2 : NonEmptyBase
+        {
+            public int X { get; set; }
+        }
+
+        public struct SideEffectStructPattern
+        {
+            public int x;
+            public int y;
+
+            public SideEffectStructPattern(int x)
+            {
+                this.x = x;
+                this.y = 99;
+            }
+        }
+
         [Fact]
         public void SimpleTest()
         {
@@ -318,6 +364,30 @@ namespace Utf8Json.Tests
             var bin = JsonSerializer.Serialize(indexer);
             var re = JsonSerializer.Deserialize<HasIndexer>(bin);
             re.arr.Is(1, 10, 100);
+        }
+
+        [Fact]
+        public void DeserializeSideEffectWithVersioned()
+        {
+            string jsonString = "[{}]";
+            var list = new List<SomeClass>() { new SomeClass() };
+            list[0].AnotherClass.Count.Is(0);
+            var list2 = JsonSerializer.Deserialize<List<SomeClass>>(jsonString);
+            list2[0].AnotherClass.Count.Is(0);
+        }
+
+        [Fact]
+        public void DeserializeSideEffectWithVersioned123()
+        {
+            string jsonString = "{}";
+
+            var s1 = JsonSerializer.Deserialize<SideEffectPattern1>(jsonString);
+            var s2 = JsonSerializer.Deserialize<SideEffectPattern2>(jsonString);
+            var s3 = JsonSerializer.Deserialize<SideEffectStructPattern>(jsonString);
+
+            s1.B.IsTrue();
+            s2.MyProperty.Is(9);
+            s3.y.Is(99);
         }
     }
 }

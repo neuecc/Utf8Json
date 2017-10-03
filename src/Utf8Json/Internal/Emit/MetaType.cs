@@ -116,37 +116,18 @@ namespace Utf8Json.Internal.Emit
                                 }
                                 else
                                 {
-                                    if (ctorEnumerator != null)
-                                    {
-                                        ctor = null;
-                                        continue;
-                                    }
-                                    else
-                                    {
-                                        throw new InvalidOperationException("can't find matched constructor parameter, parameterType mismatch. type:" + type.FullName + " parameterName:" + item.Name + " paramterType:" + item.ParameterType.Name);
-                                    }
+                                    ctor = null;
+                                    continue;
                                 }
                             }
                             else
                             {
-                                if (ctorEnumerator != null)
-                                {
-                                    ctor = null;
-                                    continue;
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException("can't find matched constructor parameter, index not found. type:" + type.FullName + " parameterName:" + item.Name);
-                                }
+                                ctor = null;
+                                continue;
                             }
                             ctorParamIndex++;
                         }
                     } while (TryGetNextConstructor(ctorEnumerator, ref ctor));
-
-                    if (ctor == null)
-                    {
-                        throw new InvalidOperationException("can't find matched constructor. type:" + type.FullName);
-                    }
                 }
             }
 
