@@ -814,6 +814,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16155e678c92ab94cafdaaedd94de614, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clearButton: {fileID: 1337584758}
+  list: {fileID: 1903152286}
+  listScrollBar: {fileID: 99089801}
+  logText: {fileID: 1607029148}
+  logScrollBar: {fileID: 2074381937}
 --- !u!114 &1502002506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -825,11 +830,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 660baed073888b8438569f57e42679b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clearButton: {fileID: 1337584758}
-  list: {fileID: 1903152286}
-  listScrollBar: {fileID: 99089801}
-  logText: {fileID: 1607029148}
-  logScrollBar: {fileID: 2074381937}
 --- !u!1 &1585551015
 GameObject:
   m_ObjectHideFlags: 0

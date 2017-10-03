@@ -507,7 +507,7 @@ namespace Utf8Json
                             case '"':
                             case '\\':
                             case '/':
-                                escapeCharacter = bytes[i];
+                                escapeCharacter = bytes[i + 1];
                                 goto COPY;
                             case 'b':
                                 escapeCharacter = (byte)'\b';

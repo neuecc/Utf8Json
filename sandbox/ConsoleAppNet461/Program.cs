@@ -45,22 +45,26 @@ class Program
 #if DEBUG
 
 
-       
+        // ""xyzzy"""
+        var stre = "\"\\\"xyzzy\\\"\"";
 
-            //var p = new Person { Age = 99, Name = "foobar" };
+        var js = JsonSerializer.ToJsonString("\"xyzzy\"");
+        //Console.WriteLine(stre);
+        //Console.WriteLine(js);
 
-            //// Object -> byte[] (UTF8)
-            //byte[] result = JsonSerializer.Serialize(p);
+        //var a = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(stre);
+        var b = JsonSerializer.Deserialize<string>(stre);
+        //Console.WriteLine(a);
+        Console.WriteLine(b);
 
+        //const string testJsonString = "{\"foo\":\"bar \\\"xyzzy\\\" \"}";
+        //var deserialisedDictionary = (Dictionary<string, object>)JsonSerializer.Deserialize<object>(testJsonString);
+        //var d23 = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(testJsonString);
 
-            //// byte[] -> Object
-            //var p2 = JsonSerializer.Deserialize<Person>(result);
+        //var actual = (string)deserialisedDictionary["foo"];
+        //var expectd = "bar \"xyzzy\" ";
 
-            //// Object -> byte[]
-            //var json = JsonSerializer.ToJsonString(p2);
-
-            //// Write to Stream
-            //JsonSerializer.Serialize(stream, p2);
+        //Console.WriteLine(expectd == actual);
 
 
 #else
@@ -148,7 +152,7 @@ public class SimplePerson
     //readonly int f;
     //readonly int z;
 
-        
+
     public SimplePerson()
     {
 
