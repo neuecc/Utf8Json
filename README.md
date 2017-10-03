@@ -555,7 +555,7 @@ Resolver
 | --- | --- |
 | BuiltinResolver | Builtin primitive and standard classes resolver. It includes primitive(int, bool, string...) and there nullable, array and list. and some extra builtin types(Guid, Uri, BigInteger, etc...). |
 | DynamicGenericResolver | Resolver of generic type(`Tuple<>`, `List<>`, `Dictionary<,>`, `Array`, etc). It uses reflection call for resolve generic argument at first time. |
-| AttributeFormatterResolver | Get formatter from `[MessagePackFormatter]` attribute. |
+| AttributeFormatterResolver | Get formatter from `[JsonFormatter]` attribute. |
 | EnumResolver | `EnumResolver.Default` serialize as name, `EnumResolver.UnderlyingValue` serialize as underlying value. Deserialize, can be both. |
 | StandardResolver | Composited resolver. It resolves in the following order `object fallback -> (builtin -> enum -> dynamic generic -> attribute ->  dynamic object)`. `StandardResolver.Default` is default resolver of JsonSerialzier and has many option resolvers, see below. |
 | CompositeResolver | Singleton custom composite resolver.  |
@@ -574,7 +574,7 @@ Assemble the resolver's priority is the only configuration point of Utf8Json. It
 
 ```csharp
 // use global-singleton CompositeResolver.
-// This method initialize CompositeResolver and set to default MessagePackSerializer
+// This method initialize CompositeResolver and set to default JsonSerializer
 CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
     // add custome formatters, use other DateTime format.
     // if target type is struct, requires add nullable formatter too(use NullableXxxFormatter or StaticNullableFormatter(innerFormatter))
@@ -803,7 +803,7 @@ arguments help:
   -f, --allowInternal           [optional, default=false]Allow generate internal(friend)
   -c, --conditionalsymbol=VALUE [optional, default=empty]conditional compiler symbol
   -r, --resolvername=VALUE      [optional, default=GeneratedResolver]Set resolver name
-  -n, --namespace=VALUE         [optional, default=MessagePack]Set namespace root name
+  -n, --namespace=VALUE         [optional, default=Utf8Json]Set namespace root name
 ```
 
 ```csharp

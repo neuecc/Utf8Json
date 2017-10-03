@@ -139,8 +139,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeAnalysis\Definitions.cs" />
-    <Compile Include="CodeAnalysis\TypeCollector.cs" />
+    <Compile Include="Definitions.cs" />
     <Compile Include="Generator\FormatterTemplate1.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -152,10 +151,8 @@
       <DependentUpon>ResolverTemplate.tt</DependentUpon>
     </Compile>
     <Compile Include="Generator\TemplatePartials.cs" />
-    <Compile Include="Mono.Options\Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\RoslynExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

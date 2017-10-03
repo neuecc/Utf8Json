@@ -175,5 +175,20 @@ namespace Utf8Json.Tests
             var bin = JsonSerializer.Serialize(value);
             JsonSerializer.Deserialize<double>(bin).Is(Convert.ToDouble(value));
         }
+
+        [InlineData("\"xyzzy\"")]
+        [InlineData("/xyzzy/")]
+        [InlineData("'xyzzy'")]
+        [InlineData("\r\nxyzzy\r\n")]
+        [InlineData("xyz\r\nzy")]
+        [InlineData("xy\"zzy")]
+        [InlineData("xy\"zz\"y")]
+        [Theory]
+        public void StringEscaping(string v)
+        {
+            var js = JsonSerializer.Serialize<string>(v);
+            var ok = JsonSerializer.Deserialize<string>(js);
+            ok.Is(v);
+        }
     }
 }

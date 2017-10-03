@@ -81,13 +81,9 @@ namespace ConsoleAppNetCore
     {
         static void Main(string[] args)
         {
-            var c = NonConstructor.Create();
-            c.MyProperty = 9999;
-            Console.WriteLine("---");
-            var bin = JsonSerializer.Serialize<NonConstructor>(c);
 
-            var js = JsonSerializer.Deserialize<MyAbstract>(bin, StandardResolver.AllowPrivate);
-            Console.WriteLine(js.MyProperty);
+
+
 
         }
 
