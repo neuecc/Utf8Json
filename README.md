@@ -574,7 +574,7 @@ Assemble the resolver's priority is the only configuration point of Utf8Json. It
 
 ```csharp
 // use global-singleton CompositeResolver.
-// This method initialize CompositeResolver and set to default MessagePackSerializer
+// This method initialize CompositeResolver and set to default JsonSerializer
 CompositeResolver.RegisterAndSetAsDefault(new IJsonFormatter[] {
     // add custome formatters, use other DateTime format.
     // if target type is struct, requires add nullable formatter too(use NullableXxxFormatter or StaticNullableFormatter(innerFormatter))
@@ -803,7 +803,7 @@ arguments help:
   -f, --allowInternal           [optional, default=false]Allow generate internal(friend)
   -c, --conditionalsymbol=VALUE [optional, default=empty]conditional compiler symbol
   -r, --resolvername=VALUE      [optional, default=GeneratedResolver]Set resolver name
-  -n, --namespace=VALUE         [optional, default=MessagePack]Set namespace root name
+  -n, --namespace=VALUE         [optional, default=Utf8Json]Set namespace root name
 ```
 
 ```csharp
