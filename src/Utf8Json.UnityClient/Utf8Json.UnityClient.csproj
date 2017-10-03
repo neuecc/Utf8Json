@@ -136,6 +136,7 @@
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\DynamicAssembly.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\ExpressionUtility.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\ILGeneratorExtensions.cs" />
+    <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\ILViewer.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\MetaMember.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\MetaType.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\FarmHash.cs" />
