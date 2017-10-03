@@ -1005,12 +1005,20 @@ namespace Utf8Json.Resolvers.Internal
             argReader.EmitLoad();
             il.EmitCall(EmitInfo.JsonReader.ReadIsBeginObjectWithVerify);
 
+            // check side-effect-free for optimize set member value(reduce is-exists-member on json check)
+            var isSideEffectFreeType = true;
+            if (info.BestmatchConstructor != null)
+            {
+                isSideEffectFreeType = IsSideEffectFreeConstructorType(info.BestmatchConstructor);
+            }
+
             // make local fields
             var infoList = info.Members
                 .Select(item => new DeserializeInfo
                 {
                     MemberInfo = item,
                     LocalField = il.DeclareLocal(item.Type),
+                    IsDeserializedField = isSideEffectFreeType ? null : il.DeclareLocal(typeof(bool))
                 })
                 .ToArray();
 
@@ -1082,6 +1090,11 @@ namespace Utf8Json.Resolvers.Internal
                     if (infoList[i].MemberInfo != null)
                     {
                         EmitDeserializeValue(il, infoList[i], i, tryEmitLoadCustomFormatter, argReader, argResolver);
+                        if (!isSideEffectFreeType)
+                        {
+                            il.EmitTrue();
+                            il.EmitStloc(infoList[i].IsDeserializedField);
+                        }
                         il.Emit(OpCodes.Br, continueWhile);
                     }
                     else
@@ -1108,11 +1121,11 @@ namespace Utf8Json.Resolvers.Internal
             }
 
             // create result object
-            var structLocal = EmitNewObject(il, type, info, infoList);
+            var localResult = EmitNewObject(il, type, info, infoList, isSideEffectFreeType);
 
-            if (info.IsStruct)
+            if (localResult != null)
             {
-                il.Emit(OpCodes.Ldloc, structLocal);
+                il.Emit(OpCodes.Ldloc, localResult);
             }
 
             il.Emit(OpCodes.Ret);
@@ -1145,10 +1158,16 @@ namespace Utf8Json.Resolvers.Internal
             il.EmitStloc(info.LocalField);
         }
 
-        static LocalBuilder EmitNewObject(ILGenerator il, Type type, MetaType info, DeserializeInfo[] members)
+        static LocalBuilder EmitNewObject(ILGenerator il, Type type, MetaType info, DeserializeInfo[] members, bool isSideEffectFreeType)
         {
             if (info.IsClass)
             {
+                LocalBuilder result = null;
+                if (!isSideEffectFreeType)
+                {
+                    result = il.DeclareLocal(type);
+                }
+
                 if (info.BestmatchConstructor != null)
                 {
                     foreach (var item in info.ConstructorParameters)
@@ -1164,15 +1183,34 @@ namespace Utf8Json.Resolvers.Internal
                     il.EmitCall(EmitInfo.GetTypeFromHandle);
                     il.EmitCall(EmitInfo.GetUninitializedObject);
                 }
+                if (!isSideEffectFreeType)
+                {
+                    il.EmitStloc(result);
+                }
 
                 foreach (var item in members.Where(x => x.MemberInfo != null && x.MemberInfo.IsWritable))
                 {
-                    il.Emit(OpCodes.Dup);
-                    il.EmitLdloc(item.LocalField);
-                    item.MemberInfo.EmitStoreValue(il);
+                    if (isSideEffectFreeType)
+                    {
+                        il.Emit(OpCodes.Dup);
+                        il.EmitLdloc(item.LocalField);
+                        item.MemberInfo.EmitStoreValue(il);
+                    }
+                    else
+                    {
+                        var next = il.DefineLabel();
+                        il.EmitLdloc(item.IsDeserializedField);
+                        il.Emit(OpCodes.Brfalse, next);
+
+                        il.EmitLdloc(result);
+                        il.EmitLdloc(item.LocalField);
+                        item.MemberInfo.EmitStoreValue(il);
+
+                        il.MarkLabel(next);
+                    }
                 }
 
-                return null;
+                return result;
             }
             else
             {
@@ -1195,19 +1233,68 @@ namespace Utf8Json.Resolvers.Internal
 
                 foreach (var item in members.Where(x => x.MemberInfo != null && x.MemberInfo.IsWritable))
                 {
-                    il.EmitLdloca(result);
-                    il.EmitLdloc(item.LocalField);
-                    item.MemberInfo.EmitStoreValue(il);
+                    if (isSideEffectFreeType)
+                    {
+                        il.EmitLdloca(result);
+                        il.EmitLdloc(item.LocalField);
+                        item.MemberInfo.EmitStoreValue(il);
+                    }
+                    else
+                    {
+                        var next = il.DefineLabel();
+                        il.EmitLdloc(item.IsDeserializedField);
+                        il.Emit(OpCodes.Brfalse, next);
+
+                        il.EmitLdloca(result);
+                        il.EmitLdloc(item.LocalField);
+                        item.MemberInfo.EmitStoreValue(il);
+
+                        il.MarkLabel(next);
+                    }
                 }
 
                 return result; // struct returns local result field
             }
         }
 
+        static bool IsSideEffectFreeConstructorType(ConstructorInfo ctorInfo)
+        {
+            var methodBody = ctorInfo.GetMethodBody();
+            if (methodBody == null) return false; // can't analysis
+
+            var array = methodBody.GetILAsByteArray();
+            if (array == null) return false;
+
+            // (ldarg.0, call(empty ctor), ret) == side-effect free
+            if (array.Length <= 7)
+            {
+                if (ctorInfo.DeclaringType.BaseType == typeof(object))
+                {
+                    return true;
+                }
+                else
+                {
+                    // use empty constuctor.
+                    var bassCtorInfo = ctorInfo.DeclaringType.BaseType.GetConstructor(Type.EmptyTypes);
+                    if (bassCtorInfo == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return IsSideEffectFreeConstructorType(bassCtorInfo);
+                    }
+                }
+            }
+
+            return false;
+        }
+
         struct DeserializeInfo
         {
             public MetaMember MemberInfo;
             public LocalBuilder LocalField;
+            public LocalBuilder IsDeserializedField;
         }
 
         internal static class EmitInfo

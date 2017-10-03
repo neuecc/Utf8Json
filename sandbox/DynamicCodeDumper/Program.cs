@@ -15,17 +15,20 @@ namespace DynamicCodeDumper
     {
         static void Main(string[] args)
         {
-#if NET45
-
             try
             {
                 DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
                 DynamicObjectResolver.Default.GetFormatter<Test2>();
                 DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
-                 DynamicObjectResolver.Default.GetFormatter<Person>();
+                var test = DynamicObjectResolver.Default.GetFormatter<Person>();
                 DynamicObjectResolver.Default.GetFormatter<IInterface>();
+                DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern1>();
+                DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern2>();
+                DynamicObjectResolver.Default.GetFormatter<NoSideEffectStructPattern>();
 
-
+                // Debug build and Release build returns different IL, check it.
+                var il = ILView.ToPrettyPrintInstruction(test.GetType().GetMethod("Deserialize"));
+                Console.WriteLine(il);
 
             }
             catch (Exception ex)
@@ -34,15 +37,17 @@ namespace DynamicCodeDumper
             }
             finally
             {
+
+#if NET45
                 var a1 = (DynamicObjectResolver.Default as ISave).Save();
+                // var a2 = (DynamicObjectResolver.AllowPrivate as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
 
                 Verify(a1);
-            }
-
 #endif
+            }
         }
 
         static void Verify(params AssemblyBuilder[] builders)
@@ -66,6 +71,42 @@ namespace DynamicCodeDumper
             }
         }
     }
+
+    public class InvalidCtor
+    {
+        public InvalidCtor(int x)
+        {
+
+        }
+    }
+
+
+    public class NoSideEffectFreePattern1
+    {
+        public bool B = true;
+    }
+    public class EmptyBase
+    {
+
+    }
+
+    public class NoSideEffectFreePattern2 : EmptyBase
+    {
+        public int X { get; set; }
+    }
+
+    public struct NoSideEffectStructPattern
+    {
+        int x;
+        public int y;
+
+        public NoSideEffectStructPattern(int x)
+        {
+            this.x = x;
+            this.y = 99;
+        }
+    }
+
 
 
     public interface IInterface

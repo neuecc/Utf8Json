@@ -75,6 +75,7 @@ namespace <#= Namespace #>
 
 <# foreach(var x in objInfo.Members) { #>
             var __<#= x.Name #>__ = default(<#= x.Type #>);
+            var __<#= x.Name #>__b__ = false;
 <# } #>
 
             var ____count = 0;
@@ -94,6 +95,7 @@ namespace <#= Namespace #>
 <# index = 0; foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { #>
                     case <#= index++ #>:
                         __<#= x.Name #>__ = <#= x.GetDeserializeMethodString() #>;
+                        __<#= x.Name #>__b__ = true;
                         break;
 <# } #>
                     default:
@@ -107,7 +109,7 @@ namespace <#= Namespace #>
 
             var ____result = new <#= objInfo.GetConstructorString()  #>;
 <# foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { #>
-            ____result.<#= x.Name #> = __<#= x.Name #>__;
+            if(__<#= x.Name #>__b__) ____result.<#= x.Name #> = __<#= x.Name #>__;
 <# } #>
 
             return ____result;

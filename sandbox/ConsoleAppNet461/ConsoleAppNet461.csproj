@@ -223,7 +223,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="gen_test.cs" />
+    <Compile Include="gen_test2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
