@@ -162,7 +162,7 @@ Other optimize techniques.
 * High-level API uses internal memory pool, don't allocate working memory under 64K
 * Struct JsonWriter does not allocate any more and write underlying byte[] directly, don't use TextWriter
 * Avoid boxing all codes, all platforms(include Unity/IL2CPP)
-* Heavyly tuned dynamic IL code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L1187)
+* Heavyly tuned dynamic IL code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/a8203cb4cfd81a8462105dac5babf5e26fa01ac5/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L1292)
 * Call Primitive API directly when IL code generation knows target is primitive
 * Getting cached generated formatter on static generic field(don't use dictionary-cache because lookup is overhead)
 * Don't use `IEnumerable<T>` abstraction on iterate collection, specialized each collection types, see:[CollectionFormatter.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Formatters/CollectionFormatters.cs)
