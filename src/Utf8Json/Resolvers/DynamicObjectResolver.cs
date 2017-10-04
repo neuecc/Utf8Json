@@ -1266,7 +1266,8 @@ namespace Utf8Json.Resolvers.Internal
             if (array == null) return false;
 
             // (ldarg.0, call(empty ctor), ret) == side-effect free
-            if (array.Length <= 7)
+            // Release build is 7 but allows nop for debug build so use <= 8.
+            if (array.Length <= 8)
             {
                 if (ctorInfo.DeclaringType.BaseType == typeof(object))
                 {
