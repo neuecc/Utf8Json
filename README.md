@@ -1,5 +1,7 @@
 Utf8Json - Fast JSON Serializer for C#
 ===
+
+[![Join the chat at https://gitter.im/neuecc/Utf8Json](https://badges.gitter.im/neuecc/Utf8Json.svg)](https://gitter.im/neuecc/Utf8Json?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
  [![Releases](https://img.shields.io/github/release/neuecc/Utf8Json.svg)](https://github.com/neuecc/Utf8Json/releases)
 
 Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, Unity and Xamarin), this serializer write/read directly to UTF8 binary so boostup performance. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
@@ -162,7 +164,7 @@ Other optimize techniques.
 * High-level API uses internal memory pool, don't allocate working memory under 64K
 * Struct JsonWriter does not allocate any more and write underlying byte[] directly, don't use TextWriter
 * Avoid boxing all codes, all platforms(include Unity/IL2CPP)
-* Heavyly tuned dynamic IL code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L1187)
+* Heavyly tuned dynamic IL code generation, it generates per option so reduce option check: see:[DynamicObjectResolver.cs](https://github.com/neuecc/Utf8Json/blob/a8203cb4cfd81a8462105dac5babf5e26fa01ac5/src/Utf8Json/Resolvers/DynamicObjectResolver.cs#L729-L1292)
 * Call Primitive API directly when IL code generation knows target is primitive
 * Getting cached generated formatter on static generic field(don't use dictionary-cache because lookup is overhead)
 * Don't use `IEnumerable<T>` abstraction on iterate collection, specialized each collection types, see:[CollectionFormatter.cs](https://github.com/neuecc/Utf8Json/blob/f724c83986d7c919a336c63e55f5a5886cca3575/src/Utf8Json/Formatters/CollectionFormatters.cs)
