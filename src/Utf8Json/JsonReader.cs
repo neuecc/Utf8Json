@@ -721,6 +721,7 @@ namespace Utf8Json
 
         public bool ReadBoolean()
         {
+            SkipWhiteSpace();
             if (bytes[offset] == 't')
             {
                 if (bytes[offset + 1] != 'r') goto ERROR_TRUE;
@@ -1047,6 +1048,7 @@ namespace Utf8Json
 
         public Single ReadSingle()
         {
+            SkipWhiteSpace();
             int readCount;
             var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToSingle(bytes, offset, out readCount);
             offset += readCount;
@@ -1055,6 +1057,7 @@ namespace Utf8Json
 
         public Double ReadDouble()
         {
+            SkipWhiteSpace();
             int readCount;
             var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToDouble(bytes, offset, out readCount);
             offset += readCount;
