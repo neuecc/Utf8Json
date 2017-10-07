@@ -865,7 +865,18 @@ namespace Utf8Json.Resolvers.Internal
                     il.MarkLabel(labels[index]);
 
                     // if(value.X != null)
-                    if (!item.Type.IsValueType)
+                    if (item.Type.GetTypeInfo().IsNullable())
+                    {
+                        var local = il.DeclareLocal(item.Type);
+
+                        argValue.EmitLoad();
+                        item.EmitLoadValue(il);
+                        il.EmitStloc(local);
+                        il.EmitLdloca(local);
+                        il.EmitCall(EmitInfo.GetNullableHasValue(item.Type.GetGenericArguments()[0]));
+                        il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // null, next label
+                    }
+                    else if (!item.Type.IsValueType)
                     {
                         argValue.EmitLoad();
                         item.EmitLoadValue(il);
@@ -1266,7 +1277,8 @@ namespace Utf8Json.Resolvers.Internal
             if (array == null) return false;
 
             // (ldarg.0, call(empty ctor), ret) == side-effect free
-            if (array.Length <= 7)
+            // Release build is 7 but allows nop for debug build so use <= 8.
+            if (array.Length <= 8)
             {
                 if (ctorInfo.DeclaringType.BaseType == typeof(object))
                 {
@@ -1324,6 +1336,11 @@ namespace Utf8Json.Resolvers.Internal
             public static MethodInfo Deserialize(Type type)
             {
                 return typeof(IJsonFormatter<>).MakeGenericType(type).GetRuntimeMethod("Deserialize", new[] { typeof(Utf8Json.JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) });
+            }
+
+            public static MethodInfo GetNullableHasValue(Type type)
+            {
+                return typeof(Nullable<>).MakeGenericType(type).GetRuntimeProperty("HasValue").GetGetMethod();
             }
 
             internal static class JsonWriter

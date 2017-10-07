@@ -45,27 +45,26 @@ class Program
 #if DEBUG
 
 
-        // ""xyzzy"""
-        var stre = "\"\\\"xyzzy\\\"\"";
+        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.Default));
+        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.ExcludeNull));
+        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.AllowPrivate));
+        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNull));
 
-        var js = JsonSerializer.ToJsonString("\"xyzzy\"");
-        //Console.WriteLine(stre);
-        //Console.WriteLine(js);
+        //Console.WriteLine("---");
 
-        //var a = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(stre);
-        var b = JsonSerializer.Deserialize<string>(stre);
-        //Console.WriteLine(a);
-        Console.WriteLine(b);
+        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.Default));
+        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.ExcludeNull));
+        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.AllowPrivate));
+        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNull));
 
-        //const string testJsonString = "{\"foo\":\"bar \\\"xyzzy\\\" \"}";
-        //var deserialisedDictionary = (Dictionary<string, object>)JsonSerializer.Deserialize<object>(testJsonString);
-        //var d23 = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(testJsonString);
+        //Console.WriteLine("---");
 
-        //var actual = (string)deserialisedDictionary["foo"];
-        //var expectd = "bar \"xyzzy\" ";
+        int? v1 = null;
+        int? v2 = null;
 
-        //Console.WriteLine(expectd == actual);
+        //Console.WriteLine(JsonSerializer.ToJsonString(new { a = v1, b = v2 }, Utf8Json.Resolvers.StandardResolver.ExcludeNull));
 
+        Console.WriteLine(JsonSerializer.ToJsonString(new Person2(), Utf8Json.Resolvers.StandardResolver.ExcludeNull));
 
 #else
         switcher.Run(args);
@@ -79,6 +78,11 @@ public class Person
     public string Name { get; set; }
 }
 
+public class Person2
+{
+    public int? Age { get; set; }
+    public string Name { get; set; }
+}
 public interface IInterface
 {
     string Huga { get; }

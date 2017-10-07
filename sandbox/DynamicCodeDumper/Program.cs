@@ -26,9 +26,8 @@ namespace DynamicCodeDumper
                 DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern2>();
                 DynamicObjectResolver.Default.GetFormatter<NoSideEffectStructPattern>();
 
-                // Debug build and Release build returns different IL, check it.
-                var il = ILView.ToPrettyPrintInstruction(test.GetType().GetMethod("Deserialize"));
-                Console.WriteLine(il);
+
+                DynamicObjectResolver.ExcludeNull.GetFormatter<Nullaer>();
 
             }
             catch (Exception ex)
@@ -40,12 +39,12 @@ namespace DynamicCodeDumper
 
 #if NET45
                 var a1 = (DynamicObjectResolver.Default as ISave).Save();
-                // var a2 = (DynamicObjectResolver.AllowPrivate as ISave).Save();
+                 var a2 = (DynamicObjectResolver.ExcludeNull as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
 
-                Verify(a1);
+                Verify(a1, a2);
 #endif
             }
         }
@@ -78,6 +77,13 @@ namespace DynamicCodeDumper
         {
 
         }
+    }
+
+    public class Nullaer
+    {
+        public int? MyProperty1 { get; set; }
+        public char? MyProperty2 { get; set; }
+        public string MyProperty3 { get; set; }
     }
 
 
