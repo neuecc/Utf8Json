@@ -96,6 +96,8 @@ NuGet page links - [Utf8Json](https://www.nuget.org/packages/Utf8Json), [Utf8Jso
 
 for Unity, you can download from [releases](https://github.com/neuecc/Utf8Json/releases) page. There providing .unitypackage. Unity support details, see [Unity section](https://github.com/neuecc/Utf8Json#for-unity).
 
+You can find third-party extension package like [Utf8Json.FSharpExtensions](https://github.com/pocketberserker/Utf8Json.FSharpExtensions) for F# types, [NServiceBus.Utf8Json](https://www.nuget.org/packages/NServiceBus.Utf8Json/) or others.
+
 QuickStart, you can call `Utf8Json.JsonSerializer`.`Serialize/Deserialize`.
 
 ```csharp
@@ -241,7 +243,7 @@ These types can serialize by default.
 
 Primitives(`int`, `string`, etc...), `Enum`, `Nullable<>`,  `TimeSpan`,  `DateTime`, `DateTimeOffset`, `Guid`, `Uri`, `Version`, `StringBuilder`, `BitArray`, `Type`, `ArraySegment<>`, `BigInteger`, `Complext`, `Task`, `Array[]`, `Array[,]`, `Array[,,]`, `Array[,,,]`, `KeyValuePair<,>`, `Tuple<,...>`, `ValueTuple<,...>`, `List<>`, `LinkedList<>`, `Queue<>`, `Stack<>`, `HashSet<>`, `ReadOnlyCollection<>`, `IList<>`, `ICollection<>`, `IEnumerable<>`, `Dictionary<,>`, `IDictionary<,>`, `SortedDictionary<,>`, `SortedList<,>`, `ILookup<,>`, `IGrouping<,>`, `ObservableCollection<>`, `ReadOnlyOnservableCollection<>`, `IReadOnlyList<>`, `IReadOnlyCollection<>`, `ISet<>`, `ConcurrentBag<>`, `ConcurrentQueue<>`, `ConcurrentStack<>`, `ReadOnlyDictionary<,>`, `IReadOnlyDictionary<,>`, `ConcurrentDictionary<,>`, `Lazy<>`, `Task<>`, custom inherited `ICollection<>` or `IDictionary<,>` with paramterless constructor, `IEnumerable`, `ICollection`, `IList`, `IDictionary` and custom inherited `ICollection` or `IDictionary` with paramterless constructor(includes `ArrayList` and `Hashtable`) and your own class or struct(includes anonymous type).
 
-Utf8Json has sufficient extensiblity. You can add custom type support and has some official/third-party extension package. for ImmutableCollections(`ImmutableList<>`, etc). Please see [extensions section](https://github.com/neuecc/Utf8Json#extensions).
+Utf8Json has sufficient extensiblity. You can add custom type support and has some official/third-party extension package. for example  ImmutableCollections(`ImmutableList<>`, etc), [Utf8Json.FSharpExtensions](https://github.com/pocketberserker/Utf8Json.FSharpExtensions)(FSharpOption, FSharpList, etc...). Please see [extensions section](https://github.com/neuecc/Utf8Json#extensions).
 
 Object Serialization
 ---
