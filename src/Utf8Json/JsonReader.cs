@@ -1195,7 +1195,7 @@ namespace Utf8Json
         }
 
         /// <summary>
-        /// Underlying bytes is may be a pooling buffer, be careful to use it.
+        /// Underlying bytes is may be a pooling buffer, be careful to use it. If lost reference or can not handled byte[], return null.
         /// </summary>
         public byte[] GetUnderlyingByteArrayUnsafe()
         {
@@ -1203,7 +1203,7 @@ namespace Utf8Json
         }
 
         /// <summary>
-        /// Underlying bytes is may be a pooling buffer, be careful to use it.
+        /// Underlying bytes is may be a pooling buffer, be careful to use it. If lost reference or can not handled byte[], return null.
         /// </summary>
         public string GetUnderlyingStringUnsafe()
         {
