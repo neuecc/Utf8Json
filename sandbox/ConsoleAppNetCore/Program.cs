@@ -171,7 +171,7 @@ namespace ConsoleAppNetCore
         public bool t;
     }
 
-    class Program
+    public class Program
     {
         public const char HighSurrogateStart = '\ud800';
         public const char HighSurrogateEnd = '\udbff';
@@ -258,11 +258,26 @@ namespace ConsoleAppNetCore
         //    return (char)0xFFFD;
         //}
 
+        public class MyClass
+        {
+            public double Id { get; set; }
+        }
+
+
         static unsafe void Main(string[] args)
         {
-            var r1 = JsonSerializer.Deserialize<Dto>(Encoding.UTF8.GetBytes("{\"t\":true}")); // success
-            var r2 = JsonSerializer.Deserialize<Dto>(Encoding.UTF8.GetBytes("{\"t\":   true}")); // Utf8Json.JsonParsingException: 'expected:true | false, actual:  at:5'
+            var json = "{\"Id\":false}";
 
+            try
+            {
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+                var b = Utf8Json.JsonSerializer.Deserialize<MyClass>(stream);
+            }
+            catch (JsonParsingException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("JSON:" + ex.GetUnderlyingStringUnsafe());
+            }
 
 
         }
