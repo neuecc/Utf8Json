@@ -770,7 +770,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-HTML encodoing only requires UTF8, [whtwg/html](https://github.com/whatwg/html/pull/3091) accepts on 2017-10-06. So don't worry about other encoding:)
+HTML encodoing only requires UTF8, [whatwg/html](https://github.com/whatwg/html/pull/3091) accepts on 2017-10-06. So don't worry about other encoding:)
 
 Text Protocol Foundation
 ---
