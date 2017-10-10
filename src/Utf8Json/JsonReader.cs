@@ -32,7 +32,45 @@ namespace Utf8Json
 
         JsonParsingException CreateParsingException(string expected)
         {
-            return new JsonParsingException("expected:" + expected + ", actual:" + (char)bytes[offset] + " at:" + offset);
+            var actual = ((char)bytes[offset]).ToString();
+            var pos = offset;
+
+            try
+            {
+                var token = GetCurrentJsonToken();
+                switch (token)
+                {
+                    case JsonToken.Number:
+                        var ns = ReadNumberSegment();
+                        actual = StringEncoding.UTF8.GetString(ns.Array, ns.Offset, ns.Count);
+                        break;
+                    case JsonToken.String:
+                        actual = ReadString();
+                        break;
+                    case JsonToken.True:
+                        actual = "true";
+                        break;
+                    case JsonToken.False:
+                        actual = "false";
+                        break;
+                    case JsonToken.Null:
+                        actual = "null";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch { }
+
+            return new JsonParsingException("expected:'" + expected + "', actual:'" + actual + "', at offset:" + pos, bytes, pos, offset, actual);
+        }
+
+        JsonParsingException CreateParsingExceptionMessage(string message)
+        {
+            var actual = ((char)bytes[offset]).ToString();
+            var pos = offset;
+
+            return new JsonParsingException(message, bytes, pos, pos, actual);
         }
 
         bool IsInRange
@@ -491,7 +529,8 @@ namespace Utf8Json
             char[] codePointStringBuffer = null;
             var codePointStringOffet = 0;
 
-            if (bytes[offset++] != '\"') throw CreateParsingException("\"");
+            if (bytes[offset] != '\"') throw CreateParsingException("String Begin Token");
+            offset++;
 
             var from = offset;
 
@@ -552,7 +591,7 @@ namespace Utf8Json
                                 from = offset;
                                 continue;
                             default:
-                                throw new JsonParsingException("Bad JSON escape.");
+                                throw CreateParsingExceptionMessage("Bad JSON escape.");
                         }
                     case (byte)'"': // endtoken
                         offset++;
@@ -590,7 +629,7 @@ namespace Utf8Json
             resultLength = 0;
             resultBytes = null;
             resultOffset = 0;
-            throw CreateParsingException("\"");
+            throw CreateParsingException("String End Token");
 
             END:
             if (builderOffset == 0 && codePointStringOffet == 0) // no escape
@@ -618,11 +657,17 @@ namespace Utf8Json
             }
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         static int GetCodePoint(char a, char b, char c, char d)
         {
             return (((((ToNumber(a) * 16) + ToNumber(b)) * 16) + ToNumber(c)) * 16) + ToNumber(d);
         }
 
+#if NETSTANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         static int ToNumber(char x)
         {
             if ('0' <= x && x <= '9')
@@ -702,7 +747,7 @@ namespace Utf8Json
                         }
                     }
                 }
-                throw new JsonParsingException("not found end string.");
+                throw CreateParsingExceptionMessage("not found end string.");
 
                 OK:
                 key = new ArraySegment<byte>(bytes, from, offset - from - 1); // remove \"
@@ -721,6 +766,7 @@ namespace Utf8Json
 
         public bool ReadBoolean()
         {
+            SkipWhiteSpace();
             if (bytes[offset] == 't')
             {
                 if (bytes[offset + 1] != 'r') goto ERROR_TRUE;
@@ -930,7 +976,7 @@ namespace Utf8Json
                             }
                         }
                     }
-                    throw new JsonParsingException("not found end string.");
+                    throw CreateParsingExceptionMessage("not found end string.");
                 case JsonToken.Number:
                     for (int i = offset; i < bytes.Length; i++)
                     {
@@ -1016,6 +1062,11 @@ namespace Utf8Json
 
             int readCount;
             var v = NumberConverter.ReadInt64(bytes, offset, out readCount);
+            if (readCount == 0)
+            {
+                throw CreateParsingException("Number Token");
+            }
+
             offset += readCount;
             return v;
         }
@@ -1041,22 +1092,36 @@ namespace Utf8Json
 
             int readCount;
             var v = NumberConverter.ReadUInt64(bytes, offset, out readCount);
+            if (readCount == 0)
+            {
+                throw CreateParsingException("Number Token");
+            }
             offset += readCount;
             return v;
         }
 
         public Single ReadSingle()
         {
+            SkipWhiteSpace();
             int readCount;
             var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToSingle(bytes, offset, out readCount);
+            if (readCount == 0)
+            {
+                throw CreateParsingException("Number Token");
+            }
             offset += readCount;
             return v;
         }
 
         public Double ReadDouble()
         {
+            SkipWhiteSpace();
             int readCount;
             var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToDouble(bytes, offset, out readCount);
+            if (readCount == 0)
+            {
+                throw CreateParsingException("Number Token");
+            }
             offset += readCount;
             return v;
         }
@@ -1109,10 +1174,45 @@ namespace Utf8Json
 
     public class JsonParsingException : Exception
     {
+        WeakReference underyingBytes;
+        int limit;
+        public int Offset { get; private set; }
+        public string ActualChar { get; set; }
+
         public JsonParsingException(string message)
             : base(message)
         {
 
+        }
+
+        public JsonParsingException(string message, byte[] underlyingBytes, int offset, int limit, string actualChar)
+            : base(message)
+        {
+            this.underyingBytes = new WeakReference(underlyingBytes);
+            this.Offset = offset;
+            this.ActualChar = actualChar;
+            this.limit = limit;
+        }
+
+        /// <summary>
+        /// Underlying bytes is may be a pooling buffer, be careful to use it. If lost reference or can not handled byte[], return null.
+        /// </summary>
+        public byte[] GetUnderlyingByteArrayUnsafe()
+        {
+            return underyingBytes.Target as byte[];
+        }
+
+        /// <summary>
+        /// Underlying bytes is may be a pooling buffer, be careful to use it. If lost reference or can not handled byte[], return null.
+        /// </summary>
+        public string GetUnderlyingStringUnsafe()
+        {
+            var bytes = underyingBytes.Target as byte[];
+            if (bytes != null)
+            {
+                return StringEncoding.UTF8.GetString(bytes, 0, limit) + "...";
+            }
+            return null;
         }
     }
 }

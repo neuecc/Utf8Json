@@ -76,13 +76,208 @@ namespace ConsoleAppNetCore
         }
     }
 
-
-    class Program
+    // trying self decoding test, not yet completed...
+    public class JsonUtf8Encoding : Encoding
     {
-        static void Main(string[] args)
+        const int UTF8_ACCEPT = 0;
+        const int UTF8_REJECT = 1;
+
+        static readonly ushort[] utf8d = new ushort[]{
+          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 00..1f
+          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 20..3f
+          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 40..5f
+          0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 60..7f
+          1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9, // 80..9f
+          7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7, // a0..bf
+          8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, // c0..df
+          0xa,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x4,0x3,0x3, // e0..ef
+          0xb,0x6,0x6,0x6,0x5,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8, // f0..ff
+          0x0,0x1,0x2,0x3,0x5,0x8,0x7,0x1,0x1,0x1,0x4,0x6,0x1,0x1,0x1,0x1, // s0..s0
+          1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1, // s1..s2
+          1,2,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1, // s3..s4
+          1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,1,1,1, // s5..s6
+          1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // s7..s8
+        };
+
+        public static unsafe uint decode(uint* state, uint* codep, uint @byte)
         {
+            uint type = utf8d[@byte];
+
+            *codep = unchecked((uint)unchecked((*state != UTF8_ACCEPT)
+                ? (@byte & 0x3fu) | (*codep << 6)
+                : (0xff >> (int)type) & (@byte)));
+
+            *state = utf8d[256 + *state * 16 + type];
+            return *state;
+        }
+
+        public static unsafe int countCodePoints(char* s, int count)
+        {
+            uint codepoint;
+            uint state = 0;
+
+            for (count = 0; *s != '0'; ++s)
+            {
+                if (decode(&state, &codepoint, *s) != 0)
+                {
+                    count += 1;
+                }
+            }
+
+            return count;
+        }
 
 
+        #region decode
+
+        // called from GetString.
+        // return CharCount is \" ... \" unescaped.
+        public override int GetCharCount(byte[] bytes, int index, int count)
+        {
+            return 9999;
+            //return Encoding.UTF8.GetCharCount(bytes, index, count);
+        }
+
+        public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+
+        public override int GetMaxByteCount(int charCount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetMaxCharCount(int byteCount)
+        {
+            throw new NotImplementedException();
+        }
+        public override int GetByteCount(char[] chars, int index, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class Dto
+    {
+        public bool t;
+    }
+
+    public class Program
+    {
+        public const char HighSurrogateStart = '\ud800';
+        public const char HighSurrogateEnd = '\udbff';
+        public const char LowSurrogateStart = '\udc00';
+        public const char LowSurrogateEnd = '\udfff';
+
+        public static uint ToCodePoint(byte[] utf8Bytes, out int readSize)
+        {
+            var index = 0;
+            var x1 = utf8Bytes[index];
+            if (x1 <= 0x7F)
+            {
+                readSize = 1;
+                return x1;
+            }
+            else
+            {
+                if (x1 < 0xC2)
+                {
+                    readSize = 1;
+                    goto ERROR;
+                }
+
+                if (x1 <= 0xDF)
+                {
+                    readSize = 2;
+                    var x2 = utf8Bytes[index + 1];
+                    if (0x80 <= x2 && x2 <= 0xBF)
+                    {
+                        return ((uint)(x1 & 0x1F) << 6) | (uint)(x2 & 0x3F);
+                    }
+                }
+                else if (x1 <= 0xEF)
+                {
+                    readSize = 3;
+                    var x2 = utf8Bytes[index + 1];
+                    if (0x80 <= x2 && x2 <= 0xBF)
+                    {
+                        var x3 = utf8Bytes[index + 2];
+                        if (0x80 <= x3 && x3 <= 0xBF)
+                        {
+                            return ((uint)(x1 & 0x0F) << 12) | (uint)((x2 & 0x3F) << 6) | (uint)(x3 & 0x3F);
+                        }
+                    }
+                }
+                else if (x1 <= 0xF4)
+                {
+                    readSize = 4;
+                    var x2 = utf8Bytes[index + 1];
+                    if (0x80 <= x2 && x2 <= 0xBF)
+                    {
+                        var x3 = utf8Bytes[index + 2];
+                        if (0x80 <= x3 && x3 <= 0xBF)
+                        {
+                            var x4 = utf8Bytes[index + 3];
+                            if (0x80 <= x4 && x4 <= 0xBF)
+                            {
+                                return ((uint)(x1 & 0x07) << 18) | (uint)((x2 & 0x3F) << 12) | (uint)((x3 & 0x3F) << 6) | (uint)(x4 & 0x3F);
+                            }
+                        }
+                    }
+                }
+
+                readSize = 1;
+            }
+
+            ERROR:
+            return 0xFFFD;
+        }
+
+        //public static char[] ToUtf16(uint unicodeCodePoint)
+        //{
+        //    if (0xD800 <= unicodeCodePoint && unicodeCodePoint <= 0xDFFF)
+        //    {
+        //        // surrogate pair
+
+        //    }
+        //    else if (unicodeCodePoint < 0xFFFF)
+        //    {
+        //        // BMP
+        //        return (char)unicodeCodePoint;
+        //    }
+
+        //    return (char)0xFFFD;
+        //}
+
+        public class MyClass
+        {
+            public double Id { get; set; }
+        }
+
+
+        static unsafe void Main(string[] args)
+        {
+            var json = "{\"Id\":false}";
+
+            try
+            {
+                var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+                var b = Utf8Json.JsonSerializer.Deserialize<MyClass>(stream);
+            }
+            catch (JsonParsingException ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("JSON:" + ex.GetUnderlyingStringUnsafe());
+            }
 
 
         }
