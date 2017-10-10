@@ -43,16 +43,19 @@ namespace Utf8Json.Resolvers
 
         static GeneratedResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(8)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(11)
             {
-                {typeof(global::Person), 0 },
-                {typeof(global::IInterface), 1 },
-                {typeof(global::MyClassInter), 2 },
-                {typeof(global::SimplePerson), 3 },
-                {typeof(global::SimplePersonMsgpack), 4 },
-                {typeof(global::Utf8Json.Formatters.TargetClassContractless), 5 },
-                {typeof(global::Utf8Json.Formatters.LongUnion), 6 },
-                {typeof(global::Utf8Json.Formatters.TargetClass), 7 },
+                {typeof(global::Hoge), 0 },
+                {typeof(global::Hoge2), 1 },
+                {typeof(global::Person), 2 },
+                {typeof(global::Person2), 3 },
+                {typeof(global::IInterface), 4 },
+                {typeof(global::MyClassInter), 5 },
+                {typeof(global::SimplePerson), 6 },
+                {typeof(global::SimplePersonMsgpack), 7 },
+                {typeof(global::Utf8Json.Formatters.TargetClassContractless), 8 },
+                {typeof(global::Utf8Json.Formatters.LongUnion), 9 },
+                {typeof(global::Utf8Json.Formatters.TargetClass), 10 },
             };
         }
 
@@ -63,14 +66,17 @@ namespace Utf8Json.Resolvers
 
             switch (key)
             {
-                case 0: return new Utf8Json.Formatters.PersonFormatter();
-                case 1: return new Utf8Json.Formatters.IInterfaceFormatter();
-                case 2: return new Utf8Json.Formatters.MyClassInterFormatter();
-                case 3: return new Utf8Json.Formatters.SimplePersonFormatter();
-                case 4: return new Utf8Json.Formatters.SimplePersonMsgpackFormatter();
-                case 5: return new Utf8Json.Formatters.Utf8Json.Formatters.TargetClassContractlessFormatter();
-                case 6: return new Utf8Json.Formatters.Utf8Json.Formatters.LongUnionFormatter();
-                case 7: return new Utf8Json.Formatters.Utf8Json.Formatters.TargetClassFormatter();
+                case 0: return new Utf8Json.Formatters.HogeFormatter();
+                case 1: return new Utf8Json.Formatters.Hoge2Formatter();
+                case 2: return new Utf8Json.Formatters.PersonFormatter();
+                case 3: return new Utf8Json.Formatters.Person2Formatter();
+                case 4: return new Utf8Json.Formatters.IInterfaceFormatter();
+                case 5: return new Utf8Json.Formatters.MyClassInterFormatter();
+                case 6: return new Utf8Json.Formatters.SimplePersonFormatter();
+                case 7: return new Utf8Json.Formatters.SimplePersonMsgpackFormatter();
+                case 8: return new Utf8Json.Formatters.Utf8Json.Formatters.TargetClassContractlessFormatter();
+                case 9: return new Utf8Json.Formatters.Utf8Json.Formatters.LongUnionFormatter();
+                case 10: return new Utf8Json.Formatters.Utf8Json.Formatters.TargetClassFormatter();
                 default: return null;
             }
         }
@@ -85,12 +91,193 @@ namespace Utf8Json.Resolvers
 #pragma warning disable 618
 #pragma warning disable 612
 #pragma warning disable 414
+#pragma warning disable 219
 #pragma warning disable 168
 
 namespace Utf8Json.Formatters
 {
     using System;
     using Utf8Json;
+
+
+    public sealed class HogeFormatter : global::Utf8Json.IJsonFormatter<global::Hoge>
+    {
+        readonly global::Utf8Json.Internal.AutomataDictionary ____keyMapping;
+        readonly byte[][] ____stringByteKeys;
+
+        public HogeFormatter()
+        {
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            {
+                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 0},
+                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("name"), 1},
+            };
+
+            this.____stringByteKeys = new byte[][]
+            {
+                JsonWriter.GetEncodedPropertyNameWithBeginObject("Name"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("name"),
+                
+            };
+        }
+
+        public void Serialize(ref JsonWriter writer, global::Hoge value, global::Utf8Json.IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            
+
+            writer.WriteRaw(this.____stringByteKeys[0]);
+            writer.WriteString(value.Name);
+            writer.WriteRaw(this.____stringByteKeys[1]);
+            writer.WriteString(value.name);
+            
+            writer.WriteEndObject();
+        }
+
+        public global::Hoge Deserialize(ref JsonReader reader, global::Utf8Json.IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull())
+            {
+                return null;
+            }
+            
+
+            var __Name__ = default(string);
+            var __Name__b__ = false;
+            var __name__ = default(string);
+            var __name__b__ = false;
+
+            var ____count = 0;
+            reader.ReadIsBeginObjectWithVerify();
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
+            {
+                var stringKey = reader.ReadPropertyNameSegmentRaw();
+                int key;
+                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                {
+                    reader.ReadNextBlock();
+                    goto NEXT_LOOP;
+                }
+
+                switch (key)
+                {
+                    case 0:
+                        __Name__ = reader.ReadString();
+                        __Name__b__ = true;
+                        break;
+                    case 1:
+                        __name__ = reader.ReadString();
+                        __name__b__ = true;
+                        break;
+                    default:
+                        reader.ReadNextBlock();
+                        break;
+                }
+
+                NEXT_LOOP:
+                continue;
+            }
+
+            var ____result = new global::Hoge();
+            if(__name__b__) ____result.name = __name__;
+
+            return ____result;
+        }
+    }
+
+
+    public sealed class Hoge2Formatter : global::Utf8Json.IJsonFormatter<global::Hoge2>
+    {
+        readonly global::Utf8Json.Internal.AutomataDictionary ____keyMapping;
+        readonly byte[][] ____stringByteKeys;
+
+        public Hoge2Formatter()
+        {
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            {
+                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("_Name"), 0},
+                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("name"), 1},
+            };
+
+            this.____stringByteKeys = new byte[][]
+            {
+                JsonWriter.GetEncodedPropertyNameWithBeginObject("_Name"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("name"),
+                
+            };
+        }
+
+        public void Serialize(ref JsonWriter writer, global::Hoge2 value, global::Utf8Json.IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            
+
+            writer.WriteRaw(this.____stringByteKeys[0]);
+            writer.WriteString(value._Name);
+            writer.WriteRaw(this.____stringByteKeys[1]);
+            writer.WriteString(value.name);
+            
+            writer.WriteEndObject();
+        }
+
+        public global::Hoge2 Deserialize(ref JsonReader reader, global::Utf8Json.IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull())
+            {
+                return null;
+            }
+            
+
+            var ___Name__ = default(string);
+            var ___Name__b__ = false;
+            var __name__ = default(string);
+            var __name__b__ = false;
+
+            var ____count = 0;
+            reader.ReadIsBeginObjectWithVerify();
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
+            {
+                var stringKey = reader.ReadPropertyNameSegmentRaw();
+                int key;
+                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                {
+                    reader.ReadNextBlock();
+                    goto NEXT_LOOP;
+                }
+
+                switch (key)
+                {
+                    case 0:
+                        ___Name__ = reader.ReadString();
+                        ___Name__b__ = true;
+                        break;
+                    case 1:
+                        __name__ = reader.ReadString();
+                        __name__b__ = true;
+                        break;
+                    default:
+                        reader.ReadNextBlock();
+                        break;
+                }
+
+                NEXT_LOOP:
+                continue;
+            }
+
+            var ____result = new global::Hoge2(__name__);
+            if(__name__b__) ____result.name = __name__;
+
+            return ____result;
+        }
+    }
 
 
     public sealed class PersonFormatter : global::Utf8Json.IJsonFormatter<global::Person>
@@ -176,6 +363,97 @@ namespace Utf8Json.Formatters
             }
 
             var ____result = new global::Person();
+            if(__Age__b__) ____result.Age = __Age__;
+            if(__Name__b__) ____result.Name = __Name__;
+
+            return ____result;
+        }
+    }
+
+
+    public sealed class Person2Formatter : global::Utf8Json.IJsonFormatter<global::Person2>
+    {
+        readonly global::Utf8Json.Internal.AutomataDictionary ____keyMapping;
+        readonly byte[][] ____stringByteKeys;
+
+        public Person2Formatter()
+        {
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            {
+                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Age"), 0},
+                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 1},
+            };
+
+            this.____stringByteKeys = new byte[][]
+            {
+                JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
+                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name"),
+                
+            };
+        }
+
+        public void Serialize(ref JsonWriter writer, global::Person2 value, global::Utf8Json.IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+            
+
+            writer.WriteRaw(this.____stringByteKeys[0]);
+            formatterResolver.GetFormatterWithVerify<int?>().Serialize(ref writer, value.Age, formatterResolver);
+            writer.WriteRaw(this.____stringByteKeys[1]);
+            writer.WriteString(value.Name);
+            
+            writer.WriteEndObject();
+        }
+
+        public global::Person2 Deserialize(ref JsonReader reader, global::Utf8Json.IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull())
+            {
+                return null;
+            }
+            
+
+            var __Age__ = default(int?);
+            var __Age__b__ = false;
+            var __Name__ = default(string);
+            var __Name__b__ = false;
+
+            var ____count = 0;
+            reader.ReadIsBeginObjectWithVerify();
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
+            {
+                var stringKey = reader.ReadPropertyNameSegmentRaw();
+                int key;
+                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                {
+                    reader.ReadNextBlock();
+                    goto NEXT_LOOP;
+                }
+
+                switch (key)
+                {
+                    case 0:
+                        __Age__ = formatterResolver.GetFormatterWithVerify<int?>().Deserialize(ref reader, formatterResolver);
+                        __Age__b__ = true;
+                        break;
+                    case 1:
+                        __Name__ = reader.ReadString();
+                        __Name__b__ = true;
+                        break;
+                    default:
+                        reader.ReadNextBlock();
+                        break;
+                }
+
+                NEXT_LOOP:
+                continue;
+            }
+
+            var ____result = new global::Person2();
             if(__Age__b__) ____result.Age = __Age__;
             if(__Name__b__) ____result.Name = __Name__;
 
@@ -517,12 +795,14 @@ namespace Utf8Json.Formatters
 }
 
 #pragma warning disable 168
+#pragma warning restore 219
 #pragma warning restore 414
 #pragma warning restore 618
 #pragma warning restore 612
 #pragma warning disable 618
 #pragma warning disable 612
 #pragma warning disable 414
+#pragma warning disable 219
 #pragma warning disable 168
 
 namespace Utf8Json.Formatters.Utf8Json.Formatters
@@ -1010,6 +1290,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
 }
 
 #pragma warning disable 168
+#pragma warning restore 219
 #pragma warning restore 414
 #pragma warning restore 618
 #pragma warning restore 612

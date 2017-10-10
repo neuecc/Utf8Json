@@ -29,30 +29,30 @@ namespace Utf8Json.CodeGenerator.Generator
         public virtual string TransformText()
         {
             this.Write("#pragma warning disable 618\r\n#pragma warning disable 612\r\n#pragma warning disable" +
-                    " 414\r\n#pragma warning disable 168\r\n\r\nnamespace ");
+                    " 414\r\n#pragma warning disable 219\r\n#pragma warning disable 168\r\n\r\nnamespace ");
             
-            #line 11 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 12 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
             
             #line default
             #line hidden
             this.Write("\r\n{\r\n    using System;\r\n    using Utf8Json;\r\n\r\n");
             
-            #line 16 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 17 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  foreach(var objInfo in objectSerializationInfos) { 
             
             #line default
             #line hidden
             this.Write("\r\n    public sealed class ");
             
-            #line 18 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 19 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(objInfo.Name));
             
             #line default
             #line hidden
             this.Write("Formatter : global::Utf8Json.IJsonFormatter<");
             
-            #line 18 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 19 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(objInfo.FullName));
             
             #line default
@@ -60,7 +60,7 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write(">\r\n    {\r\n        readonly global::Utf8Json.Internal.AutomataDictionary ____keyMa" +
                     "pping;\r\n        readonly byte[][] ____stringByteKeys;\r\n\r\n        public ");
             
-            #line 23 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 24 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(objInfo.Name));
             
             #line default
@@ -68,28 +68,28 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("Formatter()\r\n        {\r\n            this.____keyMapping = new global::Utf8Json.In" +
                     "ternal.AutomataDictionary()\r\n            {\r\n");
             
-            #line 27 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 28 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  var index = 0; foreach(var x in objInfo.Members) { 
             
             #line default
             #line hidden
             this.Write("                { JsonWriter.GetEncodedPropertyNameWithoutQuotation(\"");
             
-            #line 28 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 29 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("\"), ");
             
-            #line 28 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 29 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(index++));
             
             #line default
             #line hidden
             this.Write("},\r\n");
             
-            #line 29 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 30 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
@@ -97,41 +97,41 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("            };\r\n\r\n            this.____stringByteKeys = new byte[][]\r\n           " +
                     " {\r\n");
             
-            #line 34 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 35 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  index = 0; foreach(var x in objInfo.Members.Where(x => x.IsReadable)) { 
             
             #line default
             #line hidden
             
-            #line 35 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 36 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  if(index++ == 0) { 
             
             #line default
             #line hidden
             this.Write("                JsonWriter.GetEncodedPropertyNameWithBeginObject(\"");
             
-            #line 36 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 37 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("\"),\r\n");
             
-            #line 37 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 38 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } else { 
             
             #line default
             #line hidden
             this.Write("                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(\"");
             
-            #line 38 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 39 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("\"),\r\n");
             
-            #line 39 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 40 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  }} 
             
             #line default
@@ -139,14 +139,14 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("                \r\n            };\r\n        }\r\n\r\n        public void Serialize(ref " +
                     "JsonWriter writer, ");
             
-            #line 43 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 44 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(objInfo.FullName));
             
             #line default
             #line hidden
             this.Write(" value, global::Utf8Json.IJsonFormatterResolver formatterResolver)\r\n        {\r\n");
             
-            #line 45 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 46 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  if( objInfo.IsClass) { 
             
             #line default
@@ -154,42 +154,42 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("            if (value == null)\r\n            {\r\n                writer.WriteNull()" +
                     ";\r\n                return;\r\n            }\r\n");
             
-            #line 51 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 52 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            \r\n\r\n");
             
-            #line 53 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 54 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  index = 0; foreach(var x in objInfo.Members.Where(x=>x.IsReadable)) { 
             
             #line default
             #line hidden
             this.Write("            writer.WriteRaw(this.____stringByteKeys[");
             
-            #line 54 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 55 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(index++));
             
             #line default
             #line hidden
             this.Write("]);\r\n            ");
             
-            #line 55 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 56 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.GetSerializeMethodString()));
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
-            #line 56 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 57 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            \r\n            writer.WriteEndObject();\r\n        }\r\n\r\n        public ");
             
-            #line 61 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 62 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(objInfo.FullName));
             
             #line default
@@ -197,14 +197,14 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write(" Deserialize(ref JsonReader reader, global::Utf8Json.IJsonFormatterResolver forma" +
                     "tterResolver)\r\n        {\r\n            if (reader.ReadIsNull())\r\n            {\r\n");
             
-            #line 65 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 66 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  if( objInfo.IsClass) { 
             
             #line default
             #line hidden
             this.Write("                return null;\r\n");
             
-            #line 67 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 68 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } else { 
             
             #line default
@@ -212,14 +212,14 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("                throw new InvalidOperationException(\"typecode is null, struct not" +
                     " supported\");\r\n");
             
-            #line 69 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 70 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("            }\r\n            \r\n");
             
-            #line 72 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 73 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  if( !objInfo.HasConstructor) { 
             
             #line default
@@ -227,42 +227,42 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("            \r\n\t        throw new InvalidOperationException(\"generated serializer " +
                     "for IInterface does not support deserialize.\");\r\n");
             
-            #line 74 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 75 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } else { 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 76 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 77 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  foreach(var x in objInfo.Members) { 
             
             #line default
             #line hidden
             this.Write("            var __");
             
-            #line 77 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 78 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("__ = default(");
             
-            #line 77 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 78 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Type));
             
             #line default
             #line hidden
             this.Write(");\r\n            var __");
             
-            #line 78 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 79 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("__b__ = false;\r\n");
             
-            #line 79 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 80 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
@@ -284,42 +284,42 @@ namespace Utf8Json.CodeGenerator.Generator
                 {
 ");
             
-            #line 95 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
- index = 0; foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { 
+            #line 96 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+ index = 0; foreach(var x in objInfo.Members) { 
             
             #line default
             #line hidden
             this.Write("                    case ");
             
-            #line 96 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 97 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(index++));
             
             #line default
             #line hidden
             this.Write(":\r\n                        __");
             
-            #line 97 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 98 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("__ = ");
             
-            #line 97 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 98 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.GetDeserializeMethodString()));
             
             #line default
             #line hidden
             this.Write(";\r\n                        __");
             
-            #line 98 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 99 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("__b__ = true;\r\n                        break;\r\n");
             
-            #line 100 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 101 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
@@ -328,62 +328,62 @@ namespace Utf8Json.CodeGenerator.Generator
                     "                      break;\r\n                }\r\n\r\n                NEXT_LOOP:\r\n " +
                     "               continue;\r\n            }\r\n\r\n            var ____result = new ");
             
-            #line 110 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 111 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(objInfo.GetConstructorString()));
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
-            #line 111 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 112 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  foreach(var x in objInfo.Members.Where(x => x.IsWritable)) { 
             
             #line default
             #line hidden
             this.Write("            if(__");
             
-            #line 112 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("__b__) ____result.");
             
-            #line 112 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write(" = __");
             
-            #line 112 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
             
             #line default
             #line hidden
             this.Write("__;\r\n");
             
-            #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 114 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n            return ____result;\r\n");
             
-            #line 116 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 117 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("        }\r\n    }\r\n\r\n");
             
-            #line 120 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
+            #line 121 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
  } 
             
             #line default
             #line hidden
-            this.Write("}\r\n\r\n#pragma warning disable 168\r\n#pragma warning restore 414\r\n#pragma warning re" +
-                    "store 618\r\n#pragma warning restore 612");
+            this.Write("}\r\n\r\n#pragma warning disable 168\r\n#pragma warning restore 219\r\n#pragma warning re" +
+                    "store 414\r\n#pragma warning restore 618\r\n#pragma warning restore 612");
             return this.GenerationEnvironment.ToString();
         }
     }

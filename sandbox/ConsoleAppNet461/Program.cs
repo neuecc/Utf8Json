@@ -54,6 +54,25 @@ class Program
     }
 }
 
+public class Hoge
+{
+    public string name;
+    public string Name { get { return name; } }
+}
+
+
+public class Hoge2
+{
+    public string name;
+    public string _Name { get { return name; } }
+
+    public Hoge2(string name)
+    {
+        this.name = name;
+    }
+}
+
+
 public class Person
 {
     public int Age { get; set; }
