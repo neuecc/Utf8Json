@@ -770,6 +770,8 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+HTML encodoing only requires UTF8, [whtwg/html](https://github.com/whatwg/html/pull/3091) accepts on 2017-10-06. So don't worry about other encoding:)
+
 Text Protocol Foundation
 ---
 Utf8Json implements fast itoa/atoi, dtoa/atod. It can be useful for text protocol serialization. For example I'm implementing [MySqlSharp](https://github.com/neuecc/MySqlSharp/) that aims fastest MySQL Driver on C#(work in progress yet), MySQL protocol is noramlly text so requires fast parser for text protocol.
