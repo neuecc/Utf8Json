@@ -45,26 +45,8 @@ class Program
 #if DEBUG
 
 
-        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.Default));
-        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.ExcludeNull));
-        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.AllowPrivate));
-        //Console.WriteLine(JsonSerializer.ToJsonString(new Person(), Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNull));
-
-        //Console.WriteLine("---");
-
-        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.Default));
-        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.ExcludeNull));
-        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.AllowPrivate));
-        //Console.WriteLine(JsonSerializer.ToJsonString(new { Age = 9, Name = (string)null }, Utf8Json.Resolvers.StandardResolver.AllowPrivateExcludeNull));
-
-        //Console.WriteLine("---");
-
-        int? v1 = null;
-        int? v2 = null;
-
-        //Console.WriteLine(JsonSerializer.ToJsonString(new { a = v1, b = v2 }, Utf8Json.Resolvers.StandardResolver.ExcludeNull));
-
-        Console.WriteLine(JsonSerializer.ToJsonString(new Person2(), Utf8Json.Resolvers.StandardResolver.ExcludeNull));
+        var json = JsonSerializer.NonGeneric.ToJsonString(new { a = 100, b = 200 });
+        Console.WriteLine(json);
 
 #else
         switcher.Run(args);

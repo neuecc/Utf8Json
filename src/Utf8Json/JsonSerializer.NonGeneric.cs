@@ -215,7 +215,7 @@ namespace Utf8Json
                 public CompiledMethods(Type type)
                 {
                     {
-                        var dm = new DynamicMethod("serialize1", typeof(byte[]), new[] { typeof(object), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("serialize1", typeof(byte[]), new[] { typeof(object), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0); // obj
@@ -227,7 +227,7 @@ namespace Utf8Json
                         serialize1 = CreateDelegate<Func<object, IJsonFormatterResolver, byte[]>>(dm);
                     }
                     {
-                        var dm = new DynamicMethod("serialize2", null, new[] { typeof(Stream), typeof(object), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("serialize2", null, new[] { typeof(Stream), typeof(object), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0); // stream
@@ -240,7 +240,7 @@ namespace Utf8Json
                         serialize2 = CreateDelegate<Action<Stream, object, IJsonFormatterResolver>>(dm);
                     }
                     {
-                        var dm = new DynamicMethod("serializeUnsafe", typeof(ArraySegment<byte>), new[] { typeof(object), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("serializeUnsafe", typeof(ArraySegment<byte>), new[] { typeof(object), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0); // obj
@@ -252,7 +252,7 @@ namespace Utf8Json
                         serializeUnsafe = CreateDelegate<Func<object, IJsonFormatterResolver, ArraySegment<byte>>>(dm);
                     }
                     {
-                        var dm = new DynamicMethod("toJsonString", typeof(string), new[] { typeof(object), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("toJsonString", typeof(string), new[] { typeof(object), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0); // obj
@@ -264,7 +264,7 @@ namespace Utf8Json
                         toJsonString = CreateDelegate<Func<object, IJsonFormatterResolver, string>>(dm);
                     }
                     {
-                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(string), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(string), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0);
@@ -276,7 +276,7 @@ namespace Utf8Json
                         deserialize1 = CreateDelegate<Func<string, IJsonFormatterResolver, object>>(dm);
                     }
                     {
-                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(byte[]), typeof(int), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(byte[]), typeof(int), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0);
@@ -289,7 +289,7 @@ namespace Utf8Json
                         deserialize2 = CreateDelegate<Func<byte[], int, IJsonFormatterResolver, object>>(dm);
                     }
                     {
-                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(Stream), typeof(IJsonFormatterResolver) });
+                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(Stream), typeof(IJsonFormatterResolver) }, type, true);
                         var il = dm.GetILGenerator();
 
                         il.EmitLdarg(0);
