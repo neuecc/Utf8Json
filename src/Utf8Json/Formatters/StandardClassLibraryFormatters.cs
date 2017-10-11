@@ -579,7 +579,7 @@ namespace Utf8Json.Formatters
 
             // deserialize immediately(no delay, because capture byte[] causes memory leak)
             var v = formatterResolver.GetFormatterWithVerify<T>().Deserialize(ref reader, formatterResolver);
-            return new Lazy<T>(() => v);
+            return new Lazy<T>(v.AsFunc());
         }
     }
 

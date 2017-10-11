@@ -266,18 +266,13 @@ namespace ConsoleAppNetCore
 
         static unsafe void Main(string[] args)
         {
-            var json = "{\"Id\":false}";
 
-            try
-            {
-                var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-                var b = Utf8Json.JsonSerializer.Deserialize<MyClass>(stream);
-            }
-            catch (JsonParsingException ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine("JSON:" + ex.GetUnderlyingStringUnsafe());
-            }
+            var v = JsonSerializer.Deserialize<Lazy<int>>("12345");
+
+            Console.WriteLine(v.IsValueCreated);
+            Console.WriteLine(v.Value);
+            Console.WriteLine(v.IsValueCreated);
+
 
 
         }
