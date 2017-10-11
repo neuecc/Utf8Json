@@ -260,19 +260,16 @@ namespace ConsoleAppNetCore
 
         public class MyClass
         {
-            public double Id { get; set; }
+            public int Id { get; set; }
         }
 
 
         static unsafe void Main(string[] args)
         {
 
-            var v = JsonSerializer.Deserialize<Lazy<int>>("12345");
+            var v = JsonSerializer.Deserialize<int>("z");
 
-            Console.WriteLine(v.IsValueCreated);
-            Console.WriteLine(v.Value);
-            Console.WriteLine(v.IsValueCreated);
-
+            
 
 
         }

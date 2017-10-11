@@ -77,6 +77,22 @@ namespace Utf8Json.Tests
             public int OAFADFZEWFSDFSDFKSLJFWEFNWOZFUSEWWEFWEWFFFFFFFFFFFFFFZFEWBFOWUEGWHOUDGSOGUDSZNOFRWEUFWGOWHOGHWOG000000000000000000000000000000000000000HOGZ { get; set; }
         }
 
+        public class SetOnlyProperty
+        {
+            public int P3 { get; set; }
+
+            public int P3_testOnlyGet
+            {
+                get { return P3; }
+            }
+
+            public int P3_testOnlySet
+            {
+                set { P3 = value; }
+            }
+        }
+
+
         public class RecursiveReadNextBlockOverflow
         {
             //public int[] foo { get; set; }
@@ -388,6 +404,13 @@ namespace Utf8Json.Tests
             s1.B.IsTrue();
             s2.MyProperty.Is(9);
             s3.y.Is(99);
+        }
+
+        [Fact]
+        public void SetOnlyPropertyTest()
+        {
+            var p = JsonSerializer.Deserialize<SetOnlyProperty>("{\"P3\":99}");
+            p.P3.Is(99);
         }
     }
 }

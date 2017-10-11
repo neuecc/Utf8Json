@@ -1021,6 +1021,12 @@ namespace Utf8Json.Resolvers.Internal
             if (info.BestmatchConstructor != null)
             {
                 isSideEffectFreeType = IsSideEffectFreeConstructorType(info.BestmatchConstructor);
+                // if set only property, it is not side-effect but same as has side-effect
+                var hasSetOnlyMember = info.Members.Any(x => !x.IsReadable && x.IsWritable);
+                if (hasSetOnlyMember)
+                {
+                    isSideEffectFreeType = false;
+                }
             }
 
             // make local fields
@@ -1277,8 +1283,8 @@ namespace Utf8Json.Resolvers.Internal
             if (array == null) return false;
 
             // (ldarg.0, call(empty ctor), ret) == side-effect free
-            // Release build is 7 but allows nop for debug build so use <= 8.
-            if (array.Length <= 8)
+            // Release build is 7 but allows nop and nop for debug build so use <= 9.
+            if (array.Length <= 9)
             {
                 if (ctorInfo.DeclaringType.BaseType == typeof(object))
                 {

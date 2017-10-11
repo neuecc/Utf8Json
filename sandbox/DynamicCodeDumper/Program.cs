@@ -17,17 +17,21 @@ namespace DynamicCodeDumper
         {
             try
             {
-                DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
-                DynamicObjectResolver.Default.GetFormatter<Test2>();
-                DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
-                var test = DynamicObjectResolver.Default.GetFormatter<Person>();
-                DynamicObjectResolver.Default.GetFormatter<IInterface>();
-                DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern1>();
-                DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern2>();
-                DynamicObjectResolver.Default.GetFormatter<NoSideEffectStructPattern>();
+                DynamicObjectResolver.Default.GetFormatter<Contractless>();
 
 
-                DynamicObjectResolver.ExcludeNull.GetFormatter<Nullaer>();
+                //DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
+                //DynamicObjectResolver.Default.GetFormatter<Test2>();
+                //DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
+                //var test = DynamicObjectResolver.Default.GetFormatter<Person>();
+                //DynamicObjectResolver.Default.GetFormatter<IInterface>();
+                //DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern1>();
+                //DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern2>();
+                //DynamicObjectResolver.Default.GetFormatter<NoSideEffectStructPattern>();
+
+                
+
+                //DynamicObjectResolver.ExcludeNull.GetFormatter<Nullaer>();
 
             }
             catch (Exception ex)
@@ -68,6 +72,31 @@ namespace DynamicCodeDumper
                 var data = p.StandardOutput.ReadToEnd();
                 Console.WriteLine(data);
             }
+        }
+    }
+
+    public class Contractless
+    {
+        public Contractless()
+        {
+
+        }
+
+        //public Contractless(string b, int p3)
+        //{
+        //    P3 = p3;
+        //}
+
+        public int P3 { get; set; }
+
+        public int P3_testOnlyGet
+        {
+            get { return P3; }
+        }
+
+        public int P3_testOnlySet
+        {
+            set { P3 = value; }
         }
     }
 

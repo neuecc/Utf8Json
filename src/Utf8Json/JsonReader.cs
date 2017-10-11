@@ -45,7 +45,7 @@ namespace Utf8Json
                         actual = StringEncoding.UTF8.GetString(ns.Array, ns.Offset, ns.Count);
                         break;
                     case JsonToken.String:
-                        actual = ReadString();
+                        actual = "\"" + ReadString() + "\"";
                         break;
                     case JsonToken.True:
                         actual = "true";
