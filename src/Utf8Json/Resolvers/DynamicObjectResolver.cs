@@ -1282,9 +1282,10 @@ namespace Utf8Json.Resolvers.Internal
             var array = methodBody.GetILAsByteArray();
             if (array == null) return false;
 
-            // (ldarg.0, call(empty ctor), ret) == side-effect free
-            // Release build is 7 but allows nop and nop for debug build so use <= 9.
-            if (array.Length <= 9)
+            // (ldarg.0, call(empty ctor), ret) == side-effect free.
+            // Release build is 7, Debug build has nop(and nop) so 8 or 9.
+            // Debug / Release generate code is not same but release's 8 has side-effect at worst case.
+            if (array.Length <= 7)
             {
                 if (ctorInfo.DeclaringType.BaseType == typeof(object))
                 {
