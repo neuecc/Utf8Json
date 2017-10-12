@@ -40,7 +40,7 @@ namespace Utf8Json.Resolvers
         public static readonly IJsonFormatterResolver AllowPrivateExcludeNull = DynamicObjectResolverAllowPrivateTrueExcludeNullTrueNameMutateOriginal.Instance;
         /// <summary>AllowPrivate:True,  ExcludeNull:True,  NameMutate:CamelCase</summary>
         public static readonly IJsonFormatterResolver AllowPrivateExcludeNullCamelCase = DynamicObjectResolverAllowPrivateTrueExcludeNullTrueNameMutateCamelCase.Instance;
-        /// <summary></summary>AllowPrivate:True,  ExcludeNull:True,  NameMutate:SnakeCase</summary>
+        /// <summary>AllowPrivate:True,  ExcludeNull:True,  NameMutate:SnakeCase</summary>
         public static readonly IJsonFormatterResolver AllowPrivateExcludeNullSnakeCase = DynamicObjectResolverAllowPrivateTrueExcludeNullTrueNameMutateSnakeCase.Instance;
     }
 }
