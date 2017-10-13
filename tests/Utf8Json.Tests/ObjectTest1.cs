@@ -202,6 +202,13 @@ namespace Utf8Json.Tests
             }
         }
 
+
+        public struct EmptyConstructorStruct
+        {
+            public int X;
+        }
+
+
         [Fact]
         public void SimpleTest()
         {
@@ -411,6 +418,13 @@ namespace Utf8Json.Tests
         {
             var p = JsonSerializer.Deserialize<SetOnlyProperty>("{\"P3\":99}");
             p.P3.Is(99);
+        }
+
+        [Fact]
+        public void Empty()
+        {
+            var x = JsonSerializer.Serialize(new EmptyConstructorStruct { X = 99 }, StandardResolver.AllowPrivate);
+            JsonSerializer.Deserialize<EmptyConstructorStruct>(x, StandardResolver.AllowPrivate).X.Is(99);
         }
     }
 }
