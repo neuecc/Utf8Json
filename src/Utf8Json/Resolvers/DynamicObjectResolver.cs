@@ -571,6 +571,7 @@ namespace Utf8Json.Resolvers.Internal
             if (ignoreTypes.Contains(type)) return null;
 
             var serializationInfo = new MetaType(type, nameMutator, false); // allowPrivate:false
+            var hasShouldSerialize = serializationInfo.Members.Any(x => x.ShouldSerializeMethodInfo != null);
 
             var formatterType = typeof(IJsonFormatter<>).MakeGenericType(type);
             var typeBuilder = assembly.ModuleBuilder.DefineType("Utf8Json.Formatters." + SubtractFullNameRegex.Replace(type.FullName, "").Replace(".", "_") + "Formatter" + Interlocked.Increment(ref nameSequence), TypeAttributes.Public | TypeAttributes.Sealed, null, new[] { formatterType });
@@ -584,7 +585,7 @@ namespace Utf8Json.Resolvers.Internal
                 stringByteKeysField = typeBuilder.DefineField("stringByteKeys", typeof(byte[][]), FieldAttributes.Private | FieldAttributes.InitOnly);
 
                 var il = method.GetILGenerator();
-                customFormatterLookup = BuildConstructor(typeBuilder, serializationInfo, method, stringByteKeysField, il, excludeNull);
+                customFormatterLookup = BuildConstructor(typeBuilder, serializationInfo, method, stringByteKeysField, il, excludeNull, hasShouldSerialize);
             }
 
             {
@@ -605,7 +606,7 @@ namespace Utf8Json.Resolvers.Internal
                     il.EmitLoadThis();
                     il.EmitLdfld(fi);
                     return true;
-                }, excludeNull, 1); // firstArgIndex:0 is this.
+                }, excludeNull, hasShouldSerialize, 1); // firstArgIndex:0 is this.
             }
 
             {
@@ -633,13 +634,14 @@ namespace Utf8Json.Resolvers.Internal
             if (ignoreTypes.Contains(type)) return false;
 
             var serializationInfo = new MetaType(type, nameMutator, allowPrivate); // can be allowPrivate:true
+            var hasShouldSerialize = serializationInfo.Members.Any(x => x.ShouldSerializeMethodInfo != null);
 
             // build instance instead of emit constructor.
             List<byte[]> stringByteKeysField = new List<byte[]>();
             var i = 0;
             foreach (var item in serializationInfo.Members.Where(x => x.IsReadable))
             {
-                if (excludeNull)
+                if (excludeNull || hasShouldSerialize)
                 {
                     stringByteKeysField.Add(JsonWriter.GetEncodedPropertyName(item.Name));
                 }
@@ -702,7 +704,7 @@ namespace Utf8Json.Resolvers.Internal
                      il.Emit(OpCodes.Ldelem_Ref); // object
                      il.Emit(OpCodes.Castclass, serializeCustomFormatters[index].GetType());
                      return true;
-                 }, excludeNull, 2);
+                 }, excludeNull, hasShouldSerialize, 2);
             }
             var deserialize = new DynamicMethod("Deserialize", type, new Type[] { typeof(object[]), typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
             {
@@ -726,7 +728,7 @@ namespace Utf8Json.Resolvers.Internal
                 new[] { stringByteKeysField.ToArray(), serializeCustomFormatters.ToArray(), deserializeCustomFormatters.ToArray(), serializeDelegate, deserializeDelegate });
         }
 
-        static Dictionary<MetaMember, FieldInfo> BuildConstructor(TypeBuilder builder, MetaType info, ConstructorInfo method, FieldBuilder stringByteKeysField, ILGenerator il, bool excludeNull)
+        static Dictionary<MetaMember, FieldInfo> BuildConstructor(TypeBuilder builder, MetaType info, ConstructorInfo method, FieldBuilder stringByteKeysField, ILGenerator il, bool excludeNull, bool hasShouldSerialize)
         {
             il.EmitLdarg(0);
             il.Emit(OpCodes.Call, EmitInfo.ObjectCtor);
@@ -742,7 +744,7 @@ namespace Utf8Json.Resolvers.Internal
                 il.Emit(OpCodes.Dup);
                 il.EmitLdc_I4(i);
                 il.Emit(OpCodes.Ldstr, item.Name);
-                if (excludeNull)
+                if (excludeNull || hasShouldSerialize)
                 {
                     il.EmitCall(EmitInfo.JsonWriter.GetEncodedPropertyName);
                 }
@@ -821,7 +823,7 @@ namespace Utf8Json.Resolvers.Internal
             return dict;
         }
 
-        static void BuildSerialize(Type type, MetaType info, ILGenerator il, Action emitStringByteKeys, Func<int, MetaMember, bool> tryEmitLoadCustomFormatter, bool excludeNull, int firstArgIndex)
+        static void BuildSerialize(Type type, MetaType info, ILGenerator il, Action emitStringByteKeys, Func<int, MetaMember, bool> tryEmitLoadCustomFormatter, bool excludeNull, bool hasShouldSerialize, int firstArgIndex)
         {
             var argWriter = new ArgumentField(il, firstArgIndex);
             var argValue = new ArgumentField(il, firstArgIndex + 1, type);
@@ -848,7 +850,7 @@ namespace Utf8Json.Resolvers.Internal
             LocalBuilder wrote = null;
             Label endObjectLabel = il.DefineLabel();
             Label[] labels = null;
-            if (excludeNull)
+            if (excludeNull || hasShouldSerialize)
             {
                 // wrote = false; writer.WriteBeginObject();
                 wrote = il.DeclareLocal(typeof(bool));
@@ -860,27 +862,36 @@ namespace Utf8Json.Resolvers.Internal
             var index = 0;
             foreach (var item in info.Members.Where(x => x.IsReadable))
             {
-                if (excludeNull)
+                if (excludeNull || hasShouldSerialize)
                 {
                     il.MarkLabel(labels[index]);
 
                     // if(value.X != null)
-                    if (item.Type.GetTypeInfo().IsNullable())
+                    if (excludeNull)
                     {
-                        var local = il.DeclareLocal(item.Type);
+                        if (item.Type.GetTypeInfo().IsNullable())
+                        {
+                            var local = il.DeclareLocal(item.Type);
 
-                        argValue.EmitLoad();
-                        item.EmitLoadValue(il);
-                        il.EmitStloc(local);
-                        il.EmitLdloca(local);
-                        il.EmitCall(EmitInfo.GetNullableHasValue(item.Type.GetGenericArguments()[0]));
-                        il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // null, next label
+                            argValue.EmitLoad();
+                            item.EmitLoadValue(il);
+                            il.EmitStloc(local);
+                            il.EmitLdloca(local);
+                            il.EmitCall(EmitInfo.GetNullableHasValue(item.Type.GetGenericArguments()[0]));
+                            il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // null, next label
+                        }
+                        else if (!item.Type.IsValueType)
+                        {
+                            argValue.EmitLoad();
+                            item.EmitLoadValue(il);
+                            il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // null, next label
+                        }
                     }
-                    else if (!item.Type.IsValueType)
+                    if (hasShouldSerialize && item.ShouldSerializeMethodInfo != null)
                     {
                         argValue.EmitLoad();
-                        item.EmitLoadValue(il);
-                        il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // null, next label
+                        il.EmitCall(item.ShouldSerializeMethodInfo);
+                        il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // false, next label
                     }
 
                     // if(wrote)

@@ -17,8 +17,8 @@ namespace DynamicCodeDumper
         {
             try
             {
-                DynamicObjectResolver.Default.GetFormatter<Contractless>();
-
+                DynamicObjectResolver.Default.GetFormatter<TestShouldSerialize>();
+                DynamicObjectResolver.ExcludeNullCamelCase.GetFormatter<TestShouldSerialize>();
 
                 //DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
                 //DynamicObjectResolver.Default.GetFormatter<Test2>();
@@ -29,7 +29,7 @@ namespace DynamicCodeDumper
                 //DynamicObjectResolver.Default.GetFormatter<NoSideEffectFreePattern2>();
                 //DynamicObjectResolver.Default.GetFormatter<NoSideEffectStructPattern>();
 
-                
+
 
                 //DynamicObjectResolver.ExcludeNull.GetFormatter<Nullaer>();
 
@@ -43,7 +43,7 @@ namespace DynamicCodeDumper
 
 #if NET45
                 var a1 = (DynamicObjectResolver.Default as ISave).Save();
-                 var a2 = (DynamicObjectResolver.ExcludeNull as ISave).Save();
+                var a2 = (DynamicObjectResolver.ExcludeNullCamelCase as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
@@ -143,6 +143,23 @@ namespace DynamicCodeDumper
     }
 
 
+    public class TestShouldSerialize
+    {
+        public int MyProperty { get; set; }
+        public List<string> Data { get; set; } = new List<string>();
+        public string MyProperty2 { get; set; }
+        public long MyProperty3 { get; set; }
+
+        public bool ShouldSerializeData()
+        {
+            return Data?.Count > 0;
+        }
+
+        public bool ShouldSerializeMyProperty3()
+        {
+            return MyProperty3 > 0;
+        }
+    }
 
     public interface IInterface
     {

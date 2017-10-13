@@ -20,6 +20,7 @@ namespace Utf8Json.Internal.Emit
         public Type Type { get { return IsField ? FieldInfo.FieldType : PropertyInfo.PropertyType; } }
         public FieldInfo FieldInfo { get; private set; }
         public PropertyInfo PropertyInfo { get; private set; }
+        public MethodInfo ShouldSerializeMethodInfo { get; private set; }
 
         MethodInfo getMethod;
         MethodInfo setMethod;
@@ -31,6 +32,7 @@ namespace Utf8Json.Internal.Emit
             this.FieldInfo = info;
             this.IsReadable = allowPrivate || info.IsPublic;
             this.IsWritable = allowPrivate || (info.IsPublic && !info.IsInitOnly);
+            this.ShouldSerializeMethodInfo = GetShouldSerialize(info);
         }
 
         public MetaMember(PropertyInfo info, string name, bool allowPrivate)
@@ -43,6 +45,17 @@ namespace Utf8Json.Internal.Emit
             this.PropertyInfo = info;
             this.IsReadable = (getMethod != null) && (allowPrivate || getMethod.IsPublic) && !getMethod.IsStatic;
             this.IsWritable = (setMethod != null) && (allowPrivate || setMethod.IsPublic) && !setMethod.IsStatic;
+            this.ShouldSerializeMethodInfo = GetShouldSerialize(info);
+        }
+
+        static MethodInfo GetShouldSerialize(MemberInfo info)
+        {
+            var shouldSerialize = "ShouldSerialize" + info.Name;
+
+            // public only
+            return info.DeclaringType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .Where(x => x.Name == shouldSerialize && x.ReturnType == typeof(bool) && x.GetParameters().Length == 0)
+                .FirstOrDefault();
         }
 
         public bool IsDeclaredIsValueType
