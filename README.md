@@ -319,6 +319,40 @@ public class CustomPoint
 }
 ```
 
+ShouldSerializeXXX pattern
+---
+UtfJson supports [ShouldSerialize feature of Json.NET](https://www.newtonsoft.com/json/help/html/ConditionalProperties.htm). If defined `public bool ShouldMemberName()` method, call method before serialize member value and if false does not output member.
+
+```csharp
+public class MyPerson
+{
+    public string Name { get; set; }
+    public string[] Addresses { get; set; }
+
+    // ShouldSerialize*membername**
+    // method must be `public` and return `bool` and parameter less.
+    public bool ShouldSerializeAddresses()
+    {
+        if (Addresses != null && Addresses.Length != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+--
+
+// {"Name":"foo"}
+JsonSerializer.ToJsonString(new MyPerson { Name = "foo", Addresses = new string[0] });
+        
+// {"Name":"bar","Addresses":["tokyo","kyoto"]}
+JsonSerializer.ToJsonString(new MyPerson { Name = "bar", Addresses = new[] { "tokyo", "kyoto" } });
+```
+
 Dynamic Deserialization
 ---
 If use JsonSerializer.Deserialize<object> or JsonSerializer.Deserialize<dynamic>, convert json to `bool`, `double`, `string`, `IDictionary<string, object>`, `List<object>`.

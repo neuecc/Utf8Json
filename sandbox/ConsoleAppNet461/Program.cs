@@ -45,8 +45,12 @@ class Program
 #if DEBUG
 
 
-        var json = JsonSerializer.NonGeneric.ToJsonString(new { a = 100, b = 200 });
-        Console.WriteLine(json);
+// {"Name":"foo"}
+JsonSerializer.ToJsonString(new MyPerson { Name = "foo", Addresses = new string[0] });
+        
+// {"Name":"bar","Addresses":["tokyo","kyoto"]}
+JsonSerializer.ToJsonString(new MyPerson { Name = "bar", Addresses = new[] { "tokyo", "kyoto" } });
+
 
 #else
         switcher.Run(args);
@@ -60,6 +64,26 @@ public class Hoge
     public string Name { get { return name; } }
 }
 
+
+public class MyPerson
+{
+    public string Name { get; set; }
+    public string[] Addresses { get; set; }
+
+    // ShouldSerialize*membername**
+    // method must be `public` and return `bool` and parameter less.
+    public bool ShouldSerializeAddresses()
+    {
+        if (Addresses != null && Addresses.Length != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
 
 public class Hoge2
 {
