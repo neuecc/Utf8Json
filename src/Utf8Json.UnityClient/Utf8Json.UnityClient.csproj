@@ -140,6 +140,7 @@
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\MetaMember.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\Emit\MetaType.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\FarmHash.cs" />
+    <Compile Include="Assets\Scripts\Utf8Json\Internal\FuncExtensions.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\GuidBits.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\NumberConverter.cs" />
     <Compile Include="Assets\Scripts\Utf8Json\Internal\ReflectionExtensions.cs" />

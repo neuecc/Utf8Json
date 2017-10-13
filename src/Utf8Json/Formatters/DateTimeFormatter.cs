@@ -242,6 +242,7 @@ namespace Utf8Json.Formatters
             var array = str.Array;
             var i = str.Offset;
             var len = str.Count;
+            var to = str.Offset + str.Count;
 
             // YYYY
             if (len == 4)
@@ -288,41 +289,41 @@ namespace Utf8Json.Formatters
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
             int ticks = 0;
-            if (i < len && array[i] == '.')
+            if (i < to && array[i] == '.')
             {
                 i++;
 
                 // *7.
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1000000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 100000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 10000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 100;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 10;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1;
                 i++;
 
                 // others, lack of precision
-                while (i < len && NumberConverter.IsNumber(array[i]))
+                while (i < to && NumberConverter.IsNumber(array[i]))
                 {
                     i++;
                 }
@@ -330,13 +331,13 @@ namespace Utf8Json.Formatters
 
             END_TICKS:
             var kind = DateTimeKind.Unspecified;
-            if (i <= len && array[i] == 'Z')
+            if (i < to && array[i] == 'Z')
             {
                 kind = DateTimeKind.Utc;
             }
-            else if (i < len && array[i] == '-' || array[i] == '+')
+            else if (i < to && array[i] == '-' || array[i] == '+')
             {
-                if (!(i + 5 <= len)) goto ERROR;
+                if (!(i + 5 < to)) goto ERROR;
 
                 kind = DateTimeKind.Local;
                 var minus = array[i++] == '-';
@@ -591,6 +592,7 @@ namespace Utf8Json.Formatters
             var array = str.Array;
             var i = str.Offset;
             var len = str.Count;
+            var to = str.Offset + str.Count;
 
             // YYYY
             if (len == 4)
@@ -637,41 +639,41 @@ namespace Utf8Json.Formatters
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
             int ticks = 0;
-            if (i < len && array[i] == '.')
+            if (i < to && array[i] == '.')
             {
                 i++;
 
                 // *7.
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1000000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 100000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 10000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 100;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 10;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1;
                 i++;
 
                 // others, lack of precision
-                while (i < len && NumberConverter.IsNumber(array[i]))
+                while (i < to && NumberConverter.IsNumber(array[i]))
                 {
                     i++;
                 }
@@ -679,9 +681,9 @@ namespace Utf8Json.Formatters
 
             END_TICKS:
 
-            if (i < len && array[i] == '-' || array[i] == '+')
+            if (i < to && array[i] == '-' || array[i] == '+')
             {
-                if (!(i + 5 <= len)) goto ERROR;
+                if (!(i + 5 < to)) goto ERROR;
 
                 var minus = array[i++] == '-';
 
@@ -853,6 +855,7 @@ namespace Utf8Json.Formatters
             var array = str.Array;
             var i = str.Offset;
             var len = str.Count;
+            var to = str.Offset + str.Count;
 
             // check day exists
             bool hasDay = false;
@@ -914,41 +917,41 @@ namespace Utf8Json.Formatters
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
             int ticks = 0;
-            if (i < len && array[i] == '.')
+            if (i < to && array[i] == '.')
             {
                 i++;
 
                 // *7.
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1000000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 100000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 10000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1000;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 100;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 10;
                 i++;
 
-                if (!(i <= len) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
+                if (!(i < to) || !NumberConverter.IsNumber(array[i])) goto END_TICKS;
                 ticks += (array[i] - (byte)'0') * 1;
                 i++;
 
                 // others, lack of precision
-                while (i < len && NumberConverter.IsNumber(array[i]))
+                while (i < to && NumberConverter.IsNumber(array[i]))
                 {
                     i++;
                 }
