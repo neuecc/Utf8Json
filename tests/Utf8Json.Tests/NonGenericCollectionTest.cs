@@ -112,10 +112,8 @@ namespace Utf8Json.Tests
             var xs = new[] { 100, 200 };
             var xss = xs.Select(x => x);
 
+            JsonSerializer.NonGeneric.ToJsonString(xss, StandardResolver.Default).Is("[100,200]");
             JsonSerializer.NonGeneric.ToJsonString(xss, StandardResolver.AllowPrivate).Is("[100,200]");
-
-            // exception
-            Assert.Throws<TypeLoadException>(() => JsonSerializer.NonGeneric.ToJsonString(xss));
 
             JsonSerializer.NonGeneric.ToJsonString(new Wrap { Seq = xss }).Is("{\"Seq\":[100,200]}");
         }

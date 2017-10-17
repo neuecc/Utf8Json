@@ -536,7 +536,8 @@ namespace Utf8Json.Resolvers.Internal
                 return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
             }
 
-            if (ti.IsAnonymous())
+            Type elementType;
+            if (ti.IsAnonymous() || TryGetInterfaceEnumerableElementType(typeof(T), out elementType))
             {
                 return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false);
             }

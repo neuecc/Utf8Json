@@ -18,11 +18,11 @@ namespace DynamicCodeDumper
         {
             try
             {
-                DynamicObjectResolver.Default.GetFormatter<TestShouldSerialize>();
-                DynamicObjectResolver.ExcludeNullCamelCase.GetFormatter<TestShouldSerialize>();
+                //DynamicObjectResolver.Default.GetFormatter<TestShouldSerialize>();
+                //DynamicObjectResolver.ExcludeNullCamelCase.GetFormatter<TestShouldSerialize>();
 
                 var seq = Enumerable.Range(1, 10).Select(x => x);
-                DynamicObjectResolver.AllowPrivate.GetFormatterDynamic(seq.GetType());
+                DynamicObjectResolver.Default.GetFormatterDynamic(seq.GetType());
 
                 //DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
                 //DynamicObjectResolver.Default.GetFormatter<Test2>();
