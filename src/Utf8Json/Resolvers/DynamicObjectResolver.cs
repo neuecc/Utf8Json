@@ -1317,9 +1317,33 @@ namespace Utf8Json.Resolvers.Internal
             if (array == null) return false;
 
             // (ldarg.0, call(empty ctor), ret) == side-effect free.
-            // Release build is 7, Debug build has nop(and nop) so 8 or 9.
-            // Debug / Release generate code is not same but release's 8 has side-effect at worst case.
-            if (array.Length <= 7)
+            // Release build is 7, Debug build has nop(or nop like code) so should use ILStreamReader
+            var opCodes = new List<OpCode>();
+            using (var reader = new ILStreamReader(array))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var code = reader.ReadOpCode();
+                    if (code != OpCodes.Nop
+                     && code != OpCodes.Ldloc_0
+                     && code != OpCodes.Ldloc_S
+                     && code != OpCodes.Stloc_0
+                     && code != OpCodes.Stloc_S
+                     && code != OpCodes.Blt
+                     && code != OpCodes.Blt_S
+                     && code != OpCodes.Bgt
+                     && code != OpCodes.Bgt_S)
+                    {
+                        opCodes.Add(code);
+                        if (opCodes.Count == 4) break;
+                    }
+                }
+            }
+
+            if (opCodes.Count == 3
+             && opCodes[0] == System.Reflection.Emit.OpCodes.Ldarg_0
+             && opCodes[1] == System.Reflection.Emit.OpCodes.Call
+             && opCodes[2] == System.Reflection.Emit.OpCodes.Ret)
             {
                 if (ctorInfo.DeclaringType.BaseType == typeof(object))
                 {
@@ -1335,6 +1359,7 @@ namespace Utf8Json.Resolvers.Internal
                     }
                     else
                     {
+                        // check parent constructor
                         return IsSideEffectFreeConstructorType(bassCtorInfo);
                     }
                 }

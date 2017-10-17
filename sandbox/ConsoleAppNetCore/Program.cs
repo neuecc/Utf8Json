@@ -171,16 +171,16 @@ namespace ConsoleAppNetCore
         public bool t;
     }
 
-    
 
 
-public class Test
-{
-    public Guid Id { get; set; }
-    public string Value { get; set; }
-}
 
-public class Program
+    public class Test
+    {
+        public Guid Id { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class Program
     {
         public const char HighSurrogateStart = '\ud800';
         public const char HighSurrogateEnd = '\udbff';
@@ -272,23 +272,49 @@ public class Program
             public int Id { get; set; }
         }
 
+        public class A
+        {
+            public A()
+            {
+
+            }
+        }
+
+        public class B
+        {
+
+        }
+
+        public class C : A
+        {
+        }
+
+        public class D
+        {
+            public D()
+            {
+                Console.WriteLine("go");
+            }
+        }
+
+        public class E
+        {
+            int x;
+
+            public E()
+            {
+                x = 9;
+            }
+        }
+
 
         static unsafe void Main(string[] args)
         {
 
-            var list = new List<Test>
-            {
-                new Test {Value = "Hello World", Id = Guid.NewGuid()},
-                new Test {Value = "Hello Universe", Id = Guid.NewGuid()}
-            };
-
-            var select = list.Select(a => a.Id);
-
-            Console.WriteLine(select.GetType().FullName);
-            var serialized = Utf8Json.JsonSerializer.NonGeneric.ToJsonString(select, Utf8Json.Resolvers.StandardResolver.Default); // throws
-
-
-            Console.WriteLine(serialized    );
+            DynamicObjectResolver.Default.GetFormatter<E>();
+            //DynamicObjectResolver.Default.GetFormatter<B>();
+            //DynamicObjectResolver.Default.GetFormatter<C>();
+            //DynamicObjectResolver.Default.GetFormatter<D>();
 
 
         }

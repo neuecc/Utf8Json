@@ -1,7 +1,4 @@
-﻿// for debugging
-
-#if DEBUG && NETSTANDARD
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -13,7 +10,8 @@ namespace Utf8Json.Internal
 {
     internal class ILStreamReader : BinaryReader
     {
-        static readonly Dictionary<short, OpCode> opCodes = new Dictionary<short, OpCode>();
+        static readonly OpCode[] oneByteOpCodes = new OpCode[0x100];
+        static readonly OpCode[] twoByteOpCodes = new OpCode[0x100];
 
         int endPosition;
 
@@ -23,10 +21,19 @@ namespace Utf8Json.Internal
 
         static ILStreamReader()
         {
-            foreach (var fieldInfo in typeof(OpCodes).GetFields())
+            foreach (var fi in typeof(OpCodes).GetFields(BindingFlags.Public | BindingFlags.Static))
             {
-                var opCode = (OpCode)fieldInfo.GetValue(null);
-                opCodes.Add(opCode.Value, opCode);
+                var opCode = (OpCode)fi.GetValue(null);
+                var value =  unchecked((ushort)opCode.Value);
+
+                if (value < 0x100)
+                {
+                    oneByteOpCodes[value] = opCode;
+                }
+                else if ((value & 0xff00) == 0xfe00)
+                {
+                    twoByteOpCodes[value & 0xff] = opCode;
+                }
             }
         }
 
@@ -38,12 +45,16 @@ namespace Utf8Json.Internal
 
         public OpCode ReadOpCode()
         {
-            short value = ReadByte();
-            if (value == 0xfe)
+            var code = ReadByte();
+            if (code != 0xFE)
             {
-                value = (short)((value << 8) | ReadByte());
+                return oneByteOpCodes[code];
             }
-            return opCodes[value];
+            else
+            {
+                code = ReadByte();
+                return twoByteOpCodes[code];
+            }
         }
 
         public int ReadMetadataToken()
@@ -52,6 +63,9 @@ namespace Utf8Json.Internal
         }
     }
 
+#if DEBUG && NETSTANDARD
+
+    // not yet completed so only for debug.
     public static class ILViewer
     {
         public static string ToPrettyPrintInstruction(MethodBase method)
@@ -251,5 +265,6 @@ namespace Utf8Json.Internal
             }
         }
     }
-}
+
 #endif
+}
