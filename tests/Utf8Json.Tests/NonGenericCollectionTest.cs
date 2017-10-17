@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+using Utf8Json.Resolvers;
 
 namespace Utf8Json.Tests
 {
@@ -98,6 +100,24 @@ namespace Utf8Json.Tests
                 v.MoveNext();
                 ((double)v.Current).Is(999.888);
             }
+        }
+        public class Wrap
+        {
+            public IEnumerable<int> Seq;
+        }
+
+        [Fact]
+        public void EnumerableNonGenericTest()
+        {
+            var xs = new[] { 100, 200 };
+            var xss = xs.Select(x => x);
+
+            JsonSerializer.NonGeneric.ToJsonString(xss, StandardResolver.AllowPrivate).Is("[100,200]");
+
+            // exception
+            Assert.Throws<TypeLoadException>(() => JsonSerializer.NonGeneric.ToJsonString(xss));
+
+            JsonSerializer.NonGeneric.ToJsonString(new Wrap { Seq = xss }).Is("{\"Seq\":[100,200]}");
         }
     }
 }

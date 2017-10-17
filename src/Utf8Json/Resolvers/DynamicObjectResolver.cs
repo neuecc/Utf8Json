@@ -706,6 +706,7 @@ namespace Utf8Json.Resolvers.Internal
                      return true;
                  }, excludeNull, hasShouldSerialize, 2);
             }
+
             var deserialize = new DynamicMethod("Deserialize", type, new Type[] { typeof(object[]), typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
             {
                 var il = deserialize.GetILGenerator();
@@ -724,6 +725,7 @@ namespace Utf8Json.Resolvers.Internal
 
             object serializeDelegate = serialize.CreateDelegate(typeof(AnonymousJsonSerializeAction<>).MakeGenericType(type));
             object deserializeDelegate = deserialize.CreateDelegate(typeof(AnonymousJsonDeserializeFunc<>).MakeGenericType(type));
+
             return Activator.CreateInstance(typeof(DynamicMethodAnonymousFormatter<>).MakeGenericType(type),
                 new[] { stringByteKeysField.ToArray(), serializeCustomFormatters.ToArray(), deserializeCustomFormatters.ToArray(), serializeDelegate, deserializeDelegate });
         }
@@ -830,6 +832,26 @@ namespace Utf8Json.Resolvers.Internal
             var argResolver = new ArgumentField(il, firstArgIndex + 2);
 
             var typeInfo = type.GetTypeInfo();
+
+            // Special case for serialize IEnumerable<>.
+            if (info.IsClass && info.BestmatchConstructor == null)
+            {
+                Type elementType;
+                if (TryGetInterfaceEnumerableElementType(type, out elementType))
+                {
+                    var t = typeof(IEnumerable<>).MakeGenericType(elementType);
+
+                    argResolver.EmitLoad();
+                    il.EmitCall(EmitInfo.GetFormatterWithVerify.MakeGenericMethod(t));
+
+                    argWriter.EmitLoad();
+                    argValue.EmitLoad();
+                    argResolver.EmitLoad();
+                    il.EmitCall(EmitInfo.Serialize(t));
+                    il.Emit(OpCodes.Ret);
+                    return;
+                }
+            }
 
             // if(value == null) { writer.WriteNull(); return; }
             if (info.IsClass)
@@ -1317,6 +1339,26 @@ namespace Utf8Json.Resolvers.Internal
                 }
             }
 
+            return false;
+        }
+
+        static bool TryGetInterfaceEnumerableElementType(Type type, out Type elementType)
+        {
+            foreach (var implInterface in type.GetInterfaces())
+            {
+                if (implInterface.IsGenericType)
+                {
+                    var genericTypeDef = implInterface.GetGenericTypeDefinition();
+                    if (genericTypeDef == typeof(IEnumerable<>))
+                    {
+                        var args = implInterface.GetGenericArguments();
+                        elementType = args[0];
+                        return true;
+                    }
+                }
+            }
+
+            elementType = null;
             return false;
         }
 

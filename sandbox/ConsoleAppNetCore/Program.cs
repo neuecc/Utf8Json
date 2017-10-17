@@ -171,7 +171,16 @@ namespace ConsoleAppNetCore
         public bool t;
     }
 
-    public class Program
+    
+
+
+public class Test
+{
+    public Guid Id { get; set; }
+    public string Value { get; set; }
+}
+
+public class Program
     {
         public const char HighSurrogateStart = '\ud800';
         public const char HighSurrogateEnd = '\udbff';
@@ -267,9 +276,19 @@ namespace ConsoleAppNetCore
         static unsafe void Main(string[] args)
         {
 
-            var v = JsonSerializer.Deserialize<int>("z");
+            var list = new List<Test>
+            {
+                new Test {Value = "Hello World", Id = Guid.NewGuid()},
+                new Test {Value = "Hello Universe", Id = Guid.NewGuid()}
+            };
 
-            
+            var select = list.Select(a => a.Id);
+
+            Console.WriteLine(select.GetType().FullName);
+            var serialized = Utf8Json.JsonSerializer.NonGeneric.ToJsonString(select, Utf8Json.Resolvers.StandardResolver.Default); // throws
+
+
+            Console.WriteLine(serialized    );
 
 
         }

@@ -184,7 +184,7 @@ public class SimplePerson
 
     public SimplePerson()
     {
-
+        
     }
 
     public SimplePerson(bool b)

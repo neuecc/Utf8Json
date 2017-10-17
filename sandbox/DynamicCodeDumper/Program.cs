@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,6 +20,9 @@ namespace DynamicCodeDumper
             {
                 DynamicObjectResolver.Default.GetFormatter<TestShouldSerialize>();
                 DynamicObjectResolver.ExcludeNullCamelCase.GetFormatter<TestShouldSerialize>();
+
+                var seq = Enumerable.Range(1, 10).Select(x => x);
+                DynamicObjectResolver.AllowPrivate.GetFormatterDynamic(seq.GetType());
 
                 //DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
                 //DynamicObjectResolver.Default.GetFormatter<Test2>();
@@ -72,6 +76,32 @@ namespace DynamicCodeDumper
                 var data = p.StandardOutput.ReadToEnd();
                 Console.WriteLine(data);
             }
+        }
+    }
+
+    public class HogeHogeHoge : IEnumerable<int>
+    {
+        public IEnumerator<int> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ConceptFormatter : IJsonFormatter<HogeHogeHoge>
+    {
+        public HogeHogeHoge Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Serialize(ref JsonWriter writer, HogeHogeHoge value, IJsonFormatterResolver formatterResolver)
+        {
+            formatterResolver.GetFormatterWithVerify<IEnumerable<int>>().Serialize(ref writer, value, formatterResolver);
         }
     }
 
