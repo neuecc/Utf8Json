@@ -16,6 +16,9 @@ namespace Utf8Json
             static readonly Func<Type, CompiledMethods> CreateCompiledMethods;
             static readonly ThreadsafeTypeKeyHashTable<CompiledMethods> serializes = new ThreadsafeTypeKeyHashTable<CompiledMethods>(capacity: 64);
 
+            delegate void SerializeJsonWriter(ref JsonWriter writer, object value, IJsonFormatterResolver resolver);
+            delegate object DeserializeJsonReader(ref JsonReader reader, IJsonFormatterResolver resolver);
+
             static NonGeneric()
             {
                 CreateCompiledMethods = t => new CompiledMethods(t);
@@ -92,6 +95,16 @@ namespace Utf8Json
             public static void Serialize(Type type, Stream stream, object value, IJsonFormatterResolver resolver)
             {
                 GetOrAdd(type).serialize2.Invoke(stream, value, resolver);
+            }
+
+            public static void Serialize(Type type, ref JsonWriter writer, object value)
+            {
+                Serialize(type, ref writer, value, defaultResolver);
+            }
+
+            public static void Serialize(Type type, ref JsonWriter writer, object value, IJsonFormatterResolver resolver)
+            {
+                GetOrAdd(type).serialize3.Invoke(ref writer, value, resolver);
             }
 
             /// <summary>
@@ -202,15 +215,27 @@ namespace Utf8Json
                 return GetOrAdd(type).deserialize3.Invoke(stream, resolver);
             }
 
+            public static object Deserialize(Type type, ref JsonReader reader)
+            {
+                return Deserialize(type, ref reader, defaultResolver);
+            }
+
+            public static object Deserialize(Type type, ref JsonReader reader, IJsonFormatterResolver resolver)
+            {
+                return GetOrAdd(type).deserialize4.Invoke(ref reader, resolver);
+            }
+
             class CompiledMethods
             {
                 public readonly Func<object, IJsonFormatterResolver, byte[]> serialize1;
                 public readonly Action<Stream, object, IJsonFormatterResolver> serialize2;
+                public readonly SerializeJsonWriter serialize3;
                 public readonly Func<object, IJsonFormatterResolver, ArraySegment<byte>> serializeUnsafe;
                 public readonly Func<object, IJsonFormatterResolver, string> toJsonString;
                 public readonly Func<string, IJsonFormatterResolver, object> deserialize1;
                 public readonly Func<byte[], int, IJsonFormatterResolver, object> deserialize2;
                 public readonly Func<Stream, IJsonFormatterResolver, object> deserialize3;
+                public readonly DeserializeJsonReader deserialize4;
 
                 public CompiledMethods(Type type)
                 {
@@ -238,6 +263,19 @@ namespace Utf8Json
                         il.Emit(OpCodes.Ret);
 
                         serialize2 = CreateDelegate<Action<Stream, object, IJsonFormatterResolver>>(dm);
+                    }
+                    {
+                        var dm = new DynamicMethod("serialize3", null, new[] { typeof(JsonWriter).MakeByRefType(), typeof(object), typeof(IJsonFormatterResolver) }, type.Module, true);
+                        var il = dm.GetILGenerator();
+
+                        il.EmitLdarg(0); // ref writer
+                        il.EmitLdarg(1);
+                        il.EmitUnboxOrCast(type);
+                        il.EmitLdarg(2);
+                        il.EmitCall(GetMethod(type, "Serialize", new[] { typeof(JsonWriter).MakeByRefType(), null, typeof(IJsonFormatterResolver) }));
+                        il.Emit(OpCodes.Ret);
+
+                        serialize3 = CreateDelegate<SerializeJsonWriter>(dm);
                     }
                     {
                         var dm = new DynamicMethod("serializeUnsafe", typeof(ArraySegment<byte>), new[] { typeof(object), typeof(IJsonFormatterResolver) }, type.Module, true);
@@ -299,6 +337,18 @@ namespace Utf8Json
                         il.Emit(OpCodes.Ret);
 
                         deserialize3 = CreateDelegate<Func<Stream, IJsonFormatterResolver, object>>(dm);
+                    }
+                    {
+                        var dm = new DynamicMethod("Deserialize", typeof(object), new[] { typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
+                        var il = dm.GetILGenerator();
+
+                        il.EmitLdarg(0); // ref reader
+                        il.EmitLdarg(1);
+                        il.EmitCall(GetMethod(type, "Deserialize", new[] { typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }));
+                        il.EmitBoxOrDoNothing(type);
+                        il.Emit(OpCodes.Ret);
+
+                        deserialize4 = CreateDelegate<DeserializeJsonReader>(dm);
                     }
                 }
 

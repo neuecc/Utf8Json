@@ -69,6 +69,19 @@ namespace Utf8Json
             return writer.ToUtf8ByteArray();
         }
 
+        public static void Serialize<T>(ref JsonWriter writer, T value)
+        {
+            Serialize<T>(ref writer, value, defaultResolver);
+        }
+
+        public static void Serialize<T>(ref JsonWriter writer, T value, IJsonFormatterResolver resolver)
+        {
+            if (resolver == null) resolver = DefaultResolver;
+
+            var formatter = resolver.GetFormatterWithVerify<T>();
+            formatter.Serialize(ref writer, value, resolver);
+        }
+
         /// <summary>
         /// Serialize to stream.
         /// </summary>
@@ -160,6 +173,19 @@ namespace Utf8Json
             if (resolver == null) resolver = DefaultResolver;
 
             var reader = new JsonReader(bytes, offset);
+            var formatter = resolver.GetFormatterWithVerify<T>();
+            return formatter.Deserialize(ref reader, resolver);
+        }
+
+        public static T Deserialize<T>(ref JsonReader reader)
+        {
+            return Deserialize<T>(ref reader, defaultResolver);
+        }
+
+        public static T Deserialize<T>(ref JsonReader reader, IJsonFormatterResolver resolver)
+        {
+            if (resolver == null) resolver = DefaultResolver;
+
             var formatter = resolver.GetFormatterWithVerify<T>();
             return formatter.Deserialize(ref reader, resolver);
         }
