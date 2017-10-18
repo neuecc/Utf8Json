@@ -254,6 +254,9 @@ namespace Utf8Json
                     case 0x0A: // Line feed or New line
                     case 0x0D: // Carriage return
                         continue;
+                    case (byte)'/': // BeginComment
+                        i = ReadComment(bytes, i);
+                        continue;
                     // optimize skip jumptable
                     case 0:
                     case 1:
@@ -284,6 +287,20 @@ namespace Utf8Json
                     case 29:
                     case 30:
                     case 31:
+                    case 33:
+                    case 34:
+                    case 35:
+                    case 36:
+                    case 37:
+                    case 38:
+                    case 39:
+                    case 40:
+                    case 41:
+                    case 42:
+                    case 43:
+                    case 44:
+                    case 45:
+                    case 46:
                     default:
                         offset = i;
                         return; // end
@@ -1142,6 +1159,41 @@ namespace Utf8Json
 
             END:
             return new ArraySegment<byte>(bytes, initialOffset, offset - initialOffset);
+        }
+
+        // return last offset.
+        static int ReadComment(byte[] bytes, int offset)
+        {
+            // current token is '/'
+            if (bytes[offset + 1] == '/')
+            {
+                // single line
+                offset += 2;
+                for (int i = offset; i < bytes.Length; i++)
+                {
+                    if (bytes[i] == '\r' || bytes[i] == '\n')
+                    {
+                        return i;
+                    }
+                }
+
+                throw new JsonParsingException("Can not find end token of single line comment(\r or \n).");
+            }
+            else if (bytes[offset + 1] == '*')
+            {
+
+                offset += 2; // '/' + '*';
+                for (int i = offset; i < bytes.Length; i++)
+                {
+                    if (bytes[i] == '*' && bytes[i + 1] == '/')
+                    {
+                        return i + 1;
+                    }
+                }
+                throw new JsonParsingException("Can not find end token of multi line comment(*/).");
+            }
+
+            return offset;
         }
 
         internal static class StringBuilderCache

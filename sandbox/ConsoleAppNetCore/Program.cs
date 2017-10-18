@@ -311,10 +311,6 @@ namespace ConsoleAppNetCore
         static unsafe void Main(string[] args)
         {
 
-            DynamicObjectResolver.Default.GetFormatter<E>();
-            //DynamicObjectResolver.Default.GetFormatter<B>();
-            //DynamicObjectResolver.Default.GetFormatter<C>();
-            //DynamicObjectResolver.Default.GetFormatter<D>();
 
 
         }
