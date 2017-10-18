@@ -14,6 +14,8 @@ namespace Utf8Json
     public struct JsonReader
     {
         static readonly ArraySegment<byte> nullTokenSegment = new ArraySegment<byte>(new byte[] { 110, 117, 108, 108 }, 0, 4);
+        static readonly byte[] bom = Encoding.UTF8.GetPreamble();
+
 
         readonly byte[] bytes;
         int offset;
@@ -28,6 +30,15 @@ namespace Utf8Json
         {
             this.bytes = bytes;
             this.offset = offset;
+
+            // skip bom
+            if (bytes.Length >= 3)
+            {
+                if (bytes[offset] == bom[0] && bytes[offset + 1] == bom[1] && bytes[offset + 2] == bom[2])
+                {
+                    this.offset = offset += 3;
+                }
+            }
         }
 
         JsonParsingException CreateParsingException(string expected)
