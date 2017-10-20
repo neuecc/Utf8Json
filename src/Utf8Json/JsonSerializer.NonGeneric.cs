@@ -97,6 +97,44 @@ namespace Utf8Json
                 GetOrAdd(type).serialize2.Invoke(stream, value, resolver);
             }
 
+#if NETSTANDARD
+
+            /// <summary>
+            /// Serialize to stream.
+            /// </summary>
+            public static System.Threading.Tasks.Task SerializeAsync(Stream stream, object value)
+            {
+                if (value == null) { return SerializeAsync<object>(stream, value); }
+                return SerializeAsync(value.GetType(), stream, value, defaultResolver);
+            }
+
+            /// <summary>
+            /// Serialize to stream.
+            /// </summary>
+            public static System.Threading.Tasks.Task SerializeAsync(Type type, Stream stream, object value)
+            {
+                return SerializeAsync(type, stream, value, defaultResolver);
+            }
+
+            /// <summary>
+            /// Serialize to stream with specified resolver.
+            /// </summary>
+            public static System.Threading.Tasks.Task SerializeAsync(Stream stream, object value, IJsonFormatterResolver resolver)
+            {
+                if (value == null) { return SerializeAsync<object>(stream, value, resolver); }
+                return SerializeAsync(value.GetType(), stream, value, resolver);
+            }
+
+            /// <summary>
+            /// Serialize to stream with specified resolver.
+            /// </summary>
+            public static System.Threading.Tasks.Task SerializeAsync(Type type, Stream stream, object value, IJsonFormatterResolver resolver)
+            {
+                return GetOrAdd(type).serializeAsync.Invoke(stream, value, resolver);
+            }
+
+#endif
+
             public static void Serialize(Type type, ref JsonWriter writer, object value)
             {
                 Serialize(type, ref writer, value, defaultResolver);
@@ -225,6 +263,20 @@ namespace Utf8Json
                 return GetOrAdd(type).deserialize4.Invoke(ref reader, resolver);
             }
 
+#if NETSTANDARD
+
+            public static System.Threading.Tasks.Task<object> DeserializeAsync(Type type, Stream stream)
+            {
+                return DeserializeAsync(type, stream, defaultResolver);
+            }
+
+            public static System.Threading.Tasks.Task<object> DeserializeAsync(Type type, Stream stream, IJsonFormatterResolver resolver)
+            {
+                return GetOrAdd(type).deserializeAsync.Invoke(stream, resolver);
+            }
+
+#endif
+
             class CompiledMethods
             {
                 public readonly Func<object, IJsonFormatterResolver, byte[]> serialize1;
@@ -236,6 +288,11 @@ namespace Utf8Json
                 public readonly Func<byte[], int, IJsonFormatterResolver, object> deserialize2;
                 public readonly Func<Stream, IJsonFormatterResolver, object> deserialize3;
                 public readonly DeserializeJsonReader deserialize4;
+
+#if NETSTANDARD
+                public readonly Func<Stream, object, IJsonFormatterResolver, System.Threading.Tasks.Task> serializeAsync;
+                public readonly Func<Stream, IJsonFormatterResolver, System.Threading.Tasks.Task<object>> deserializeAsync;
+#endif
 
                 public CompiledMethods(Type type)
                 {
@@ -350,7 +407,47 @@ namespace Utf8Json
 
                         deserialize4 = CreateDelegate<DeserializeJsonReader>(dm);
                     }
+
+#if NETSTANDARD
+
+                    {
+                        var dm = new DynamicMethod("SerializeAsync", typeof(System.Threading.Tasks.Task), new[] { typeof(Stream), typeof(object), typeof(IJsonFormatterResolver) }, type.Module, true);
+                        var il = dm.GetILGenerator();
+
+                        il.EmitLdarg(0); // stream
+                        il.EmitLdarg(1);
+                        il.EmitUnboxOrCast(type);
+                        il.EmitLdarg(2);
+                        il.EmitCall(GetMethod(type, "SerializeAsync", new[] { typeof(Stream), null, typeof(IJsonFormatterResolver) }));
+                        il.Emit(OpCodes.Ret);
+
+                        serializeAsync = CreateDelegate<Func<Stream, object, IJsonFormatterResolver, System.Threading.Tasks.Task>>(dm);
+                    }
+
+                    {
+                        var dm = new DynamicMethod("DeserializeAsync", typeof(System.Threading.Tasks.Task<object>), new[] { typeof(Stream), typeof(IJsonFormatterResolver) }, type.Module, true);
+                        var il = dm.GetILGenerator();
+
+                        il.EmitLdarg(0);
+                        il.EmitLdarg(1);
+                        il.EmitCall(GetMethod(type, "DeserializeAsync", new[] { typeof(Stream), typeof(IJsonFormatterResolver) }));
+                        il.EmitCall(typeof(CompiledMethods).GetMethod("TaskCast", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).MakeGenericMethod(type));
+                        il.Emit(OpCodes.Ret);
+
+                        deserializeAsync = CreateDelegate<Func<Stream, IJsonFormatterResolver, System.Threading.Tasks.Task<object>>>(dm);
+                    }
+#endif
                 }
+
+#if NETSTANDARD
+
+                static async System.Threading.Tasks.Task<object> TaskCast<T>(System.Threading.Tasks.Task<T> task)
+                {
+                    var t = await task.ConfigureAwait(false);
+                    return (object)t;
+                }
+
+#endif
 
                 static T CreateDelegate<T>(DynamicMethod dm)
                 {

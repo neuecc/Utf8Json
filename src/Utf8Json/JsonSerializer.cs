@@ -101,6 +101,29 @@ namespace Utf8Json
             stream.Write(buffer.Array, buffer.Offset, buffer.Count);
         }
 
+#if NETSTANDARD
+
+        /// <summary>
+        /// Serialize to stream(write async).
+        /// </summary>
+        public static System.Threading.Tasks.Task SerializeAsync<T>(Stream stream, T value)
+        {
+            return SerializeAsync<T>(stream, value, defaultResolver);
+        }
+
+        /// <summary>
+        /// Serialize to stream(write async) with specified resolver.
+        /// </summary>
+        public static System.Threading.Tasks.Task SerializeAsync<T>(Stream stream, T value, IJsonFormatterResolver resolver)
+        {
+            if (resolver == null) resolver = DefaultResolver;
+
+            var buffer = SerializeUnsafe(value, resolver);
+            return stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
+#endif
+
         /// <summary>
         /// Serialize to binary. Get the raw memory pool byte[]. The result can not share across thread and can not hold, so use quickly.
         /// </summary>
@@ -233,6 +256,49 @@ namespace Utf8Json
                 return Deserialize<T>(buf, resolver);
             }
         }
+
+#if NETSTANDARD
+
+        public static System.Threading.Tasks.Task<T> DeserializeAsync<T>(Stream stream)
+        {
+            return DeserializeAsync<T>(stream, defaultResolver);
+        }
+
+        public static async System.Threading.Tasks.Task<T> DeserializeAsync<T>(Stream stream, IJsonFormatterResolver resolver)
+        {
+            if (resolver == null) resolver = DefaultResolver;
+
+            var buffer = BufferPool.Default.Rent();
+            var buf = buffer;
+            try
+            {
+                int length = 0;
+                int read;
+                while ((read = await stream.ReadAsync(buf, length, buf.Length - length).ConfigureAwait(false)) > 0)
+                {
+                    length += read;
+                    if (length == buf.Length)
+                    {
+                        BinaryUtil.FastResize(ref buf, length * 2);
+                    }
+                }
+
+                // when token is number, can not use from pool(can not find end line).
+                var token = new JsonReader(buf).GetCurrentJsonToken();
+                if (token == JsonToken.Number)
+                {
+                    buf = BinaryUtil.FastCloneWithResize(buf, length);
+                }
+
+                return Deserialize<T>(buf, resolver);
+            }
+            finally
+            {
+                BufferPool.Default.Return(buffer);
+            }
+        }
+
+#endif
 
         static int FillFromStream(Stream input, ref byte[] buffer)
         {
