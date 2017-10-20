@@ -128,6 +128,7 @@ namespace Utf8Json.Resolvers
                 {typeof(System.Numerics.BigInteger?), new StaticNullableFormatter<System.Numerics.BigInteger>(BigIntegerFormatter.Default)},
                 {typeof(System.Numerics.Complex), ComplexFormatter.Default},
                 {typeof(System.Numerics.Complex?), new StaticNullableFormatter<System.Numerics.Complex>(ComplexFormatter.Default)},
+                {typeof(System.Dynamic.ExpandoObject), ExpandoObjectFormatter.Default },
                 {typeof(System.Threading.Tasks.Task), TaskUnitFormatter.Default},
     #endif
             };

@@ -8,6 +8,7 @@ using Utf8Json.Internal;
 using System.Text.RegularExpressions;
 
 #if NETSTANDARD
+using System.Dynamic;
 using System.Numerics;
 using System.Threading.Tasks;
 #endif
@@ -565,6 +566,33 @@ namespace Utf8Json.Formatters
         }
     }
 
+    public sealed class ExpandoObjectFormatter : IJsonFormatter<ExpandoObject>
+    {
+        public static readonly IJsonFormatter<ExpandoObject> Default = new ExpandoObjectFormatter();
+
+        public void Serialize(ref JsonWriter writer, ExpandoObject value, IJsonFormatterResolver formatterResolver)
+        {
+            var formatter = formatterResolver.GetFormatterWithVerify<IDictionary<string, object>>();
+            formatter.Serialize(ref writer, (IDictionary<string, object>)value, formatterResolver);
+        }
+
+        public ExpandoObject Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var result = new ExpandoObject() as IDictionary<string, object>;
+
+            var objectFormatter = formatterResolver.GetFormatterWithVerify<object>();
+            var c = 0;
+            while (reader.ReadIsInObject(ref c))
+            {
+                var propName = reader.ReadPropertyName();
+                var value = objectFormatter.Deserialize(ref reader, formatterResolver);
+                result.Add(propName, value);
+            }
+
+            return (ExpandoObject)result;
+        }
+    }
+
     public sealed class LazyFormatter<T> : IJsonFormatter<Lazy<T>>
     {
         public void Serialize(ref JsonWriter writer, Lazy<T> value, IJsonFormatterResolver formatterResolver)
@@ -643,7 +671,7 @@ namespace Utf8Json.Formatters
     }
 
 #endif
-        }
+}
 
 namespace Utf8Json.Formatters.Internal
 {
