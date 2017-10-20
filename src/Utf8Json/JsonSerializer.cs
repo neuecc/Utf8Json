@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Text;
 using Utf8Json.Internal;
 using Utf8Json.Resolvers;
 
@@ -299,6 +301,128 @@ namespace Utf8Json
         }
 
 #endif
+
+        public static string PrettyPrint(byte[] json)
+        {
+            return PrettyPrint(json, 0);
+        }
+
+        public static string PrettyPrint(byte[] json, int offset)
+        {
+            var reader = new JsonReader(json, offset);
+            var writer = new JsonWriter(MemoryPool.GetBuffer());
+            WritePrittyPrint(ref reader, ref writer, 0);
+            return writer.ToString();
+        }
+
+        public static string PrettyPrint(string json)
+        {
+            var reader = new JsonReader(Encoding.UTF8.GetBytes(json));
+            var writer = new JsonWriter(MemoryPool.GetBuffer());
+            WritePrittyPrint(ref reader, ref writer, 0);
+            return writer.ToString();
+        }
+
+        public static byte[] PrettyPrintByteArray(byte[] json)
+        {
+            return PrettyPrintByteArray(json, 0);
+        }
+
+        public static byte[] PrettyPrintByteArray(byte[] json, int offset)
+        {
+            var reader = new JsonReader(json, offset);
+            var writer = new JsonWriter(MemoryPool.GetBuffer());
+            WritePrittyPrint(ref reader, ref writer, 0);
+            return writer.ToUtf8ByteArray();
+        }
+
+        public static byte[] PrettyPrintByteArray(string json)
+        {
+            var reader = new JsonReader(Encoding.UTF8.GetBytes(json));
+            var writer = new JsonWriter(MemoryPool.GetBuffer());
+            WritePrittyPrint(ref reader, ref writer, 0);
+            return writer.ToUtf8ByteArray();
+        }
+
+        static readonly byte[][] indent = Enumerable.Range(0, 100).Select(x => Encoding.UTF8.GetBytes(new string(' ', x * 2))).ToArray();
+        static readonly byte[] newLine = Encoding.UTF8.GetBytes(Environment.NewLine);
+
+        static void WritePrittyPrint(ref JsonReader reader, ref JsonWriter writer, int depth)
+        {
+            var token = reader.GetCurrentJsonToken();
+            switch (token)
+            {
+                case JsonToken.BeginObject:
+                    {
+                        writer.WriteBeginObject();
+                        writer.WriteRaw(newLine);
+                        var c = 0;
+                        while (reader.ReadIsInObject(ref c))
+                        {
+                            if (c != 1)
+                            {
+                                writer.WriteRaw((byte)',');
+                                writer.WriteRaw(newLine);
+                            }
+                            writer.WriteRaw(indent[depth + 1]);
+                            writer.WritePropertyName(reader.ReadPropertyName());
+                            writer.WriteRaw((byte)' ');
+                            WritePrittyPrint(ref reader, ref writer, depth + 1);
+                        }
+                        writer.WriteRaw(newLine);
+                        writer.WriteRaw(indent[depth]);
+                        writer.WriteEndObject();
+                    }
+                    break;
+                case JsonToken.BeginArray:
+                    {
+                        writer.WriteBeginArray();
+                        writer.WriteRaw(newLine);
+                        var c = 0;
+                        while (reader.ReadIsInArray(ref c))
+                        {
+                            if (c != 1)
+                            {
+                                writer.WriteRaw((byte)',');
+                                writer.WriteRaw(newLine);
+                            }
+                            writer.WriteRaw(indent[depth + 1]);
+                            WritePrittyPrint(ref reader, ref writer, depth + 1);
+                        }
+                        writer.WriteRaw(newLine);
+                        writer.WriteRaw(indent[depth]);
+                        writer.WriteEndArray();
+                    }
+                    break;
+                case JsonToken.Number:
+                    {
+                        var v = reader.ReadDouble();
+                        writer.WriteDouble(v);
+                    }
+                    break;
+                case JsonToken.String:
+                    {
+                        var v = reader.ReadString();
+                        writer.WriteString(v);
+                    }
+                    break;
+                case JsonToken.True:
+                case JsonToken.False:
+                    {
+                        var v = reader.ReadBoolean();
+                        writer.WriteBoolean(v);
+                    }
+                    break;
+                case JsonToken.Null:
+                    {
+                        var v = reader.ReadIsNull();
+                        writer.WriteNull();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
 
         static int FillFromStream(Stream input, ref byte[] buffer)
         {

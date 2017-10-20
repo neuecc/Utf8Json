@@ -310,8 +310,14 @@ namespace ConsoleAppNetCore
 
         static unsafe void Main(string[] args)
         {
+            var hoge = new { Url = "foo", Header = new { UserAgent = "a", Referer = "b", huga = new { tako = 100, nano = 999.999, yeah = new[] { 1, 10, 100 }, zero = new[] { true, false } } } };
 
+            var huga = JsonSerializer.ToJsonString(hoge);
 
+            var aaa = JsonSerializer.PrettyPrint(huga);
+            Console.WriteLine(aaa);
+
+            var yeah = JsonSerializer.Deserialize<object>(aaa);
 
         }
 
