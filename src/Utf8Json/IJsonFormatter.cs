@@ -20,4 +20,14 @@ namespace Utf8Json
         void SerializeToPropertyName(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver);
         T DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver);
     }
+
+    public static class JsonFormatterExtensions
+    {
+        public static string ToJsonString<T>(this IJsonFormatter<T> formatter, T value, IJsonFormatterResolver formatterResolver)
+        {
+            var writer = new JsonWriter();
+            formatter.Serialize(ref writer, value, formatterResolver);
+            return writer.ToString();
+        }
+    }
 }
