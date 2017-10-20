@@ -24,6 +24,9 @@ namespace DynamicCodeDumper
                 var seq = Enumerable.Range(1, 10).Select(x => x);
                 DynamicObjectResolver.Default.GetFormatterDynamic(seq.GetType());
 
+
+                var yahhoi = CompositeResolver.Create(new IJsonFormatter[0], new[] { StandardResolver.Default });
+
                 //DynamicObjectResolver.Default.GetFormatter<System.Collections.ICollection>();
                 //DynamicObjectResolver.Default.GetFormatter<Test2>();
                 //DynamicObjectResolver.Default.GetFormatter<TargetClassContractless>();
@@ -51,8 +54,9 @@ namespace DynamicCodeDumper
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
+                var a3 = DynamicCompositeResolver.Save();
 
-                Verify(a1, a2);
+                Verify(a3);
 #endif
             }
         }

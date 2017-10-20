@@ -180,6 +180,11 @@ namespace ConsoleAppNetCore
         public string Value { get; set; }
     }
 
+    public class MyEnumType
+    {
+        public MyEnum YeaHore { get; set; }
+    }
+
     public class Program
     {
         public const char HighSurrogateStart = '\ud800';
@@ -310,14 +315,11 @@ namespace ConsoleAppNetCore
 
         static unsafe void Main(string[] args)
         {
-            var hoge = new { Url = "foo", Header = new { UserAgent = "a", Referer = "b", huga = new { tako = 100, nano = 999.999, yeah = new[] { 1, 10, 100 }, zero = new[] { true, false } } } };
+            var resolver = CompositeResolver.Create(new IJsonFormatter[0], new[] { EnumResolver.Default, StandardResolver.CamelCase });
 
-            var huga = JsonSerializer.ToJsonString(hoge);
 
-            var aaa = JsonSerializer.PrettyPrint(huga);
-            Console.WriteLine(aaa);
-
-            var yeah = JsonSerializer.Deserialize<object>(aaa);
+            var json = JsonSerializer.ToJsonString(new MyEnumType { YeaHore = MyEnum.Grape }, resolver);
+            Console.WriteLine(json);
 
         }
 
