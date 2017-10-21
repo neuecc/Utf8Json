@@ -23,7 +23,7 @@ namespace Utf8Json.Internal
 #if NETSTANDARD
         public unsafe void Add(string str, int value)
         {
-            Add(Encoding.UTF8.GetBytes(str), value);
+            Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(str), value);
         }
 
         public unsafe void Add(byte[] bytes, int value)
@@ -85,7 +85,7 @@ namespace Utf8Json.Internal
 
         public void Add(string str, int value)
         {
-            Add(Encoding.UTF8.GetBytes(str), value);
+            Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(str), value);
         }
 
         public unsafe void Add(byte[] bytes, int value)

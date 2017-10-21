@@ -1069,6 +1069,13 @@ namespace Utf8Json
             }
         }
 
+        public ArraySegment<byte> ReadNextBlockSegment()
+        {
+            var startOffset = offset;
+            ReadNextBlock();
+            return new ArraySegment<byte>(bytes, startOffset, offset - startOffset);
+        }
+
         public sbyte ReadSByte()
         {
             return checked((sbyte)ReadInt64());
