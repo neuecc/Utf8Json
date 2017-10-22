@@ -12,9 +12,9 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal struct CachedPower
     {
-        public readonly uint64_t significand;
-        public readonly int16_t binary_exponent;
-        public readonly int16_t decimal_exponent;
+        public readonly ulong significand;
+        public readonly short binary_exponent;
+        public readonly short decimal_exponent;
 
         public CachedPower(ulong significand, short binary_exponent, short decimal_exponent)
         {

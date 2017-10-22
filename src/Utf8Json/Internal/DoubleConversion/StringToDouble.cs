@@ -88,7 +88,7 @@ namespace Utf8Json.Internal.DoubleConversion
         const int kMinDecimalPower = -324;
 
         // 2^64 = 18446744073709551616
-        const uint64_t kMaxUint64 = 0xFFFFFFFFFFFFFFFF;
+        const ulong kMaxUint64 = 0xFFFFFFFFFFFFFFFF;
 
         static readonly double[] exact_powers_of_ten = new[]{
             1.0,  // 10^0
@@ -197,10 +197,10 @@ namespace Utf8Json.Internal.DoubleConversion
         // When the string starts with "1844674407370955161" no further digit is read.
         // Since 2^64 = 18446744073709551616 it would still be possible read another
         // digit if it was less or equal than 6, but this would complicate the code.
-        static uint64_t ReadUint64(Vector buffer,
+        static ulong ReadUint64(Vector buffer,
                            out int number_of_read_digits)
         {
-            uint64_t result = 0;
+            ulong result = 0;
             var i = 0;
             while (i < buffer.length() && result <= (kMaxUint64 / 10 - 1))
             {
@@ -394,7 +394,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 precision_digits_count -= shift_amount;
             }
             // We use uint64_ts now. This only works if the DiyFp uses uint64_ts too.
-            uint64_t one64 = 1;
+            ulong one64 = 1;
             var precision_bits_mask = (one64 << precision_digits_count) - 1;
             var precision_bits = input.f & precision_bits_mask;
             var half_way = one64 << (precision_digits_count - 1);

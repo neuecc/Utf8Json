@@ -249,7 +249,7 @@ namespace Utf8Json.Internal
                     var info = Data as FieldInfo;
                     addition = TrimVersion.Replace(info.DeclaringType.FullName, "") + "." + info.Name;
                 }
-                else if (Data is String)
+                else if (Data is string)
                 {
                     addition = (string)Data;
                 }

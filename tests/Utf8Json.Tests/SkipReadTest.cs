@@ -31,9 +31,9 @@ namespace Utf8Json.Tests
             CreateReader("        3").ReadSByte().Is((sbyte)3);
             CreateReader("        1.4").ReadSingle().Is((float)1.4);
             CreateReader("        \"foo\"").ReadString().Is("foo");
-            CreateReader("        1").ReadUInt16().Is((UInt16)1);
-            CreateReader("        1").ReadUInt32().Is((UInt32)1);
-            CreateReader("        1").ReadUInt64().Is((UInt64)1);
+            CreateReader("        1").ReadUInt16().Is((ushort)1);
+            CreateReader("        1").ReadUInt32().Is((uint)1);
+            CreateReader("        1").ReadUInt64().Is((ulong)1);
         }
     }
 }

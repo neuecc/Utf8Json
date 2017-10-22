@@ -284,17 +284,17 @@ namespace Utf8Json.Internal.DoubleConversion
         const int kExponentBias = 0x7F + kPhysicalSignificandSize;
         const int kDenormalExponent = -kExponentBias + 1;
         const int kMaxExponent = 0xFF - kExponentBias;
-        const uint32_t kInfinity = 0x7F800000;
-        const uint32_t kNaN = 0x7FC00000;
+        const uint kInfinity = 0x7F800000;
+        const uint kNaN = 0x7FC00000;
 
-        public const uint32_t kSignMask = 0x80000000;
-        public const uint32_t kExponentMask = 0x7F800000;
-        public const uint32_t kSignificandMask = 0x007FFFFF;
-        public const uint32_t kHiddenBit = 0x00800000;
+        public const uint kSignMask = 0x80000000;
+        public const uint kExponentMask = 0x7F800000;
+        public const uint kSignificandMask = 0x007FFFFF;
+        public const uint kHiddenBit = 0x00800000;
         public const int kPhysicalSignificandSize = 23;  // Excludes the hidden bit.
         public const int kSignificandSize = 24;
 
-        uint32_t d32_;
+        uint d32_;
 
         public Single(float f)
         {
@@ -309,7 +309,7 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         // Returns the single's bit as uint64.
-        public uint32_t AsUint32()
+        public uint AsUint32()
         {
             return d32_;
         }
@@ -323,7 +323,7 @@ namespace Utf8Json.Internal.DoubleConversion
             return biased_e - kExponentBias;
         }
 
-        public uint32_t Significand()
+        public uint Significand()
         {
             var d32 = AsUint32();
             var significand = d32 & kSignificandMask;

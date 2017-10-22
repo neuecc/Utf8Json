@@ -40,7 +40,7 @@ namespace Utf8Json.Internal
             {
                 var c = s[i];
 
-                if (Char.IsUpper(c))
+                if (char.IsUpper(c))
                 {
                     // first
                     if (i == 0)

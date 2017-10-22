@@ -276,7 +276,7 @@ namespace Utf8Json
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void WriteSingle(Single value)
+        public void WriteSingle(float value)
         {
             offset += Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(ref buffer, offset, value);
         }

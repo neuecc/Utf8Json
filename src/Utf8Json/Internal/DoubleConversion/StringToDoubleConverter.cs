@@ -160,7 +160,7 @@ namespace Utf8Json.Internal.DoubleConversion
         static readonly byte[] kWhitespaceTable7 = new byte[] { 32, 13, 10, 9, 11, 12 };
         static readonly int kWhitespaceTable7Length = kWhitespaceTable7.Length;
 
-        static readonly UInt16[] kWhitespaceTable16 = new UInt16[]{
+        static readonly ushort[] kWhitespaceTable16 = new ushort[]{
               160, 8232, 8233, 5760, 6158, 8192, 8193, 8194, 8195,
               8196, 8197, 8198, 8199, 8200, 8201, 8202, 8239, 8287, 12288, 65279
         };

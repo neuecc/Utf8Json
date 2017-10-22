@@ -228,11 +228,11 @@ namespace Utf8Json.Internal.DoubleConversion
         //  Modifies the generated digits in the buffer to approach (round towards) w.
         static bool RoundWeed(byte[] buffer,
                               int length,
-                              uint64_t distance_too_high_w,
-                              uint64_t unsafe_interval,
-                              uint64_t rest,
-                              uint64_t ten_kappa,
-                              uint64_t unit)
+                              ulong distance_too_high_w,
+                              ulong unsafe_interval,
+                              ulong rest,
+                              ulong ten_kappa,
+                              ulong unit)
         {
             var small_distance = distance_too_high_w - unit;
             var big_distance = distance_too_high_w + unit;
@@ -348,9 +348,9 @@ namespace Utf8Json.Internal.DoubleConversion
         // http://graphics.stanford.edu/~seander/bithacks.html#IntegerLog10
         static readonly uint[] kSmallPowersOfTen = new uint[] { 0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
-        static void BiggestPowerTen(uint32_t number,
+        static void BiggestPowerTen(uint number,
                                     int number_bits,
-                                    out uint32_t power,
+                                    out uint power,
                                     out int exponent_plus_one)
         {
             // 1233/4096 is approximately 1/lg(10).
@@ -427,7 +427,7 @@ namespace Utf8Json.Internal.DoubleConversion
             // We will now start by generating the digits within the uncertain
             // interval. Later we will weed out representations that lie outside the safe
             // interval and thus _might_ lie outside the correct interval.
-            uint64_t unit = 1;
+            ulong unit = 1;
             var too_low = new DiyFp(low.f - unit, low.e);
             var too_high = new DiyFp(high.f + unit, high.e);
             // too_low and too_high are guaranteed to lie outside the interval we want the
@@ -440,12 +440,12 @@ namespace Utf8Json.Internal.DoubleConversion
             // such that:   too_low < buffer * 10^kappa < too_high
             // We use too_high for the digit_generation and stop as soon as possible.
             // If we stop early we effectively round down.
-            var one = new DiyFp((uint64_t)(1) << -w.e, w.e);
+            var one = new DiyFp((ulong)(1) << -w.e, w.e);
             // Division by one is a shift.
-            var integrals = (uint32_t)(too_high.f >> -one.e);
+            var integrals = (uint)(too_high.f >> -one.e);
             // Modulo by one is an and.
             var fractionals = too_high.f & (one.f - 1);
-            uint32_t divisor;
+            uint divisor;
             int divisor_exponent_plus_one;
             BiggestPowerTen(integrals, DiyFp.kSignificandSize - (-one.e),
                             out divisor, out divisor_exponent_plus_one);
@@ -465,7 +465,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 // Note that kappa now equals the exponent of the divisor and that the
                 // invariant thus holds again.
                 var rest =
-                    ((uint64_t)(integrals) << -one.e) + fractionals;
+                    ((ulong)(integrals) << -one.e) + fractionals;
                 // Invariant: too_high = buffer * 10^kappa + DiyFp(rest, one.e())
                 // Reminder: unsafe_interval.e() == one.e()
                 if (rest < unsafe_interval.f)
@@ -474,7 +474,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     // that lies within the unsafe interval.
                     return RoundWeed(buffer, length, DiyFp.Minus(ref too_high, ref w).f,
                                      unsafe_interval.f, rest,
-                                     (uint64_t)(divisor) << -one.e, unit);
+                                     (ulong)(divisor) << -one.e, unit);
                 }
                 divisor /= 10;
             }

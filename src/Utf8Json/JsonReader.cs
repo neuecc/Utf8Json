@@ -1090,7 +1090,7 @@ namespace Utf8Json
             return v;
         }
 
-        public Single ReadSingle()
+        public float ReadSingle()
         {
             SkipWhiteSpace();
             int readCount;
@@ -1103,7 +1103,7 @@ namespace Utf8Json
             return v;
         }
 
-        public Double ReadDouble()
+        public double ReadDouble()
         {
             SkipWhiteSpace();
             int readCount;

@@ -150,11 +150,11 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public sealed class NullableCharFormatter : IJsonFormatter<Char?>
+    public sealed class NullableCharFormatter : IJsonFormatter<char?>
     {
         public static readonly NullableCharFormatter Default = new NullableCharFormatter();
 
-        public void Serialize(ref JsonWriter writer, Char? value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, char? value, IJsonFormatterResolver formatterResolver)
         {
             if (value == null)
             {
@@ -166,7 +166,7 @@ namespace Utf8Json.Formatters
             }
         }
 
-        public Char? Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public char? Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull())
             {

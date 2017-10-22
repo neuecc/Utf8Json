@@ -101,7 +101,7 @@ namespace DynamicCodeDumper
                         case OperandType.InlineNone:
                             break;
                         case OperandType.InlineBrTarget:
-                            // data = 
+                            // data =
                             reader.ReadUInt32();
                             break;
                         case OperandType.InlineSwitch:
@@ -237,7 +237,7 @@ namespace DynamicCodeDumper
                     var info = Data as FieldInfo;
                     addition = TrimVersion.Replace(info.DeclaringType.FullName, "") + "." + info.Name;
                 }
-                else if (Data is String)
+                else if (Data is string)
                 {
                     addition = (string)Data;
                 }

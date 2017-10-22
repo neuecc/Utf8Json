@@ -294,13 +294,13 @@ public class StringToDoubleBenchmark
     [Benchmark]
     public double DoubleParse()
     {
-        return Double.Parse(str);
+        return double.Parse(str);
     }
 
     [Benchmark]
-    public Double DoubleParseWithDecode()
+    public double DoubleParseWithDecode()
     {
-        return Double.Parse(Encoding.UTF8.GetString(strBytes));
+        return double.Parse(Encoding.UTF8.GetString(strBytes));
     }
 
 
