@@ -6,9 +6,8 @@ namespace Utf8Json.CodeGenerator
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            
         }
 
         static void Output(string path, string text)
