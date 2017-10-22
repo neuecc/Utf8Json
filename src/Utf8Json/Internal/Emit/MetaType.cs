@@ -103,10 +103,7 @@ namespace Utf8Json.Internal.Emit
                                         ctor = null;
                                         continue;
                                     }
-                                    else
-                                    {
-                                        throw new InvalidOperationException("duplicate matched constructor parameter name:" + type.FullName + " parameterName:" + item.Name + " paramterType:" + item.ParameterType.Name);
-                                    }
+                                    throw new InvalidOperationException("duplicate matched constructor parameter name:" + type.FullName + " parameterName:" + item.Name + " paramterType:" + item.ParameterType.Name);
                                 }
 
                                 paramMember = hasKey.First().Value;
@@ -150,11 +147,8 @@ namespace Utf8Json.Internal.Emit
                 ctor = ctorEnumerator.Current;
                 return true;
             }
-            else
-            {
-                ctor = null;
-                return false;
-            }
+            ctor = null;
+            return false;
         }
     }
 }

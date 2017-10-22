@@ -78,10 +78,7 @@ public class MyPerson
         {
             return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 }
 

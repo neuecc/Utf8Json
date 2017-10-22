@@ -19,10 +19,7 @@ namespace Utf8Json.Internal
             {
                 return unchecked((int)FarmHash.Hash32(bytes, offset, count));
             }
-            else
-            {
-                return unchecked((int)FarmHash.Hash64(bytes, offset, count));
-            }
+            return unchecked((int)FarmHash.Hash64(bytes, offset, count));
         }
 
 #endif

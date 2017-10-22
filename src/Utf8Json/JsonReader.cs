@@ -244,10 +244,7 @@ namespace Utf8Json
                         return JsonToken.None;
                 }
             }
-            else
-            {
-                return JsonToken.None;
-            }
+            return JsonToken.None;
         }
 
 #if NETSTANDARD
@@ -332,10 +329,7 @@ namespace Utf8Json
                 offset += 4;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
 
             ERROR:
             throw CreateParsingException("null");
@@ -349,10 +343,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsBeginArrayWithVerify()
@@ -368,10 +359,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsEndArrayWithVerify()
@@ -387,14 +375,11 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
+            if (count++ != 0)
             {
-                if (count++ != 0)
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
-                return false;
+                ReadIsValueSeparatorWithVerify();
             }
+            return false;
         }
 
         /// <summary>
@@ -416,10 +401,7 @@ namespace Utf8Json
                 {
                     return false;
                 }
-                else
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
+                ReadIsValueSeparatorWithVerify();
             }
 
             count++;
@@ -434,10 +416,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsBeginObjectWithVerify()
@@ -453,10 +432,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
         public void ReadIsEndObjectWithVerify()
         {
@@ -471,14 +447,11 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
+            if (count++ != 0)
             {
-                if (count++ != 0)
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
-                return false;
+                ReadIsValueSeparatorWithVerify();
             }
+            return false;
         }
 
         /// <summary>
@@ -500,10 +473,7 @@ namespace Utf8Json
                 {
                     return false;
                 }
-                else
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
+                ReadIsValueSeparatorWithVerify();
             }
 
             count++;
@@ -518,10 +488,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsValueSeparatorWithVerify()
@@ -537,10 +504,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsNameSeparatorWithVerify()
@@ -702,11 +666,11 @@ namespace Utf8Json
             {
                 return x - '0';
             }
-            else if ('a' <= x && x <= 'f')
+            if ('a' <= x && x <= 'f')
             {
                 return x - 'a' + 10;
             }
-            else if ('A' <= x && x <= 'F')
+            if ('A' <= x && x <= 'F')
             {
                 return x - 'A' + 10;
             }
@@ -768,11 +732,8 @@ namespace Utf8Json
                         {
                             continue;
                         }
-                        else
-                        {
-                            offset = i + 1;
-                            goto OK;
-                        }
+                        offset = i + 1;
+                        goto OK;
                     }
                 }
                 throw CreateParsingExceptionMessage("not found end string.");
@@ -803,7 +764,7 @@ namespace Utf8Json
                 offset += 4;
                 return true;
             }
-            else if (bytes[offset] == 'f')
+            if (bytes[offset] == 'f')
             {
                 if (bytes[offset + 1] != 'a') goto ERROR_FALSE;
                 if (bytes[offset + 2] != 'l') goto ERROR_FALSE;
@@ -812,10 +773,7 @@ namespace Utf8Json
                 offset += 5;
                 return false;
             }
-            else
-            {
-                throw CreateParsingException("true | false");
-            }
+            throw CreateParsingException("true | false");
 
             ERROR_TRUE:
             throw CreateParsingException("true");
@@ -997,11 +955,8 @@ namespace Utf8Json
                             {
                                 continue;
                             }
-                            else
-                            {
-                                offset = i + 1;
-                                return; // end
-                            }
+                            offset = i + 1;
+                            return; // end
                         }
                     }
                     throw CreateParsingExceptionMessage("not found end string.");
@@ -1197,7 +1152,7 @@ namespace Utf8Json
 
                 throw new JsonParsingException("Can not find end token of single line comment(\r or \n).");
             }
-            else if (bytes[offset + 1] == '*')
+            if (bytes[offset + 1] == '*')
             {
 
                 offset += 2; // '/' + '*';

@@ -425,11 +425,8 @@ namespace Utf8Json.CodeGenerator.Generator
                 {
                     return objectToConvert.ToString();
                 }
-                else
-                {
-                    return ((string)(method.Invoke(objectToConvert, new object[] {
-                                this.formatProviderField })));
-                }
+                return ((string)(method.Invoke(objectToConvert, new object[] {
+                    this.formatProviderField })));
             }
         }
         private ToStringInstanceHelper toStringHelperField = new ToStringInstanceHelper();

@@ -417,10 +417,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 // double, or the next-lower double.
                 return false;
             }
-            else
-            {
-                return true;
-            }
+            return true;
         }
 
         // Returns true if the guess is the correct double.

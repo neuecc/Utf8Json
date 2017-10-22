@@ -58,7 +58,7 @@ namespace Utf8Json.Resolvers.Internal
                     formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
                     return;
                 }
-                else if (typeof(T).IsEnum)
+                if (typeof(T).IsEnum)
                 {
                     formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(true);
                 }
@@ -104,7 +104,7 @@ namespace Utf8Json.Resolvers.Internal
                     formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
                     return;
                 }
-                else if (typeof(T).IsEnum)
+                if (typeof(T).IsEnum)
                 {
                     formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false);
                 }

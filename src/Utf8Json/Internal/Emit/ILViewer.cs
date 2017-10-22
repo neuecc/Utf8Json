@@ -50,11 +50,8 @@ namespace Utf8Json.Internal
             {
                 return oneByteOpCodes[code];
             }
-            else
-            {
-                code = ReadByte();
-                return twoByteOpCodes[code];
-            }
+            code = ReadByte();
+            return twoByteOpCodes[code];
         }
 
         public int ReadMetadataToken()

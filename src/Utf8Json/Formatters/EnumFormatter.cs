@@ -233,7 +233,7 @@ namespace Utf8Json.Formatters
                 }
                 return value;
             }
-            else if (token == JsonToken.Number)
+            if (token == JsonToken.Number)
             {
                 return deserializeByUnderlyingValue(ref reader, formatterResolver);
             }
@@ -261,16 +261,13 @@ namespace Utf8Json.Formatters
             {
                 return Deserialize(ref reader, formatterResolver);
             }
-            else
-            {
-                var token = reader.GetCurrentJsonToken();
-                if (token != JsonToken.String) throw new InvalidOperationException("Can't parse JSON to Enum format.");
-                reader.AdvanceOffset(1); // skip \""
-                var t = Deserialize(ref reader, formatterResolver); // token is Number
-                reader.SkipWhiteSpace();
-                reader.AdvanceOffset(1); // skip \""
-                return t;
-            }
+            var token = reader.GetCurrentJsonToken();
+            if (token != JsonToken.String) throw new InvalidOperationException("Can't parse JSON to Enum format.");
+            reader.AdvanceOffset(1); // skip \""
+            var t = Deserialize(ref reader, formatterResolver); // token is Number
+            reader.SkipWhiteSpace();
+            reader.AdvanceOffset(1); // skip \""
+            return t;
         }
     }
 }

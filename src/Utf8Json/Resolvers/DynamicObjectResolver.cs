@@ -1349,20 +1349,14 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return true;
                 }
-                else
+                // use empty constuctor.
+                var bassCtorInfo = ctorInfo.DeclaringType.BaseType.GetConstructor(Type.EmptyTypes);
+                if (bassCtorInfo == null)
                 {
-                    // use empty constuctor.
-                    var bassCtorInfo = ctorInfo.DeclaringType.BaseType.GetConstructor(Type.EmptyTypes);
-                    if (bassCtorInfo == null)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        // check parent constructor
-                        return IsSideEffectFreeConstructorType(bassCtorInfo);
-                    }
+                    return false;
                 }
+                // check parent constructor
+                return IsSideEffectFreeConstructorType(bassCtorInfo);
             }
 
             return false;

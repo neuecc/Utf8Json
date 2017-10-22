@@ -426,10 +426,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     {
                         return junk_string_value_;
                     }
-                    else
-                    {
-                        goto parsing_done;
-                    }
+                    goto parsing_done;
                 }
 
                 if (significant_digits == 0)
@@ -490,10 +487,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     {
                         goto parsing_done;
                     }
-                    else
-                    {
-                        return junk_string_value_;
-                    }
+                    return junk_string_value_;
                 }
                 var exponen_sign = (byte)'+';
                 if (current == '+' || current == '-')
@@ -506,10 +500,7 @@ namespace Utf8Json.Internal.DoubleConversion
                         {
                             goto parsing_done;
                         }
-                        else
-                        {
-                            return junk_string_value_;
-                        }
+                        return junk_string_value_;
                     }
                 }
 
@@ -519,10 +510,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     {
                         goto parsing_done;
                     }
-                    else
-                    {
-                        return junk_string_value_;
-                    }
+                    return junk_string_value_;
                 }
 
                 const int max_exponent = int.MaxValue / 2;

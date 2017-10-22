@@ -73,10 +73,7 @@ public class MemberSerializationInfo
         {
             return $"writer.Write{ShortTypeName.Replace("[]", "s")}(value.{Name})";
         }
-        else
-        {
-            return $"formatterResolver.GetFormatterWithVerify<{Type}>().Serialize(ref writer, value.{Name}, formatterResolver)";
-        }
+        return $"formatterResolver.GetFormatterWithVerify<{Type}>().Serialize(ref writer, value.{Name}, formatterResolver)";
     }
 
     public string GetDeserializeMethodString()
@@ -85,10 +82,7 @@ public class MemberSerializationInfo
         {
             return $"reader.Read{ShortTypeName.Replace("[]", "s")}()";
         }
-        else
-        {
-            return $"formatterResolver.GetFormatterWithVerify<{Type}>().Deserialize(ref reader, formatterResolver)";
-        }
+        return $"formatterResolver.GetFormatterWithVerify<{Type}>().Deserialize(ref reader, formatterResolver)";
     }
 }
 public class GenericSerializationInfo : IResolverRegisterInfo, IEquatable<GenericSerializationInfo>

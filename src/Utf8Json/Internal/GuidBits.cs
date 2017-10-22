@@ -102,7 +102,7 @@ namespace Utf8Json.Internal
                 this.Byte15 = Parse(array, offset + 30);
                 return;
             }
-            else if (utf8string.Count == 36)
+            if (utf8string.Count == 36)
             {
                 // '-' => 45
                 if (BitConverter.IsLittleEndian)

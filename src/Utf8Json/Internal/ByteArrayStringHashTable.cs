@@ -122,10 +122,7 @@ namespace Utf8Json.Internal
             {
                 return (ulong)FarmHash.Hash32(x, offset, count);
             }
-            else
-            {
-                return FarmHash.Hash64(x, offset, count);
-            }
+            return FarmHash.Hash64(x, offset, count);
 
 #else
 

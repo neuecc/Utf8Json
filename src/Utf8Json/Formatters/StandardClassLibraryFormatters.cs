@@ -117,23 +117,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new string[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new string[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadString();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadString();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -175,10 +172,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return CharFormatter.Default.Deserialize(ref reader, formatterResolver);
-            }
+            return CharFormatter.Default.Deserialize(ref reader, formatterResolver);
         }
     }
 
@@ -216,23 +210,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new char[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new char[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = CharFormatter.Default.Deserialize(ref reader, formatterResolver);
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = CharFormatter.Default.Deserialize(ref reader, formatterResolver);
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -298,14 +289,11 @@ namespace Utf8Json.Formatters
                 var number = reader.ReadNumberSegment();
                 return decimal.Parse(StringEncoding.UTF8.GetString(number.Array, number.Offset, number.Count), NumberStyles.Float, CultureInfo.InvariantCulture);
             }
-            else if (token == JsonToken.String)
+            if (token == JsonToken.String)
             {
                 return decimal.Parse(reader.ReadString(), NumberStyles.Float, CultureInfo.InvariantCulture);
             }
-            else
-            {
-                throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
-            }
+            throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
         }
     }
 
@@ -331,10 +319,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return new Uri(reader.ReadString(), UriKind.RelativeOrAbsolute);
-            }
+            return new Uri(reader.ReadString(), UriKind.RelativeOrAbsolute);
         }
     }
 
@@ -360,10 +345,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return new Version(reader.ReadString());
-            }
+            return new Version(reader.ReadString());
         }
     }
 

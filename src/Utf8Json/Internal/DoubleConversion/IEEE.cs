@@ -96,10 +96,7 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 return new Double(d64_ - 1).value();
             }
-            else
-            {
-                return new Double(d64_ + 1).value();
-            }
+            return new Double(d64_ + 1).value();
         }
 
         public double PreviousDouble()
@@ -109,11 +106,8 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 return new Double(d64_ + 1).value();
             }
-            else
-            {
-                if (Significand() == 0) return -0.0;
-                return new Double(d64_ - 1).value();
-            }
+            if (Significand() == 0) return -0.0;
+            return new Double(d64_ - 1).value();
         }
 
         public int Exponent()
@@ -134,10 +128,7 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 return significand + kHiddenBit;
             }
-            else
-            {
-                return significand;
-            }
+            return significand;
         }
 
         // Returns true if the double is a denormal.
@@ -340,10 +331,7 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 return significand + kHiddenBit;
             }
-            else
-            {
-                return significand;
-            }
+            return significand;
         }
 
         // Returns true if the single is a denormal.

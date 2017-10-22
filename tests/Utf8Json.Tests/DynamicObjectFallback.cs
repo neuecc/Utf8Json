@@ -59,10 +59,7 @@ namespace Utf8Json.Tests
             {
                 return Resolvers.EnumResolver.UnderlyingValue.GetFormatter<T>();
             }
-            else
-            {
-                return Resolvers.StandardResolver.Default.GetFormatter<T>();
-            }
+            return Resolvers.StandardResolver.Default.GetFormatter<T>();
         }
     }
 }

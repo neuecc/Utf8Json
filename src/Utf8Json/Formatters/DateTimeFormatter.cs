@@ -32,10 +32,7 @@ namespace Utf8Json.Formatters
             {
                 return DateTime.Parse(str, CultureInfo.InvariantCulture);
             }
-            else
-            {
-                return DateTime.ParseExact(str, formatString, CultureInfo.InvariantCulture);
-            }
+            return DateTime.ParseExact(str, formatString, CultureInfo.InvariantCulture);
         }
     }
 
@@ -407,10 +404,7 @@ namespace Utf8Json.Formatters
             {
                 return DateTimeOffset.Parse(str, CultureInfo.InvariantCulture);
             }
-            else
-            {
-                return DateTimeOffset.ParseExact(str, formatString, CultureInfo.InvariantCulture);
-            }
+            return DateTimeOffset.ParseExact(str, formatString, CultureInfo.InvariantCulture);
         }
     }
 
@@ -737,10 +731,7 @@ namespace Utf8Json.Formatters
             {
                 return TimeSpan.Parse(str, CultureInfo.InvariantCulture);
             }
-            else
-            {
-                return TimeSpan.ParseExact(str, formatString, CultureInfo.InvariantCulture);
-            }
+            return TimeSpan.ParseExact(str, formatString, CultureInfo.InvariantCulture);
 #else
             return TimeSpan.Parse(str);
 #endif

@@ -65,7 +65,7 @@ namespace Utf8Json.ImmutableCollection
                 {
                     return CreateInstance(formatterType, ti.GenericTypeArguments);
                 }
-                else if (isNullable && nullableElementType.IsConstructedGenericType && nullableElementType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
+                if (isNullable && nullableElementType.IsConstructedGenericType && nullableElementType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
                 {
                     return CreateInstance(typeof(NullableFormatter<>), new[] { nullableElementType });
                 }

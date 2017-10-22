@@ -73,10 +73,7 @@ namespace Utf8Json.Internal.Emit
             {
                 return PropertyInfo.GetCustomAttribute<T>(inherit);
             }
-            else
-            {
-                return FieldInfo.GetCustomAttribute<T>(inherit);
-            }
+            return FieldInfo.GetCustomAttribute<T>(inherit);
         }
 
         public void EmitLoadValue(ILGenerator il)

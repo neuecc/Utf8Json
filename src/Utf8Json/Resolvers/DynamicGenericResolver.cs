@@ -95,24 +95,21 @@ namespace Utf8Json.Resolvers.Internal
 
                     return Activator.CreateInstance(typeof(ArrayFormatter<>).MakeGenericType(t.GetElementType()));
                 }
-                else if (rank == 2)
+                if (rank == 2)
                 {
                     return Activator.CreateInstance(typeof(TwoDimentionalArrayFormatter<>).MakeGenericType(t.GetElementType()));
                 }
-                else if (rank == 3)
+                if (rank == 3)
                 {
                     return Activator.CreateInstance(typeof(ThreeDimentionalArrayFormatter<>).MakeGenericType(t.GetElementType()));
                 }
-                else if (rank == 4)
+                if (rank == 4)
                 {
                     return Activator.CreateInstance(typeof(FourDimentionalArrayFormatter<>).MakeGenericType(t.GetElementType()));
                 }
-                else
-                {
-                    return null; // not supported built-in
-                }
+                return null; // not supported built-in
             }
-            else if (ti.IsGenericType)
+            if (ti.IsGenericType)
             {
                 var genericType = ti.GetGenericTypeDefinition();
                 var genericTypeInfo = genericType.GetTypeInfo();
@@ -123,7 +120,7 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return CreateInstance(typeof(KeyValuePairFormatter<,>), ti.GenericTypeArguments);
                 }
-                else if (isNullable && nullableElementType.GetTypeInfo().IsConstructedGenericType() && nullableElementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+                if (isNullable && nullableElementType.GetTypeInfo().IsConstructedGenericType() && nullableElementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
                 {
                     return CreateInstance(typeof(NullableFormatter<>), new[] { nullableElementType });
                 }
@@ -131,17 +128,17 @@ namespace Utf8Json.Resolvers.Internal
 #if NETSTANDARD
 
                 // ValueTask
-                else if (genericType == typeof(ValueTask<>))
+                if (genericType == typeof(ValueTask<>))
                 {
                     return CreateInstance(typeof(ValueTaskFormatter<>), ti.GenericTypeArguments);
                 }
-                else if (isNullable && nullableElementType.IsConstructedGenericType && nullableElementType.GetGenericTypeDefinition() == typeof(ValueTask<>))
+                if (isNullable && nullableElementType.IsConstructedGenericType && nullableElementType.GetGenericTypeDefinition() == typeof(ValueTask<>))
                 {
                     return CreateInstance(typeof(NullableFormatter<>), new[] { nullableElementType });
                 }
 
                 // Tuple
-                else if (ti.FullName.StartsWith("System.Tuple"))
+                if (ti.FullName.StartsWith("System.Tuple"))
                 {
                     Type tupleFormatterType = null;
                     switch (ti.GenericTypeArguments.Length)
@@ -178,7 +175,7 @@ namespace Utf8Json.Resolvers.Internal
                 }
 
                 // ValueTuple
-                else if (ti.FullName.StartsWith("System.ValueTuple"))
+                if (ti.FullName.StartsWith("System.ValueTuple"))
                 {
                     Type tupleFormatterType = null;
                     switch (ti.GenericTypeArguments.Length)
@@ -217,55 +214,46 @@ namespace Utf8Json.Resolvers.Internal
 #endif
 
                 // ArraySegement
-                else if (genericType == typeof(ArraySegment<>))
+                if (genericType == typeof(ArraySegment<>))
                 {
                     if (ti.GenericTypeArguments[0] == typeof(byte))
                     {
                         return ByteArraySegmentFormatter.Default;
                     }
-                    else
-                    {
-                        return CreateInstance(typeof(ArraySegmentFormatter<>), ti.GenericTypeArguments);
-                    }
+                    return CreateInstance(typeof(ArraySegmentFormatter<>), ti.GenericTypeArguments);
                 }
-                else if (isNullable && nullableElementType.GetTypeInfo().IsConstructedGenericType() && nullableElementType.GetGenericTypeDefinition() == typeof(ArraySegment<>))
+                if (isNullable && nullableElementType.GetTypeInfo().IsConstructedGenericType() && nullableElementType.GetGenericTypeDefinition() == typeof(ArraySegment<>))
                 {
                     if (nullableElementType == typeof(ArraySegment<byte>))
                     {
                         return new StaticNullableFormatter<ArraySegment<byte>>(ByteArraySegmentFormatter.Default);
                     }
-                    else
-                    {
-                        return CreateInstance(typeof(NullableFormatter<>), new[] { nullableElementType });
-                    }
+                    return CreateInstance(typeof(NullableFormatter<>), new[] { nullableElementType });
                 }
 
                 // Mapped formatter
-                else
+                Type formatterType;
+                if (formatterMap.TryGetValue(genericType, out formatterType))
                 {
-                    Type formatterType;
-                    if (formatterMap.TryGetValue(genericType, out formatterType))
-                    {
-                        return CreateInstance(formatterType, ti.GenericTypeArguments);
-                    }
+                    return CreateInstance(formatterType, ti.GenericTypeArguments);
+                }
 
-                    // generic collection
-                    else if (ti.GenericTypeArguments.Length == 1
-                          && ti.ImplementedInterfaces.Any(x => x.GetTypeInfo().IsConstructedGenericType() && x.GetGenericTypeDefinition() == typeof(ICollection<>))
-                          && ti.DeclaredConstructors.Any(x => x.GetParameters().Length == 0))
-                    {
-                        var elemType = ti.GenericTypeArguments[0];
-                        return CreateInstance(typeof(GenericCollectionFormatter<,>), new[] { elemType, t });
-                    }
-                    // generic dictionary
-                    else if (ti.GenericTypeArguments.Length == 2
-                          && ti.ImplementedInterfaces.Any(x => x.GetTypeInfo().IsConstructedGenericType() && x.GetGenericTypeDefinition() == typeof(IDictionary<,>))
-                          && ti.DeclaredConstructors.Any(x => x.GetParameters().Length == 0))
-                    {
-                        var keyType = ti.GenericTypeArguments[0];
-                        var valueType = ti.GenericTypeArguments[1];
-                        return CreateInstance(typeof(GenericDictionaryFormatter<,,>), new[] { keyType, valueType, t });
-                    }
+                // generic collection
+                if (ti.GenericTypeArguments.Length == 1
+                    && ti.ImplementedInterfaces.Any(x => x.GetTypeInfo().IsConstructedGenericType() && x.GetGenericTypeDefinition() == typeof(ICollection<>))
+                    && ti.DeclaredConstructors.Any(x => x.GetParameters().Length == 0))
+                {
+                    var elemType = ti.GenericTypeArguments[0];
+                    return CreateInstance(typeof(GenericCollectionFormatter<,>), new[] { elemType, t });
+                }
+                // generic dictionary
+                if (ti.GenericTypeArguments.Length == 2
+                    && ti.ImplementedInterfaces.Any(x => x.GetTypeInfo().IsConstructedGenericType() && x.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+                    && ti.DeclaredConstructors.Any(x => x.GetParameters().Length == 0))
+                {
+                    var keyType = ti.GenericTypeArguments[0];
+                    var valueType = ti.GenericTypeArguments[1];
+                    return CreateInstance(typeof(GenericDictionaryFormatter<,,>), new[] { keyType, valueType, t });
                 }
             }
             else
@@ -275,15 +263,15 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return NonGenericInterfaceEnumerableFormatter.Default;
                 }
-                else if (t == typeof(ICollection))
+                if (t == typeof(ICollection))
                 {
                     return NonGenericInterfaceCollectionFormatter.Default;
                 }
-                else if (t == typeof(IList))
+                if (t == typeof(IList))
                 {
                     return NonGenericInterfaceListFormatter.Default;
                 }
-                else if (t == typeof(IDictionary))
+                if (t == typeof(IDictionary))
                 {
                     return NonGenericInterfaceDictionaryFormatter.Default;
                 }
@@ -291,7 +279,7 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return Activator.CreateInstance(typeof(NonGenericListFormatter<>).MakeGenericType(t));
                 }
-                else if (typeof(IDictionary).GetTypeInfo().IsAssignableFrom(ti) && ti.DeclaredConstructors.Any(x => x.GetParameters().Length == 0))
+                if (typeof(IDictionary).GetTypeInfo().IsAssignableFrom(ti) && ti.DeclaredConstructors.Any(x => x.GetParameters().Length == 0))
                 {
                     return Activator.CreateInstance(typeof(NonGenericDictionaryFormatter<>).MakeGenericType(t));
                 }

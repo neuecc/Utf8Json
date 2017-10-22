@@ -54,10 +54,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadSByte();
-            }
+            return reader.ReadSByte();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, SByte? value, IJsonFormatterResolver formatterResolver)
@@ -113,23 +110,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new SByte[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new SByte[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadSByte();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadSByte();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -184,10 +178,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadInt16();
-            }
+            return reader.ReadInt16();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Int16? value, IJsonFormatterResolver formatterResolver)
@@ -243,23 +234,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new Int16[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new Int16[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadInt16();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadInt16();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -314,10 +302,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadInt32();
-            }
+            return reader.ReadInt32();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Int32? value, IJsonFormatterResolver formatterResolver)
@@ -373,23 +358,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new Int32[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new Int32[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadInt32();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadInt32();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -444,10 +426,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadInt64();
-            }
+            return reader.ReadInt64();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Int64? value, IJsonFormatterResolver formatterResolver)
@@ -503,23 +482,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new Int64[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new Int64[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadInt64();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadInt64();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -574,10 +550,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadByte();
-            }
+            return reader.ReadByte();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Byte? value, IJsonFormatterResolver formatterResolver)
@@ -651,10 +624,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadUInt16();
-            }
+            return reader.ReadUInt16();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, UInt16? value, IJsonFormatterResolver formatterResolver)
@@ -710,23 +680,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new UInt16[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new UInt16[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadUInt16();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadUInt16();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -781,10 +748,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadUInt32();
-            }
+            return reader.ReadUInt32();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, UInt32? value, IJsonFormatterResolver formatterResolver)
@@ -840,23 +804,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new UInt32[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new UInt32[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadUInt32();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadUInt32();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -911,10 +872,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadUInt64();
-            }
+            return reader.ReadUInt64();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, UInt64? value, IJsonFormatterResolver formatterResolver)
@@ -970,23 +928,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new UInt64[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new UInt64[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadUInt64();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadUInt64();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -1041,10 +996,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadSingle();
-            }
+            return reader.ReadSingle();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Single? value, IJsonFormatterResolver formatterResolver)
@@ -1100,23 +1052,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new Single[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new Single[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadSingle();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadSingle();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -1171,10 +1120,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadDouble();
-            }
+            return reader.ReadDouble();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Double? value, IJsonFormatterResolver formatterResolver)
@@ -1230,23 +1176,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new Double[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new Double[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadDouble();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadDouble();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -1301,10 +1244,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return reader.ReadBoolean();
-            }
+            return reader.ReadBoolean();
         }
 
         public void SerializeToPropertyName(ref JsonWriter writer, Boolean? value, IJsonFormatterResolver formatterResolver)
@@ -1360,23 +1300,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new Boolean[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new Boolean[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadBoolean();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadBoolean();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 

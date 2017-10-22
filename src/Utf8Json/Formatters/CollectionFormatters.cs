@@ -212,20 +212,17 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            var formatter = formatterResolver.GetFormatterWithVerify<TElement>();
+            var builder = Create();
+
+            var count = 0;
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                var formatter = formatterResolver.GetFormatterWithVerify<TElement>();
-                var builder = Create();
-
-                var count = 0;
-                reader.ReadIsBeginArrayWithVerify();
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
-                {
-                    Add(ref builder, count - 1, formatter.Deserialize(ref reader, formatterResolver));
-                }
-
-                return Complete(ref builder);
+                Add(ref builder, count - 1, formatter.Deserialize(ref reader, formatterResolver));
             }
+
+            return Complete(ref builder);
         }
 
         // Some collections can use struct iterator, this is optimization path
@@ -452,15 +449,12 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            else
-            {
-                writer.WriteRaw(CollectionFormatterHelper.groupingName[0]);
-                formatterResolver.GetFormatterWithVerify<TKey>().Serialize(ref writer, value.Key, formatterResolver);
-                writer.WriteRaw(CollectionFormatterHelper.groupingName[1]);
-                formatterResolver.GetFormatterWithVerify<IEnumerable<TElement>>().Serialize(ref writer, value.AsEnumerable(), formatterResolver);
+            writer.WriteRaw(CollectionFormatterHelper.groupingName[0]);
+            formatterResolver.GetFormatterWithVerify<TKey>().Serialize(ref writer, value.Key, formatterResolver);
+            writer.WriteRaw(CollectionFormatterHelper.groupingName[1]);
+            formatterResolver.GetFormatterWithVerify<IEnumerable<TElement>>().Serialize(ref writer, value.AsEnumerable(), formatterResolver);
 
-                writer.WriteEndObject();
-            }
+            writer.WriteEndObject();
         }
 
         public IGrouping<TKey, TElement> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -469,40 +463,37 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            var resultKey = default(TKey);
+            var resultValue = default(IEnumerable<TElement>);
+
+            reader.ReadIsBeginObjectWithVerify();
+
+            var count = 0;
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
-                var resultKey = default(TKey);
-                var resultValue = default(IEnumerable<TElement>);
-
-                reader.ReadIsBeginObjectWithVerify();
-
-                var count = 0;
-                while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
-                {
-                    var keyString = reader.ReadPropertyNameSegmentRaw();
-                    int key;
+                var keyString = reader.ReadPropertyNameSegmentRaw();
+                int key;
 #if NETSTANDARD
-                    CollectionFormatterHelper.groupingAutomata.TryGetValue(keyString, out key);
+                CollectionFormatterHelper.groupingAutomata.TryGetValue(keyString, out key);
 #else
                     CollectionFormatterHelper.groupingAutomata.TryGetValueSafe(keyString, out key);
 #endif
 
-                    switch (key)
-                    {
-                        case 0:
-                            resultKey = formatterResolver.GetFormatterWithVerify<TKey>().Deserialize(ref reader, formatterResolver);
-                            break;
-                        case 1:
-                            resultValue = formatterResolver.GetFormatterWithVerify<IEnumerable<TElement>>().Deserialize(ref reader, formatterResolver);
-                            break;
-                        default:
-                            reader.ReadNextBlock();
-                            break;
-                    }
+                switch (key)
+                {
+                    case 0:
+                        resultKey = formatterResolver.GetFormatterWithVerify<TKey>().Deserialize(ref reader, formatterResolver);
+                        break;
+                    case 1:
+                        resultValue = formatterResolver.GetFormatterWithVerify<IEnumerable<TElement>>().Deserialize(ref reader, formatterResolver);
+                        break;
+                    default:
+                        reader.ReadNextBlock();
+                        break;
                 }
-
-                return new Grouping<TKey, TElement>(resultKey, resultValue);
             }
+
+            return new Grouping<TKey, TElement>(resultKey, resultValue);
         }
     }
 
@@ -515,10 +506,7 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            else
-            {
-                formatterResolver.GetFormatterWithVerify<IEnumerable<IGrouping<TKey, TElement>>>().Serialize(ref writer, value.AsEnumerable(), formatterResolver);
-            }
+            formatterResolver.GetFormatterWithVerify<IEnumerable<IGrouping<TKey, TElement>>>().Serialize(ref writer, value.AsEnumerable(), formatterResolver);
         }
 
         public ILookup<TKey, TElement> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -527,24 +515,21 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            if (reader.ReadIsNull()) return null;
+
+            var count = 0;
+
+            var formatter = formatterResolver.GetFormatterWithVerify<IGrouping<TKey, TElement>>();
+            var intermediateCollection = new Dictionary<TKey, IGrouping<TKey, TElement>>();
+
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                if (reader.ReadIsNull()) return null;
-
-                var count = 0;
-
-                var formatter = formatterResolver.GetFormatterWithVerify<IGrouping<TKey, TElement>>();
-                var intermediateCollection = new Dictionary<TKey, IGrouping<TKey, TElement>>();
-
-                reader.ReadIsBeginArrayWithVerify();
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
-                {
-                    var g = formatter.Deserialize(ref reader, formatterResolver);
-                    intermediateCollection.Add(g.Key, g);
-                }
-
-                return new Lookup<TKey, TElement>(intermediateCollection);
+                var g = formatter.Deserialize(ref reader, formatterResolver);
+                intermediateCollection.Add(g.Key, g);
             }
+
+            return new Lookup<TKey, TElement>(intermediateCollection);
         }
     }
 

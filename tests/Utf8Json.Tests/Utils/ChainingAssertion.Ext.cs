@@ -25,7 +25,7 @@ namespace Xunit
                 var formatted = headerMsg + " No exception was thrown" + additionalMsg;
                 throw new AssertFailedException(formatted);
             }
-            else if (!typeof(T).GetTypeInfo().IsInstanceOfType(exception))
+            if (!typeof(T).GetTypeInfo().IsInstanceOfType(exception))
             {
                 var formatted = string.Format("{0} Catched:{1}{2}", headerMsg, exception.GetType().Name, additionalMsg);
                 throw new AssertFailedException(formatted);
