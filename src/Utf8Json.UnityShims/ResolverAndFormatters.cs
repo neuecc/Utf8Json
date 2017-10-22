@@ -125,7 +125,7 @@ namespace Utf8Json.Unity
 
         public Vector2Formatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("x"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("y"), 1},
@@ -207,7 +207,7 @@ namespace Utf8Json.Unity
 
         public Vector3Formatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("x"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("y"), 1},
@@ -298,7 +298,7 @@ namespace Utf8Json.Unity
 
         public Vector4Formatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("x"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("y"), 1},
@@ -398,7 +398,7 @@ namespace Utf8Json.Unity
 
         public QuaternionFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("x"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("y"), 1},
@@ -498,7 +498,7 @@ namespace Utf8Json.Unity
 
         public ColorFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("r"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("g"), 1},
@@ -598,7 +598,7 @@ namespace Utf8Json.Unity
 
         public BoundsFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("center"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("size"), 1},
@@ -680,7 +680,7 @@ namespace Utf8Json.Unity
 
         public RectFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("x"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("y"), 1},

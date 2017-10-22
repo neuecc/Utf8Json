@@ -33,7 +33,7 @@ namespace Utf8Json.ImmutableCollection
 
     internal static class ImmutableCollectionGetFormatterHelper
     {
-        static readonly Dictionary<Type, Type> formatterMap = new Dictionary<Type, Type>()
+        static readonly Dictionary<Type, Type> formatterMap = new Dictionary<Type, Type>
         {
               {typeof(ImmutableArray<>), typeof(ImmutableArrayFormatter<>)},
               {typeof(ImmutableList<>), typeof(ImmutableListFormatter<>)},

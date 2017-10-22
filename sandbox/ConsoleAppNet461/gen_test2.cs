@@ -104,7 +104,7 @@ namespace Utf8Json.Formatters
 
         public HogeFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("name"), 1},
@@ -193,7 +193,7 @@ namespace Utf8Json.Formatters
 
         public Hoge2Formatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("_Name"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("name"), 1},
@@ -282,7 +282,7 @@ namespace Utf8Json.Formatters
 
         public PersonFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Age"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 1},
@@ -372,7 +372,7 @@ namespace Utf8Json.Formatters
 
         public Person2Formatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Age"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 1},
@@ -462,7 +462,7 @@ namespace Utf8Json.Formatters
 
         public IInterfaceFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Huga"), 0},
             };
@@ -509,7 +509,7 @@ namespace Utf8Json.Formatters
 
         public MyClassInterFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Huga"), 0},
             };
@@ -588,7 +588,7 @@ namespace Utf8Json.Formatters
 
         public SimplePersonFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Age"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("FirstName"), 1},
@@ -689,7 +689,7 @@ namespace Utf8Json.Formatters
 
         public SimplePersonMsgpackFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Age"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("FirstName"), 1},
@@ -807,7 +807,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
 
         public TargetClassContractlessFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Number1"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Number2"), 1},
@@ -985,7 +985,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
 
         public LongUnionFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Int1"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Int2"), 1},
@@ -1103,7 +1103,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
 
         public TargetClassFormatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
+            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary
             {
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Number1"), 0},
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Number2"), 1},

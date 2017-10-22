@@ -820,7 +820,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             }
         }
 
-        var result = new SimplePerson() { Age = age, FirstName = firstName, LastName = lastName };
+        var result = new SimplePerson { Age = age, FirstName = firstName, LastName = lastName };
         return result;
     }
 }
