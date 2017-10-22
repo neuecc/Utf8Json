@@ -309,7 +309,7 @@ namespace ConsoleAppNetCore
         }
 
 
-        static unsafe void Main(string[] args)
+        static unsafe void Main()
         {
             var resolver = CompositeResolver.Create(new IJsonFormatter[0], new[] { EnumResolver.Default, StandardResolver.CamelCase });
 
