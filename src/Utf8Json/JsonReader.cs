@@ -256,7 +256,7 @@ namespace Utf8Json
         public void SkipWhiteSpace()
         {
             // eliminate array bound check
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 switch (bytes[i])
                 {
@@ -563,7 +563,7 @@ namespace Utf8Json
             var from = offset;
 
             // eliminate array-bound check
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 byte escapeCharacter = 0;
                 switch (bytes[i])
@@ -747,7 +747,7 @@ namespace Utf8Json
         /// <summary>Get raw string-span(do not unescape)</summary>
         public ArraySegment<byte> ReadStringSegmentRaw()
         {
-            ArraySegment<byte> key = default(ArraySegment<byte>);
+            var key = default(ArraySegment<byte>);
             if (ReadIsNull())
             {
                 key = nullTokenSegment;
@@ -759,7 +759,7 @@ namespace Utf8Json
 
                 var from = offset;
 
-                for (int i = offset; i < bytes.Length; i++)
+                for (var i = offset; i < bytes.Length; i++)
                 {
                     if (bytes[i] == (char)'\"')
                     {
@@ -988,7 +988,7 @@ namespace Utf8Json
                     break;
                 case JsonToken.String:
                     offset += 1; // position is "\"";
-                    for (int i = offset; i < bytes.Length; i++)
+                    for (var i = offset; i < bytes.Length; i++)
                     {
                         if (bytes[i] == (char)'\"')
                         {
@@ -1006,7 +1006,7 @@ namespace Utf8Json
                     }
                     throw CreateParsingExceptionMessage("not found end string.");
                 case JsonToken.Number:
-                    for (int i = offset; i < bytes.Length; i++)
+                    for (var i = offset; i < bytes.Length; i++)
                     {
                         if (IsWordBreak(bytes[i]))
                         {
@@ -1165,7 +1165,7 @@ namespace Utf8Json
         {
             SkipWhiteSpace();
             var initialOffset = offset;
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 if (!NumberConverter.IsNumberRepresentation(bytes[i]))
                 {
@@ -1187,7 +1187,7 @@ namespace Utf8Json
             {
                 // single line
                 offset += 2;
-                for (int i = offset; i < bytes.Length; i++)
+                for (var i = offset; i < bytes.Length; i++)
                 {
                     if (bytes[i] == '\r' || bytes[i] == '\n')
                     {
@@ -1201,7 +1201,7 @@ namespace Utf8Json
             {
 
                 offset += 2; // '/' + '*';
-                for (int i = offset; i < bytes.Length; i++)
+                for (var i = offset; i < bytes.Length; i++)
                 {
                     if (bytes[i] == '*' && bytes[i + 1] == '/')
                     {

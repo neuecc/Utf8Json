@@ -392,7 +392,7 @@ namespace Utf8Json.Tests
         [Fact]
         public void DeserializeSideEffectWithVersioned()
         {
-            string jsonString = "[{}]";
+            var jsonString = "[{}]";
             var list = new List<SomeClass>() { new SomeClass() };
             list[0].AnotherClass.Count.Is(0);
             var list2 = JsonSerializer.Deserialize<List<SomeClass>>(jsonString);
@@ -402,7 +402,7 @@ namespace Utf8Json.Tests
         [Fact]
         public void DeserializeSideEffectWithVersioned123()
         {
-            string jsonString = "{}";
+            var jsonString = "{}";
 
             var s1 = JsonSerializer.Deserialize<SideEffectPattern1>(jsonString);
             var s2 = JsonSerializer.Deserialize<SideEffectPattern2>(jsonString);

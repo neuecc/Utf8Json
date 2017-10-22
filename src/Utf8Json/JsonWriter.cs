@@ -368,9 +368,9 @@ namespace Utf8Json
             buffer[offset++] = (byte)'\"';
 
             // for JIT Optimization, for-loop i < str.Length
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
-                byte escapeChar = default(byte);
+                var escapeChar = default(byte);
                 switch (value[i])
                 {
                     case '"':

@@ -79,7 +79,7 @@ namespace Utf8Json.Internal
                 uint b = 0;
                 uint c = 9;
                 var max = offset + len;
-                for (int i = offset; i < max; i++)
+                for (var i = offset; i < max; i++)
                 {
                     b = b * c1 + s[i];
                     c ^= b;
@@ -108,13 +108,13 @@ namespace Utf8Json.Internal
         {
             unchecked
             {
-                uint a = Fetch32(s - 4 + (len >> 1));
-                uint b = Fetch32(s + 4);
-                uint c = Fetch32(s + len - 8);
-                uint d = Fetch32(s + (len >> 1));
-                uint e = Fetch32(s);
-                uint f = Fetch32(s + len - 4);
-                uint h = d * c1 + len;
+                var a = Fetch32(s - 4 + (len >> 1));
+                var b = Fetch32(s + 4);
+                var c = Fetch32(s + len - 8);
+                var d = Fetch32(s + (len >> 1));
+                var e = Fetch32(s);
+                var f = Fetch32(s + len - 4);
+                var h = d * c1 + len;
                 a = Rotate32(a, 12) + f;
                 h = Mur(c, h) + a;
                 a = Rotate32(a, 3) + c;
@@ -137,11 +137,11 @@ namespace Utf8Json.Internal
             {
                 // len > 24
                 uint h = len, g = c1 * len, f = g;
-                uint a0 = Rotate32(Fetch32(s + len - 4) * c1, 17) * c2;
-                uint a1 = Rotate32(Fetch32(s + len - 8) * c1, 17) * c2;
-                uint a2 = Rotate32(Fetch32(s + len - 16) * c1, 17) * c2;
-                uint a3 = Rotate32(Fetch32(s + len - 12) * c1, 17) * c2;
-                uint a4 = Rotate32(Fetch32(s + len - 20) * c1, 17) * c2;
+                var a0 = Rotate32(Fetch32(s + len - 4) * c1, 17) * c2;
+                var a1 = Rotate32(Fetch32(s + len - 8) * c1, 17) * c2;
+                var a2 = Rotate32(Fetch32(s + len - 16) * c1, 17) * c2;
+                var a3 = Rotate32(Fetch32(s + len - 12) * c1, 17) * c2;
+                var a4 = Rotate32(Fetch32(s + len - 20) * c1, 17) * c2;
                 h ^= a0;
                 h = Rotate32(h, 19);
                 h = h * 5 + 0xe6546b64;
@@ -156,14 +156,14 @@ namespace Utf8Json.Internal
                 g = g * 5 + 0xe6546b64;
                 f += a4;
                 f = Rotate32(f, 19) + 113;
-                uint iters = (len - 1) / 20;
+                var iters = (len - 1) / 20;
                 do
                 {
-                    uint a = Fetch32(s);
-                    uint b = Fetch32(s + 4);
-                    uint c = Fetch32(s + 8);
-                    uint d = Fetch32(s + 12);
-                    uint e = Fetch32(s + 16);
+                    var a = Fetch32(s);
+                    var b = Fetch32(s + 4);
+                    var c = Fetch32(s + 8);
+                    var d = Fetch32(s + 12);
+                    var e = Fetch32(s + 16);
                     h += a;
                     g += b;
                     f += c;
@@ -260,9 +260,9 @@ namespace Utf8Json.Internal
             unchecked
             {
                 // Murmur-inspired hashing.
-                ulong a = (u ^ v) * mul;
+                var a = (u ^ v) * mul;
                 a ^= a >> 47;
-                ulong b = (v ^ a) * mul;
+                var b = (v ^ a) * mul;
                 b ^= b >> 47;
                 b *= mul;
                 return b;
@@ -313,16 +313,16 @@ namespace Utf8Json.Internal
             {
                 if (len >= 8)
                 {
-                    ulong mul = k2 + len * 2;
-                    ulong a = Fetch64(s) + k2;
-                    ulong b = Fetch64(s + len - 8);
-                    ulong c = Rotate64(b, 37) * mul + a;
-                    ulong d = (Rotate64(a, 25) + b) * mul;
+                    var mul = k2 + len * 2;
+                    var a = Fetch64(s) + k2;
+                    var b = Fetch64(s + len - 8);
+                    var c = Rotate64(b, 37) * mul + a;
+                    var d = (Rotate64(a, 25) + b) * mul;
                     return HashLen16(c, d, mul);
                 }
                 if (len >= 4)
                 {
-                    ulong mul = k2 + len * 2;
+                    var mul = k2 + len * 2;
                     ulong a = Fetch32(s);
                     return HashLen16(len + (a << 3), Fetch32(s + len - 4), mul);
                 }
@@ -331,8 +331,8 @@ namespace Utf8Json.Internal
                     ushort a = s[0];
                     ushort b = s[len >> 1];
                     ushort c = s[len - 1];
-                    uint y = a + ((uint)b << 8);
-                    uint z = len + ((uint)c << 2);
+                    var y = a + ((uint)b << 8);
+                    var z = len + ((uint)c << 2);
                     return ShiftMix(y * k2 ^ z * k0) * k2;
                 }
                 return k2;
@@ -345,11 +345,11 @@ namespace Utf8Json.Internal
         {
             unchecked
             {
-                ulong mul = k2 + len * 2;
-                ulong a = Fetch64(s) * k1;
-                ulong b = Fetch64(s + 8);
-                ulong c = Fetch64(s + len - 8) * mul;
-                ulong d = Fetch64(s + len - 16) * k2;
+                var mul = k2 + len * 2;
+                var a = Fetch64(s) * k1;
+                var b = Fetch64(s + 8);
+                var c = Fetch64(s + len - 8) * mul;
+                var d = Fetch64(s + len - 16) * k2;
                 return HashLen16(Rotate64(a + b, 43) + Rotate64(c, 30) + d,
                                  a + Rotate64(b + k2, 18) + c, mul);
             }
@@ -361,12 +361,12 @@ namespace Utf8Json.Internal
         {
             unchecked
             {
-                ulong a = Fetch64(s) * k1;
-                ulong b = Fetch64(s + 8);
-                ulong c = Fetch64(s + len - 8) * mul;
-                ulong d = Fetch64(s + len - 16) * k2;
-                ulong u = Rotate64(a + b, 43) + Rotate64(c, 30) + d + seed0;
-                ulong v = a + Rotate64(b + k2, 18) + c + seed1;
+                var a = Fetch64(s) * k1;
+                var b = Fetch64(s + 8);
+                var c = Fetch64(s + len - 8) * mul;
+                var d = Fetch64(s + len - 16) * k2;
+                var u = Rotate64(a + b, 43) + Rotate64(c, 30) + d + seed0;
+                var v = a + Rotate64(b + k2, 18) + c + seed1;
                 a = ShiftMix((u ^ v) * mul);
                 b = ShiftMix((v ^ a) * mul);
                 return b;
@@ -381,9 +381,9 @@ namespace Utf8Json.Internal
 
             unchecked
             {
-                ulong mul1 = k2 - 30 + 2 * len;
-                ulong h0 = H32(s, 32, mul0);
-                ulong h1 = H32(s + len - 32, 32, mul1);
+                var mul1 = k2 - 30 + 2 * len;
+                var h0 = H32(s, 32, mul0);
+                var h1 = H32(s + len - 32, 32, mul1);
                 return (h1 * mul1 + h0) * mul1;
             }
         }
@@ -396,10 +396,10 @@ namespace Utf8Json.Internal
 
             unchecked
             {
-                ulong mul1 = k2 - 114 + 2 * len;
-                ulong h0 = H32(s, 32, mul0);
-                ulong h1 = H32(s + 32, 32, mul1);
-                ulong h2 = H32(s + len - 32, 32, mul1, h0, h1);
+                var mul1 = k2 - 114 + 2 * len;
+                var h0 = H32(s, 32, mul0);
+                var h1 = H32(s + 32, 32, mul1);
+                var h2 = H32(s + len - 32, 32, mul1, h0, h1);
                 return (h2 * 9 + (h0 >> 17) + (h1 >> 21)) * mul1;
             }
         }
@@ -414,7 +414,7 @@ namespace Utf8Json.Internal
             {
                 a += w;
                 b = Rotate64(b + a + z, 21);
-                ulong c = a;
+                var c = a;
                 a += x;
                 a += y;
                 b += Rotate64(a, 44);
@@ -445,16 +445,16 @@ namespace Utf8Json.Internal
             {
                 // For strings over 64 bytes we loop.  Internal state consists of
                 // 56 bytes: v, w, x, y, and z.
-                ulong x = seed;
-                ulong y = seed * k1 + 113;
-                ulong z = ShiftMix(y * k2 + 113) * k2;
+                var x = seed;
+                var y = seed * k1 + 113;
+                var z = ShiftMix(y * k2 + 113) * k2;
                 var v = make_pair(0, 0);
                 var w = make_pair(0, 0);
                 x = x * k2 + Fetch64(s);
 
                 // Set end so that after the loop we have 1 to 64 bytes left to process.
-                byte* end = s + ((len - 1) / 64) * 64;
-                byte* last64 = end + ((len - 1) & 63) - 63;
+                var end = s + ((len - 1) / 64) * 64;
+                var last64 = end + ((len - 1) & 63) - 63;
 
                 do
                 {
@@ -468,7 +468,7 @@ namespace Utf8Json.Internal
                     swap(ref z, ref x);
                     s += 64;
                 } while (s != end);
-                ulong mul = k1 + ((z & 0xff) << 1);
+                var mul = k1 + ((z & 0xff) << 1);
                 // Make s point to the last 64 bytes of input.
                 s = last64;
                 w.first += ((len - 1) & 63);
@@ -494,9 +494,9 @@ namespace Utf8Json.Internal
         {
             unchecked
             {
-                ulong a = (x ^ y) * mul;
+                var a = (x ^ y) * mul;
                 a ^= (a >> 47);
-                ulong b = (y ^ a) * mul;
+                var b = (y ^ a) * mul;
                 return Rotate64(b, r) * mul;
             }
         }
@@ -512,29 +512,29 @@ namespace Utf8Json.Internal
             {
                 // For strings over 64 bytes we loop.  Internal state consists of
                 // 64 bytes: u, v, w, x, y, and z.
-                ulong x = seed0;
-                ulong y = seed1 * k2 + 113;
-                ulong z = ShiftMix(y * k2) * k2;
+                var x = seed0;
+                var y = seed1 * k2 + 113;
+                var z = ShiftMix(y * k2) * k2;
                 var v = make_pair(seed0, seed1);
                 var w = make_pair(0, 0);
-                ulong u = x - z;
+                var u = x - z;
                 x *= k2;
-                ulong mul = k2 + (u & 0x82);
+                var mul = k2 + (u & 0x82);
 
                 // Set end so that after the loop we have 1 to 64 bytes left to process.
-                byte* end = s + ((len - 1) / 64) * 64;
-                byte* last64 = end + ((len - 1) & 63) - 63;
+                var end = s + ((len - 1) / 64) * 64;
+                var last64 = end + ((len - 1) & 63) - 63;
 
                 do
                 {
-                    ulong a0 = Fetch64(s);
-                    ulong a1 = Fetch64(s + 8);
-                    ulong a2 = Fetch64(s + 16);
-                    ulong a3 = Fetch64(s + 24);
-                    ulong a4 = Fetch64(s + 32);
-                    ulong a5 = Fetch64(s + 40);
-                    ulong a6 = Fetch64(s + 48);
-                    ulong a7 = Fetch64(s + 56);
+                    var a0 = Fetch64(s);
+                    var a1 = Fetch64(s + 8);
+                    var a2 = Fetch64(s + 16);
+                    var a3 = Fetch64(s + 24);
+                    var a4 = Fetch64(s + 32);
+                    var a5 = Fetch64(s + 40);
+                    var a6 = Fetch64(s + 48);
+                    var a7 = Fetch64(s + 56);
                     x += a0 + a1;
                     y += a2;
                     z += a3;

@@ -255,7 +255,7 @@ namespace Utf8Json.Internal
                 if (count < 4)
                 {
                     // linear search
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         if (nextKeys[i] == key)
                         {
@@ -282,7 +282,7 @@ namespace Utf8Json.Internal
                 if (count < 4)
                 {
                     // linear search
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         if (nextKeys[i] == key)
                         {
@@ -305,11 +305,11 @@ namespace Utf8Json.Internal
 
             internal static int BinarySearch(ulong[] array, int index, int length, ulong value)
             {
-                int lo = index;
-                int hi = index + length - 1;
+                var lo = index;
+                var hi = index + length - 1;
                 while (lo <= hi)
                 {
-                    int i = lo + ((hi - lo) >> 1);
+                    var i = lo + ((hi - lo) >> 1);
 
                     var arrayValue = array[i];
                     int order;
@@ -338,7 +338,7 @@ namespace Utf8Json.Internal
 
             public IEnumerable<AutomataNode> YieldChildren()
             {
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     yield return nexts[i];
                 }
@@ -381,7 +381,7 @@ namespace Utf8Json.Internal
                     }
                     {
                         var ifValueNexts = Enumerable.Range(0, Math.Max(valueExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
-                        for (int i = 0; i < valueExists.Length; i++)
+                        for (var i = 0; i < valueExists.Length; i++)
                         {
                             var notFoundLabel = il.DefineLabel();
                             if (i != 0)
@@ -410,7 +410,7 @@ namespace Utf8Json.Internal
 
                     il.MarkLabel(gotoSearchNext);
                     var ifRecNext = Enumerable.Range(0, Math.Max(childrenExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
-                    for (int i = 0; i < childrenExists.Length; i++)
+                    for (var i = 0; i < childrenExists.Length; i++)
                     {
                         var notFoundLabel = il.DefineLabel();
                         if (i != 0)

@@ -20,11 +20,11 @@ namespace Utf8Json.Formatters
                 var jLength = value.GetLength(1);
 
                 writer.WriteBeginArray();
-                for (int i = 0; i < iLength; i++)
+                for (var i = 0; i < iLength; i++)
                 {
                     if (i != 0) writer.WriteValueSeparator();
                     writer.WriteBeginArray();
-                    for (int j = 0; j < jLength; j++)
+                    for (var j = 0; j < jLength; j++)
                     {
                         if (j != 0) writer.WriteValueSeparator();
                         formatter.Serialize(ref writer, value[i, j], formatterResolver);
@@ -60,9 +60,9 @@ namespace Utf8Json.Formatters
             }
 
             var t = new T[buffer.Size, guessInnerLength];
-            for (int i = 0; i < buffer.Size; i++)
+            for (var i = 0; i < buffer.Size; i++)
             {
-                for (int j = 0; j < guessInnerLength; j++)
+                for (var j = 0; j < guessInnerLength; j++)
                 {
                     t[i, j] = buffer.Buffer[i].Buffer[j];
                 }
@@ -89,15 +89,15 @@ namespace Utf8Json.Formatters
                 var kLength = value.GetLength(2);
 
                 writer.WriteBeginArray();
-                for (int i = 0; i < iLength; i++)
+                for (var i = 0; i < iLength; i++)
                 {
                     if (i != 0) writer.WriteValueSeparator();
                     writer.WriteBeginArray();
-                    for (int j = 0; j < jLength; j++)
+                    for (var j = 0; j < jLength; j++)
                     {
                         if (j != 0) writer.WriteValueSeparator();
                         writer.WriteBeginArray();
-                        for (int k = 0; k < kLength; k++)
+                        for (var k = 0; k < kLength; k++)
                         {
                             if (k != 0) writer.WriteValueSeparator();
                             formatter.Serialize(ref writer, value[i, j, k], formatterResolver);
@@ -145,11 +145,11 @@ namespace Utf8Json.Formatters
             }
 
             var t = new T[buffer.Size, guessInnerLength, guessInnerLength2];
-            for (int i = 0; i < buffer.Size; i++)
+            for (var i = 0; i < buffer.Size; i++)
             {
-                for (int j = 0; j < guessInnerLength; j++)
+                for (var j = 0; j < guessInnerLength; j++)
                 {
-                    for (int k = 0; k < guessInnerLength2; k++)
+                    for (var k = 0; k < guessInnerLength2; k++)
                     {
                         t[i, j, k] = buffer.Buffer[i].Buffer[j].Buffer[k];
                     }
@@ -178,19 +178,19 @@ namespace Utf8Json.Formatters
                 var lLength = value.GetLength(3);
 
                 writer.WriteBeginArray();
-                for (int i = 0; i < iLength; i++)
+                for (var i = 0; i < iLength; i++)
                 {
                     if (i != 0) writer.WriteValueSeparator();
                     writer.WriteBeginArray();
-                    for (int j = 0; j < jLength; j++)
+                    for (var j = 0; j < jLength; j++)
                     {
                         if (j != 0) writer.WriteValueSeparator();
                         writer.WriteBeginArray();
-                        for (int k = 0; k < kLength; k++)
+                        for (var k = 0; k < kLength; k++)
                         {
                             if (k != 0) writer.WriteValueSeparator();
                             writer.WriteBeginArray();
-                            for (int l = 0; l < lLength; l++)
+                            for (var l = 0; l < lLength; l++)
                             {
                                 if (l != 0) writer.WriteValueSeparator();
                                 formatter.Serialize(ref writer, value[i, j, k, l], formatterResolver);
@@ -249,13 +249,13 @@ namespace Utf8Json.Formatters
             }
 
             var t = new T[buffer.Size, guessInnerLength, guessInnerLength2, guessInnerLength3];
-            for (int i = 0; i < buffer.Size; i++)
+            for (var i = 0; i < buffer.Size; i++)
             {
-                for (int j = 0; j < guessInnerLength; j++)
+                for (var j = 0; j < guessInnerLength; j++)
                 {
-                    for (int k = 0; k < guessInnerLength2; k++)
+                    for (var k = 0; k < guessInnerLength2; k++)
                     {
-                        for (int l = 0; l < guessInnerLength3; l++)
+                        for (var l = 0; l < guessInnerLength3; l++)
                         {
                             t[i, j, k, l] = buffer.Buffer[i].Buffer[j].Buffer[k].Buffer[l];
                         }

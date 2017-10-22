@@ -101,7 +101,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteString(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteString(value[i]);
@@ -200,7 +200,7 @@ namespace Utf8Json.Formatters
                 {
                     CharFormatter.Default.Serialize(ref writer, value[0], formatterResolver);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     CharFormatter.Default.Serialize(ref writer, value[i], formatterResolver);
@@ -383,8 +383,8 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) throw new InvalidOperationException("Data is Nil, KeyValuePair can not be null.");
 
-            TKey resultKey = default(TKey);
-            TValue resultValue = default(TValue);
+            var resultKey = default(TKey);
+            var resultValue = default(TValue);
 
             reader.ReadIsBeginObjectWithVerify();
 
@@ -444,7 +444,7 @@ namespace Utf8Json.Formatters
             if (value == null) { writer.WriteNull(); return; }
 
             writer.WriteBeginArray();
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 if (i != 0) writer.WriteValueSeparator();
                 writer.WriteBoolean(value[i]);

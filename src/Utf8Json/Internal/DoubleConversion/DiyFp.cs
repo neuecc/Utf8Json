@@ -43,7 +43,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // than other. The result will not be normalized.
         public static DiyFp Minus(ref DiyFp a, ref DiyFp b)
         {
-            DiyFp result = a;
+            var result = a;
             result.Subtract(ref b);
             return result;
         }
@@ -61,19 +61,19 @@ namespace Utf8Json.Internal.DoubleConversion
             // significant 64 bits are only used for rounding the most significant 64
             // bits.
             const long kM32 = 0xFFFFFFFFU;
-            ulong a = f >> 32;
-            ulong b = f & kM32;
-            ulong c = other.f >> 32;
-            ulong d = other.f & kM32;
-            ulong ac = a * c;
-            ulong bc = b * c;
-            ulong ad = a * d;
-            ulong bd = b * d;
-            ulong tmp = (bd >> 32) + (ad & kM32) + (bc & kM32);
+            var a = f >> 32;
+            var b = f & kM32;
+            var c = other.f >> 32;
+            var d = other.f & kM32;
+            var ac = a * c;
+            var bc = b * c;
+            var ad = a * d;
+            var bd = b * d;
+            var tmp = (bd >> 32) + (ad & kM32) + (bc & kM32);
             // By adding 1U << 31 to tmp we round the final result.
             // Halfway cases will be round up.
             tmp += 1U << 31;
-            ulong result_f = ac + (ad >> 32) + (bc >> 32) + (tmp >> 32);
+            var result_f = ac + (ad >> 32) + (bc >> 32) + (tmp >> 32);
             e += other.e + 64;
             f = result_f;
         }
@@ -81,7 +81,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // returns a * b;
         public static DiyFp Times(ref DiyFp a, ref DiyFp b)
         {
-            DiyFp result = a;
+            var result = a;
             result.Multiply(ref b);
             return result;
         }
@@ -93,8 +93,8 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public void Normalize()
         {
-            ulong significand = f;
-            int exponent = e;
+            var significand = f;
+            var exponent = e;
 
             // This method is mainly called for normalizing boundaries. In general
             // boundaries need to be shifted by 10 bits. We thus optimize for this case.
@@ -115,7 +115,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public static DiyFp Normalize(ref DiyFp a)
         {
-            DiyFp result = a;
+            var result = a;
             result.Normalize();
             return result;
         }

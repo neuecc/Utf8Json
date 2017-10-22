@@ -16,7 +16,7 @@ namespace Utf8Json.ImmutableCollection
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
             }
-            for (int i = 1; i < value.Length; i++)
+            for (var i = 1; i < value.Length; i++)
             {
                 writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, value[i], formatterResolver);
@@ -188,7 +188,7 @@ namespace Utf8Json.ImmutableCollection
         {
             var bufArray = intermediateCollection.Buffer;
             var stack = ImmutableStack<T>.Empty;
-            for (int i = intermediateCollection.Size - 1; i >= 0; i--)
+            for (var i = intermediateCollection.Size - 1; i >= 0; i--)
             {
                 stack = stack.Push(bufArray[i]);
             }
@@ -285,7 +285,7 @@ namespace Utf8Json.ImmutableCollection
         {
             var bufArray = intermediateCollection.Buffer;
             var stack = ImmutableStack<T>.Empty;
-            for (int i = intermediateCollection.Size - 1; i >= 0; i--)
+            for (var i = intermediateCollection.Size - 1; i >= 0; i--)
             {
                 stack = stack.Push(bufArray[i]);
             }

@@ -125,7 +125,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         static Vector TrimLeadingZeros(Vector buffer)
         {
-            for (int i = 0; i < buffer.length(); i++)
+            for (var i = 0; i < buffer.length(); i++)
             {
                 if (buffer[i] != '0')
                 {
@@ -137,7 +137,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         static Vector TrimTrailingZeros(Vector buffer)
         {
-            for (int i = buffer.length() - 1; i >= 0; --i)
+            for (var i = buffer.length() - 1; i >= 0; --i)
             {
                 if (buffer[i] != '0')
                 {
@@ -153,7 +153,7 @@ namespace Utf8Json.Internal.DoubleConversion
                                        byte[] significant_buffer,
                                        out int significant_exponent)
         {
-            for (int i = 0; i < kMaxSignificantDecimalDigits - 1; ++i)
+            for (var i = 0; i < kMaxSignificantDecimalDigits - 1; ++i)
             {
                 significant_buffer[i] = buffer[i];
             }
@@ -174,8 +174,8 @@ namespace Utf8Json.Internal.DoubleConversion
                        byte[] buffer_copy_space, int space_size,
                        out Vector trimmed, out int updated_exponent)
         {
-            Vector left_trimmed = TrimLeadingZeros(buffer);
-            Vector right_trimmed = TrimTrailingZeros(left_trimmed);
+            var left_trimmed = TrimLeadingZeros(buffer);
+            var right_trimmed = TrimTrailingZeros(left_trimmed);
             exponent += left_trimmed.length() - right_trimmed.length();
             if (right_trimmed.length() > kMaxSignificantDecimalDigits)
             {
@@ -201,10 +201,10 @@ namespace Utf8Json.Internal.DoubleConversion
                            out int number_of_read_digits)
         {
             uint64_t result = 0;
-            int i = 0;
+            var i = 0;
             while (i < buffer.length() && result <= (kMaxUint64 / 10 - 1))
             {
-                int digit = buffer[i++] - '0';
+                var digit = buffer[i++] - '0';
                 result = 10 * result + (ulong)digit;
             }
             number_of_read_digits = i;
@@ -220,7 +220,7 @@ namespace Utf8Json.Internal.DoubleConversion
                       out int remaining_decimals)
         {
             int read_digits;
-            uint64_t significand = ReadUint64(buffer, out read_digits);
+            var significand = ReadUint64(buffer, out read_digits);
             if (buffer.length() == read_digits)
             {
                 result = new DiyFp(significand, 0);
@@ -234,7 +234,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     significand++;
                 }
                 // Compute the binary exponent.
-                int exponent = 0;
+                var exponent = 0;
                 result = new DiyFp(significand, exponent);
                 remaining_decimals = buffer.length() - read_digits;
             }
@@ -268,7 +268,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     result *= exact_powers_of_ten[exponent];
                     return true;
                 }
-                int remaining_digits =
+                var remaining_digits =
                     kMaxExactDoubleIntegerDecimalDigits - trimmed.length();
                 if ((0 <= exponent) &&
                     (exponent - remaining_digits < kExactPowersOfTenSize))
@@ -326,9 +326,9 @@ namespace Utf8Json.Internal.DoubleConversion
             const int kDenominator = 1 << kDenominatorLog;
             // Move the remaining decimals into the exponent.
             exponent += remaining_decimals;
-            uint64_t error = (ulong)(remaining_decimals == 0 ? 0 : kDenominator / 2);
+            var error = (ulong)(remaining_decimals == 0 ? 0 : kDenominator / 2);
 
-            int old_e = input.e;
+            var old_e = input.e;
             input.Normalize();
             error <<= old_e - input.e;
 
@@ -345,8 +345,8 @@ namespace Utf8Json.Internal.DoubleConversion
 
             if (cached_decimal_exponent != exponent)
             {
-                int adjustment_exponent = exponent - cached_decimal_exponent;
-                DiyFp adjustment_power = AdjustmentPowerOfTen(adjustment_exponent);
+                var adjustment_exponent = exponent - cached_decimal_exponent;
+                var adjustment_power = AdjustmentPowerOfTen(adjustment_exponent);
                 input.Multiply(ref adjustment_power);
                 if (kMaxUint64DecimalDigits - buffer.length() >= adjustment_exponent)
                 {
@@ -366,9 +366,9 @@ namespace Utf8Json.Internal.DoubleConversion
             // Substituting a with 'input' and b with 'cached_power' we have
             //   error_b = 0.5  (all cached powers have an error of less than 0.5 ulp),
             //   error_ab = 0 or 1 / kDenominator > error_a*error_b/ 2^64
-            int error_b = kDenominator / 2;
-            int error_ab = (error == 0 ? 0 : 1);  // We round up to 1.
-            int fixed_error = kDenominator / 2;
+            var error_b = kDenominator / 2;
+            var error_ab = (error == 0 ? 0 : 1);  // We round up to 1.
+            var fixed_error = kDenominator / 2;
             error += (ulong)(error_b + error_ab + fixed_error);
 
             old_e = input.e;
@@ -376,15 +376,15 @@ namespace Utf8Json.Internal.DoubleConversion
             error <<= old_e - input.e;
 
             // See if the double's significand changes if we add/subtract the error.
-            int order_of_magnitude = DiyFp.kSignificandSize + input.e;
-            int effective_significand_size = Double.SignificandSizeForOrderOfMagnitude(order_of_magnitude);
-            int precision_digits_count = DiyFp.kSignificandSize - effective_significand_size;
+            var order_of_magnitude = DiyFp.kSignificandSize + input.e;
+            var effective_significand_size = Double.SignificandSizeForOrderOfMagnitude(order_of_magnitude);
+            var precision_digits_count = DiyFp.kSignificandSize - effective_significand_size;
             if (precision_digits_count + kDenominatorLog >= DiyFp.kSignificandSize)
             {
                 // This can only happen for very small denormals. In this case the
                 // half-way multiplied by the denominator exceeds the range of an uint64.
                 // Simply shift everything to the right.
-                int shift_amount = (precision_digits_count + kDenominatorLog) -
+                var shift_amount = (precision_digits_count + kDenominatorLog) -
                     DiyFp.kSignificandSize + 1;
                 input.f = (input.f >> shift_amount);
                 input.e = (input.e + shift_amount);
@@ -395,12 +395,12 @@ namespace Utf8Json.Internal.DoubleConversion
             }
             // We use uint64_ts now. This only works if the DiyFp uses uint64_ts too.
             uint64_t one64 = 1;
-            uint64_t precision_bits_mask = (one64 << precision_digits_count) - 1;
-            uint64_t precision_bits = input.f & precision_bits_mask;
-            uint64_t half_way = one64 << (precision_digits_count - 1);
+            var precision_bits_mask = (one64 << precision_digits_count) - 1;
+            var precision_bits = input.f & precision_bits_mask;
+            var half_way = one64 << (precision_digits_count - 1);
             precision_bits *= kDenominator;
             half_way *= kDenominator;
-            DiyFp rounded_input = new DiyFp(input.f >> precision_digits_count, input.e + precision_digits_count);
+            var rounded_input = new DiyFp(input.f >> precision_digits_count, input.e + precision_digits_count);
             if (precision_bits >= half_way + error)
             {
                 rounded_input.f = (rounded_input.f + 1);
@@ -458,7 +458,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public static double? Strtod(Vector buffer, int exponent)
         {
-            byte[] copy_buffer = GetCopyBuffer();
+            var copy_buffer = GetCopyBuffer();
             Vector trimmed;
             int updated_exponent;
             TrimAndCut(buffer, exponent, copy_buffer, kMaxSignificantDecimalDigits,
@@ -473,7 +473,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public static float? Strtof(Vector buffer, int exponent)
         {
-            byte[] copy_buffer = GetCopyBuffer();
+            var copy_buffer = GetCopyBuffer();
             Vector trimmed;
             int updated_exponent;
             TrimAndCut(buffer, exponent, copy_buffer, kMaxSignificantDecimalDigits,
@@ -483,7 +483,7 @@ namespace Utf8Json.Internal.DoubleConversion
             double double_guess;
             var is_correct = ComputeGuess(trimmed, exponent, out double_guess);
 
-            float float_guess = (float)(double_guess);
+            var float_guess = (float)(double_guess);
             if (float_guess == double_guess)
             {
                 // This shortcut triggers for integer values.
@@ -504,12 +504,12 @@ namespace Utf8Json.Internal.DoubleConversion
             // to look at four values (since two different doubles could be the correct
             // double).
 
-            double double_next = new Double(double_guess).NextDouble();
-            double double_previous = new Double(double_guess).PreviousDouble();
+            var double_next = new Double(double_guess).NextDouble();
+            var double_previous = new Double(double_guess).PreviousDouble();
 
-            float f1 = (float)(double_previous);
+            var f1 = (float)(double_previous);
             // float f2 = float_guess;
-            float f3 = (float)(double_next);
+            var f3 = (float)(double_next);
             float f4;
             if (is_correct)
             {
@@ -517,7 +517,7 @@ namespace Utf8Json.Internal.DoubleConversion
             }
             else
             {
-                double double_next2 = new Double(double_next).NextDouble();
+                var double_next2 = new Double(double_next).NextDouble();
                 f4 = (float)(double_next2);
             }
             // (void)f2;  // Mark variable as used.

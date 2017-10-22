@@ -36,7 +36,7 @@ namespace Utf8Json.Internal
             if (string.IsNullOrEmpty(s)) return s;
 
             var sb = new StringBuilder();
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
             {
                 var c = s[i];
 

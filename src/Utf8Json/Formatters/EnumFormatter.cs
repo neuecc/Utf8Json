@@ -142,7 +142,7 @@ namespace Utf8Json.Formatters
             nameValueMapping = new ByteArrayStringHashTable<T>(names.Length);
             valueNameMapping = new Dictionary<T, string>(names.Length);
 
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
                 nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i]), (T)values.GetValue(i));
                 valueNameMapping[(T)values.GetValue(i)] = names[i];

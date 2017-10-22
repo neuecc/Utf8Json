@@ -17,7 +17,7 @@ namespace Utf8Json.Tests
 
             var j = Utf8Json.JsonSerializer.Serialize(expando);
 
-            dynamic exp = Utf8Json.JsonSerializer.Deserialize<ExpandoObject>(j);
+            var exp = Utf8Json.JsonSerializer.Deserialize<ExpandoObject>(j);
             (exp.Hoge as string).Is("hogehoge");
             (exp.Huga as string).Is("huga-");
         }

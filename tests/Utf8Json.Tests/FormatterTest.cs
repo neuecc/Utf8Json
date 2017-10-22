@@ -170,7 +170,7 @@ namespace Utf8Json.Tests
             Task nullUnitTask = null;
             Convert(nullUnitTask).Status.Is(TaskStatus.RanToCompletion); // write to nil
 
-            ValueTask<int> valueTask = new ValueTask<int>(100);
+            var valueTask = new ValueTask<int>(100);
             Convert(valueTask).Result.Is(100);
 
             ValueTask<int>? nullValueTask = new ValueTask<int>(100);

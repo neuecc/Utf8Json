@@ -130,12 +130,12 @@ namespace Utf8Json.Internal.DoubleConversion
             out DiyFp power,
             out int decimal_exponent)
         {
-            int kQ = DiyFp.kSignificandSize;
-            double k = Math.Ceiling((min_exponent + kQ - 1) * kD_1_LOG2_10);
-            int foo = kCachedPowersOffset;
-            int index = (foo + (int)(k) - 1) / kDecimalExponentDistance + 1;
+            var kQ = DiyFp.kSignificandSize;
+            var k = Math.Ceiling((min_exponent + kQ - 1) * kD_1_LOG2_10);
+            var foo = kCachedPowersOffset;
+            var index = (foo + (int)(k) - 1) / kDecimalExponentDistance + 1;
 
-            CachedPower cached_power = kCachedPowers[index];
+            var cached_power = kCachedPowers[index];
             // (void)max_exponent;  // Mark variable as used.
             decimal_exponent = cached_power.decimal_exponent;
             power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
@@ -145,8 +145,8 @@ namespace Utf8Json.Internal.DoubleConversion
                                                         out DiyFp power,
                                                         out int found_exponent)
         {
-            int index = (requested_exponent + kCachedPowersOffset) / kDecimalExponentDistance;
-            CachedPower cached_power = kCachedPowers[index];
+            var index = (requested_exponent + kCachedPowersOffset) / kDecimalExponentDistance;
+            var cached_power = kCachedPowers[index];
             power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
             found_exponent = cached_power.decimal_exponent;
         }

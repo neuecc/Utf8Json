@@ -462,7 +462,7 @@ namespace Utf8Json
                         {
                             var ps = x.GetParameters();
                             if (ps.Length != arguments.Length) return false;
-                            for (int i = 0; i < ps.Length; i++)
+                            for (var i = 0; i < ps.Length; i++)
                             {
                                 // null for <T>.
                                 if (arguments[i] == null && ps[i].ParameterType.IsGenericParameter) continue;

@@ -158,7 +158,7 @@ namespace Xunit
             var condition = predicate.Compile().Invoke(value);
 
             var paramName = predicate.Parameters.First().Name;
-            string msg = "";
+            var msg = "";
             try
             {
                 var dumper = new ExpressionDumper<T>(value, predicate.Parameters.Single());

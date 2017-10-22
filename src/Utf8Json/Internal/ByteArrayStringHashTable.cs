@@ -54,7 +54,7 @@ namespace Utf8Json.Internal
             else
             {
                 // check duplicate
-                for (int i = 0; i < array.Length; i++)
+                for (var i = 0; i < array.Length; i++)
                 {
                     var e = array[i].Key;
                     if (ByteArrayComparer.Equals(key, 0, key.Length, e))
@@ -90,7 +90,7 @@ namespace Utf8Json.Internal
                 }
             }
 
-            for (int i = 1; i < entry.Length; i++)
+            for (var i = 1; i < entry.Length; i++)
             {
                 var v = entry[i];
                 if (ByteArrayComparer.Equals(key.Array, key.Offset, key.Count, v.Key))

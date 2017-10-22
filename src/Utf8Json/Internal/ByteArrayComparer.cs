@@ -76,8 +76,8 @@ namespace Utf8Json.Internal
                             var x1 = p1;
                             var x2 = p2;
 
-                            byte* xEnd = p1 + xsCount - 8;
-                            byte* yEnd = p2 + ysCount - 8;
+                            var xEnd = p1 + xsCount - 8;
+                            var yEnd = p2 + ysCount - 8;
 
                             while (x1 < xEnd)
                             {

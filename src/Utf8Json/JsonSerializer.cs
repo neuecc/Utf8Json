@@ -285,7 +285,7 @@ namespace Utf8Json
             var buf = buffer;
             try
             {
-                int length = 0;
+                var length = 0;
                 int read;
                 while ((read = await stream.ReadAsync(buf, length, buf.Length - length).ConfigureAwait(false)) > 0)
                 {
@@ -437,7 +437,7 @@ namespace Utf8Json
 
         static int FillFromStream(Stream input, ref byte[] buffer)
         {
-            int length = 0;
+            var length = 0;
             int read;
             while ((read = input.Read(buffer, length, buffer.Length - length)) > 0)
             {

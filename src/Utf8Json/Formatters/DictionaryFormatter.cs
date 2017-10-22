@@ -311,7 +311,7 @@ namespace Utf8Json.Formatters
                 {
                     if (e.MoveNext())
                     {
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
+                        var item = (System.Collections.DictionaryEntry)e.Current;
                         writer.WritePropertyName(item.Key.ToString());
                         valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                     }
@@ -323,7 +323,7 @@ namespace Utf8Json.Formatters
                     while (e.MoveNext())
                     {
                         writer.WriteValueSeparator();
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
+                        var item = (System.Collections.DictionaryEntry)e.Current;
                         writer.WritePropertyName(item.Key.ToString());
                         valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                     }
@@ -391,7 +391,7 @@ namespace Utf8Json.Formatters
                 {
                     if (e.MoveNext())
                     {
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
+                        var item = (System.Collections.DictionaryEntry)e.Current;
                         writer.WritePropertyName(item.Key.ToString());
                         valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                     }
@@ -403,7 +403,7 @@ namespace Utf8Json.Formatters
                     while (e.MoveNext())
                     {
                         writer.WriteValueSeparator();
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
+                        var item = (System.Collections.DictionaryEntry)e.Current;
                         writer.WritePropertyName(item.Key.ToString());
                         valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                     }

@@ -288,7 +288,7 @@ namespace Utf8Json.Formatters
             if (array[i++] != (byte)':') goto ERROR;
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
-            int ticks = 0;
+            var ticks = 0;
             if (i < to && array[i] == '.')
             {
                 i++;
@@ -638,7 +638,7 @@ namespace Utf8Json.Formatters
             if (array[i++] != (byte)':') goto ERROR;
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
-            int ticks = 0;
+            var ticks = 0;
             if (i < to && array[i] == '.')
             {
                 i++;
@@ -858,11 +858,11 @@ namespace Utf8Json.Formatters
             var to = str.Offset + str.Count;
 
             // check day exists
-            bool hasDay = false;
+            var hasDay = false;
             {
-                bool foundDot = false;
-                bool foundColon = false;
-                for (int j = i; j < str.Count; j++)
+                var foundDot = false;
+                var foundColon = false;
+                for (var j = i; j < str.Count; j++)
                 {
                     if (array[j] == '.')
                     {
@@ -916,7 +916,7 @@ namespace Utf8Json.Formatters
             if (array[i++] != (byte)':') goto ERROR;
             var second = (array[i++] - (byte)'0') * 10 + (array[i++] - (byte)'0');
 
-            int ticks = 0;
+            var ticks = 0;
             if (i < to && array[i] == '.')
             {
                 i++;

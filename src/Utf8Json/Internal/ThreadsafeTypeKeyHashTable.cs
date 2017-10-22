@@ -42,7 +42,7 @@ namespace Utf8Json.Internal
                 {
                     // rehash
                     var nextBucket = new Entry[nextCapacity];
-                    for (int i = 0; i < buckets.Length; i++)
+                    for (var i = 0; i < buckets.Length; i++)
                     {
                         var e = buckets[i];
                         while (e != null)

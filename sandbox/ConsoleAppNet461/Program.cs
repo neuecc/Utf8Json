@@ -754,7 +754,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
     {
         if (value == null) { writer.WriteNull(); return; }
 
-        bool wrote = false;
+        var wrote = false;
         writer.WriteBeginObject();
         // if(value.Age != nul)
         {
@@ -799,9 +799,9 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
 
         reader.ReadIsBeginObjectWithVerify(); // "{"
 
-        int age = default(int);
-        string firstName = default(string);
-        string lastName = default(string);
+        var age = default(int);
+        var firstName = default(string);
+        var lastName = default(string);
 
         var count = 0;
         while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count)) // "}", skip "," when count != 0
@@ -992,7 +992,7 @@ namespace Utf8Json.Formatters
                 return null;
             }
             ptr.ReadIsBeginObjectWithVerify();
-            byte[] bufferUnsafe = ptr.GetBufferUnsafe();
+            var bufferUnsafe = ptr.GetBufferUnsafe();
             string str = default;
             int[] array = default;
             sbyte number = default;
@@ -1008,12 +1008,12 @@ namespace Utf8Json.Formatters
                 int num = default;
                 while (!ptr.ReadIsEndObjectWithSkipValueSeparator(ref num))
                 {
-                    ArraySegment<byte> arraySegment = ptr.ReadPropertyNameSegmentRaw();
-                    byte* ptr3 = ptr2 + arraySegment.Offset;
-                    int count = arraySegment.Count;
+                    var arraySegment = ptr.ReadPropertyNameSegmentRaw();
+                    var ptr3 = ptr2 + arraySegment.Offset;
+                    var count = arraySegment.Count;
                     if (count != 0)
                     {
-                        ulong key = AutomataKeyGen.GetKey(ref ptr3, ref count);
+                        var key = AutomataKeyGen.GetKey(ref ptr3, ref count);
                         if (key < 14762478557558094uL)
                         {
                             if (key < 13918053627426126uL)

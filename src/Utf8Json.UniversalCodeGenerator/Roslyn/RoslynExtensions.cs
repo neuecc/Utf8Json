@@ -46,7 +46,7 @@ namespace Utf8Json.UniversalCodeGenerator
                 }
             }
 
-            CSharpCompilation compilation = CSharpCompilation.Create(
+            var compilation = CSharpCompilation.Create(
                 "Assembly-CSharp",
                 syntaxTrees: syntaxTrees,
                 references: references

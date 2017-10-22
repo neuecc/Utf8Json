@@ -638,7 +638,7 @@ namespace Utf8Json.Resolvers.Internal
             var hasShouldSerialize = serializationInfo.Members.Any(x => x.ShouldSerializeMethodInfo != null);
 
             // build instance instead of emit constructor.
-            List<byte[]> stringByteKeysField = new List<byte[]>();
+            var stringByteKeysField = new List<byte[]>();
             var i = 0;
             foreach (var item in serializationInfo.Members.Where(x => x.IsReadable))
             {
@@ -660,8 +660,8 @@ namespace Utf8Json.Resolvers.Internal
                 i++;
             }
 
-            List<object> serializeCustomFormatters = new List<object>();
-            List<object> deserializeCustomFormatters = new List<object>();
+            var serializeCustomFormatters = new List<object>();
+            var deserializeCustomFormatters = new List<object>();
             foreach (var item in serializationInfo.Members.Where(x => x.IsReadable))
             {
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
@@ -776,7 +776,7 @@ namespace Utf8Json.Resolvers.Internal
 
         static Dictionary<MetaMember, FieldInfo> BuildCustomFormatterField(TypeBuilder builder, MetaType info, ILGenerator il)
         {
-            Dictionary<MetaMember, FieldInfo> dict = new Dictionary<MetaMember, FieldInfo>();
+            var dict = new Dictionary<MetaMember, FieldInfo>();
             foreach (var item in info.Members.Where(x => x.IsReadable || x.IsWritable))
             {
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
@@ -871,7 +871,7 @@ namespace Utf8Json.Resolvers.Internal
 
             // for-loop WriteRaw -> WriteValue, EndObject
             LocalBuilder wrote = null;
-            Label endObjectLabel = il.DefineLabel();
+            var endObjectLabel = il.DefineLabel();
             Label[] labels = null;
             if (excludeNull || hasShouldSerialize)
             {
@@ -940,7 +940,7 @@ namespace Utf8Json.Resolvers.Internal
                 il.EmitLdc_I4(index);
                 il.Emit(OpCodes.Ldelem_Ref);
 #if NETSTANDARD
-                byte[] rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
+                var rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
                 if (rawField.Length < 32)
                 {
                     if (UnsafeMemory.Is32Bit)
@@ -1078,7 +1078,7 @@ namespace Utf8Json.Resolvers.Internal
             // read member loop
             {
                 var automata = new AutomataDictionary();
-                for (int i = 0; i < info.Members.Length; i++)
+                for (var i = 0; i < info.Members.Length; i++)
                 {
                     automata.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(info.Members[i].Name), i);
                 }

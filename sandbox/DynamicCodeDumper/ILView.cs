@@ -107,7 +107,7 @@ namespace DynamicCodeDumper
                         case OperandType.InlineSwitch:
                             {
                                 var count = reader.ReadUInt32();
-                                for (int i = 0; i < count; i++)
+                                for (var i = 0; i < count; i++)
                                 {
                                     // data =...
                                     reader.ReadInt32();

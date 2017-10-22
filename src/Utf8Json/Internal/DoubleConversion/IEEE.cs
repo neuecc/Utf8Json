@@ -62,8 +62,8 @@ namespace Utf8Json.Internal.DoubleConversion
         // The value encoded by this Double must be strictly greater than 0.
         public DiyFp AsNormalizedDiyFp()
         {
-            ulong f = Significand();
-            int e = Exponent();
+            var f = Significand();
+            var e = Exponent();
 
             // The current double could be a denormal.
             while ((f & kHiddenBit) == 0)
@@ -120,16 +120,16 @@ namespace Utf8Json.Internal.DoubleConversion
         {
             if (IsDenormal()) return kDenormalExponent;
 
-            ulong d64 = AsUint64();
-            int biased_e =
+            var d64 = AsUint64();
+            var biased_e =
                 (int)((d64 & kExponentMask) >> kPhysicalSignificandSize);
             return biased_e - kExponentBias;
         }
 
         public ulong Significand()
         {
-            ulong d64 = AsUint64();
-            ulong significand = d64 & kSignificandMask;
+            var d64 = AsUint64();
+            var significand = d64 & kSignificandMask;
             if (!IsDenormal())
             {
                 return significand + kHiddenBit;
@@ -143,7 +143,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // Returns true if the double is a denormal.
         public bool IsDenormal()
         {
-            ulong d64 = AsUint64();
+            var d64 = AsUint64();
             return (d64 & kExponentMask) == 0;
         }
 
@@ -151,27 +151,27 @@ namespace Utf8Json.Internal.DoubleConversion
         // Hence only Infinity and NaN are special.
         public bool IsSpecial()
         {
-            ulong d64 = AsUint64();
+            var d64 = AsUint64();
             return (d64 & kExponentMask) == kExponentMask;
         }
 
         public bool IsNan()
         {
-            ulong d64 = AsUint64();
+            var d64 = AsUint64();
             return ((d64 & kExponentMask) == kExponentMask) &&
                 ((d64 & kSignificandMask) != 0);
         }
 
         public bool IsInfinite()
         {
-            ulong d64 = AsUint64();
+            var d64 = AsUint64();
             return ((d64 & kExponentMask) == kExponentMask) &&
                 ((d64 & kSignificandMask) == 0);
         }
 
         public int Sign()
         {
-            ulong d64 = AsUint64();
+            var d64 = AsUint64();
             return (d64 & kSignMask) == 0 ? 1 : -1;
         }
 
@@ -188,7 +188,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // Precondition: the value encoded by this Double must be greater than 0.
         public void NormalizedBoundaries(out DiyFp out_m_minus, out DiyFp out_m_plus)
         {
-            DiyFp v = this.AsDiyFp();
+            var v = this.AsDiyFp();
             var __ = new DiyFp((v.f << 1) + 1, v.e - 1);
             var m_plus = DiyFp.Normalize(ref __);
 
@@ -217,7 +217,7 @@ namespace Utf8Json.Internal.DoubleConversion
             // The only exception is for the smallest normal: the largest denormal is
             // at the same distance as its successor.
             // Note: denormals have the same exponent as the smallest normals.
-            bool physical_significand_is_zero = ((AsUint64() & kSignificandMask) == 0);
+            var physical_significand_is_zero = ((AsUint64() & kSignificandMask) == 0);
             return physical_significand_is_zero && (Exponent() != kDenormalExponent);
         }
 
@@ -254,8 +254,8 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public static ulong DiyFpToUint64(DiyFp diy_fp)
         {
-            ulong significand = diy_fp.f;
-            int exponent = diy_fp.e;
+            var significand = diy_fp.f;
+            var exponent = diy_fp.e;
             while (significand > kHiddenBit + kSignificandMask)
             {
                 significand >>= 1;
@@ -327,15 +327,15 @@ namespace Utf8Json.Internal.DoubleConversion
         {
             if (IsDenormal()) return kDenormalExponent;
 
-            uint32_t d32 = AsUint32();
-            int biased_e = (int)((d32 & kExponentMask) >> kPhysicalSignificandSize);
+            var d32 = AsUint32();
+            var biased_e = (int)((d32 & kExponentMask) >> kPhysicalSignificandSize);
             return biased_e - kExponentBias;
         }
 
         public uint32_t Significand()
         {
-            uint32_t d32 = AsUint32();
-            uint32_t significand = d32 & kSignificandMask;
+            var d32 = AsUint32();
+            var significand = d32 & kSignificandMask;
             if (!IsDenormal())
             {
                 return significand + kHiddenBit;
@@ -349,7 +349,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // Returns true if the single is a denormal.
         public bool IsDenormal()
         {
-            uint32_t d32 = AsUint32();
+            var d32 = AsUint32();
             return (d32 & kExponentMask) == 0;
         }
 
@@ -357,27 +357,27 @@ namespace Utf8Json.Internal.DoubleConversion
         // Hence only Infinity and NaN are special.
         public bool IsSpecial()
         {
-            uint32_t d32 = AsUint32();
+            var d32 = AsUint32();
             return (d32 & kExponentMask) == kExponentMask;
         }
 
         public bool IsNan()
         {
-            uint32_t d32 = AsUint32();
+            var d32 = AsUint32();
             return ((d32 & kExponentMask) == kExponentMask) &&
                 ((d32 & kSignificandMask) != 0);
         }
 
         public bool IsInfinite()
         {
-            uint32_t d32 = AsUint32();
+            var d32 = AsUint32();
             return ((d32 & kExponentMask) == kExponentMask) &&
                 ((d32 & kSignificandMask) == 0);
         }
 
         public int Sign()
         {
-            uint32_t d32 = AsUint32();
+            var d32 = AsUint32();
             return (d32 & kSignMask) == 0 ? 1 : -1;
         }
 
@@ -387,9 +387,9 @@ namespace Utf8Json.Internal.DoubleConversion
         // Precondition: the value encoded by this Single must be greater than 0.
         public void NormalizedBoundaries(out DiyFp out_m_minus, out DiyFp out_m_plus)
         {
-            DiyFp v = this.AsDiyFp();
+            var v = this.AsDiyFp();
             var __ = new DiyFp((v.f << 1) + 1, v.e - 1);
-            DiyFp m_plus = DiyFp.Normalize(ref __);
+            var m_plus = DiyFp.Normalize(ref __);
             DiyFp m_minus;
             if (LowerBoundaryIsCloser())
             {
@@ -422,7 +422,7 @@ namespace Utf8Json.Internal.DoubleConversion
             // The only exception is for the smallest normal: the largest denormal is
             // at the same distance as its successor.
             // Note: denormals have the same exponent as the smallest normals.
-            bool physical_significand_is_zero = ((AsUint32() & kSignificandMask) == 0);
+            var physical_significand_is_zero = ((AsUint32() & kSignificandMask) == 0);
             return physical_significand_is_zero && (Exponent() != kDenormalExponent);
         }
 

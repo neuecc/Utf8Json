@@ -90,7 +90,7 @@ namespace Utf8Json.Internal
                 sign = -1;
             }
 
-            for (int i = ((sign == -1) ? offset + 1 : offset); i < bytes.Length; i++)
+            for (var i = ((sign == -1) ? offset + 1 : offset); i < bytes.Length; i++)
             {
                 if (!IsNumber(bytes[i]))
                 {
@@ -134,7 +134,7 @@ namespace Utf8Json.Internal
         {
             var value = 0UL;
 
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 if (!IsNumber(bytes[i]))
                 {

@@ -97,7 +97,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteSByte(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteSByte(value[i]);
@@ -227,7 +227,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteInt16(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteInt16(value[i]);
@@ -357,7 +357,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteInt32(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteInt32(value[i]);
@@ -487,7 +487,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteInt64(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteInt64(value[i]);
@@ -694,7 +694,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteUInt16(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteUInt16(value[i]);
@@ -824,7 +824,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteUInt32(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteUInt32(value[i]);
@@ -954,7 +954,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteUInt64(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteUInt64(value[i]);
@@ -1084,7 +1084,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteSingle(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteSingle(value[i]);
@@ -1214,7 +1214,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteDouble(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteDouble(value[i]);
@@ -1344,7 +1344,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteBoolean(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteBoolean(value[i]);

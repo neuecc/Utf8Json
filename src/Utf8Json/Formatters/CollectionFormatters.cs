@@ -23,7 +23,7 @@ namespace Utf8Json.Formatters
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
             }
-            for (int i = 1; i < value.Length; i++)
+            for (var i = 1; i < value.Length; i++)
             {
                 writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, value[i], formatterResolver);
@@ -84,7 +84,7 @@ namespace Utf8Json.Formatters
                 formatter.Serialize(ref writer, value.Array[offset], formatterResolver);
             }
 
-            for (int i = 1; i < count; i++)
+            for (var i = 1; i < count; i++)
             {
                 writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, array[offset + i], formatterResolver);
@@ -138,7 +138,7 @@ namespace Utf8Json.Formatters
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
             }
-            for (int i = 1; i < value.Count; i++)
+            for (var i = 1; i < value.Count; i++)
             {
                 writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, value[i], formatterResolver);
@@ -338,7 +338,7 @@ namespace Utf8Json.Formatters
         {
             var bufArray = intermediateCollection.Buffer;
             var stack = new Stack<T>(intermediateCollection.Size);
-            for (int i = intermediateCollection.Size - 1; i >= 0; i--)
+            for (var i = intermediateCollection.Size - 1; i >= 0; i--)
             {
                 stack.Push(bufArray[i]);
             }
@@ -471,8 +471,8 @@ namespace Utf8Json.Formatters
             }
             else
             {
-                TKey resultKey = default(TKey);
-                IEnumerable<TElement> resultValue = default(IEnumerable<TElement>);
+                var resultKey = default(TKey);
+                var resultValue = default(IEnumerable<TElement>);
 
                 reader.ReadIsBeginObjectWithVerify();
 
@@ -639,7 +639,7 @@ namespace Utf8Json.Formatters
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
             }
-            for (int i = 1; i < value.Count; i++)
+            for (var i = 1; i < value.Count; i++)
             {
                 writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, value[i], formatterResolver);
@@ -782,7 +782,7 @@ namespace Utf8Json.Formatters
             {
                 formatter.Serialize(ref writer, value[0], formatterResolver);
             }
-            for (int i = 1; i < value.Count; i++)
+            for (var i = 1; i < value.Count; i++)
             {
                 writer.WriteValueSeparator();
                 formatter.Serialize(ref writer, value[i], formatterResolver);
@@ -938,7 +938,7 @@ namespace Utf8Json.Formatters
         {
             var bufArray = intermediateCollection.Buffer;
             var stack = new ConcurrentStack<T>();
-            for (int i = intermediateCollection.Size - 1; i >= 0; i--)
+            for (var i = intermediateCollection.Size - 1; i >= 0; i--)
             {
                 stack.Push(bufArray[i]);
             }
