@@ -61,8 +61,7 @@ namespace Utf8Json.Resolvers
 
         internal static object GetFormatter(Type t)
         {
-            int key;
-            if (!lookup.TryGetValue(t, out key)) return null;
+            if (!lookup.TryGetValue(t, out var key)) return null;
 
             switch (key)
             {
@@ -117,7 +116,7 @@ namespace Utf8Json.Formatters
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Name"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("name"),
-                
+
             };
         }
 
@@ -128,13 +127,13 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteString(value.Name);
             writer.WriteRaw(this.____stringByteKeys[1]);
             writer.WriteString(value.name);
-            
+
             writer.WriteEndObject();
         }
 
@@ -144,7 +143,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Name__ = default(string);
             var __Name__b__ = false;
@@ -156,8 +155,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -207,7 +205,7 @@ namespace Utf8Json.Formatters
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("_Name"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("name"),
-                
+
             };
         }
 
@@ -218,13 +216,13 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteString(value._Name);
             writer.WriteRaw(this.____stringByteKeys[1]);
             writer.WriteString(value.name);
-            
+
             writer.WriteEndObject();
         }
 
@@ -234,7 +232,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var ___Name__ = default(string);
             var ___Name__b__ = false;
@@ -246,8 +244,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -297,7 +294,7 @@ namespace Utf8Json.Formatters
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name"),
-                
+
             };
         }
 
@@ -308,13 +305,13 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteInt32(value.Age);
             writer.WriteRaw(this.____stringByteKeys[1]);
             writer.WriteString(value.Name);
-            
+
             writer.WriteEndObject();
         }
 
@@ -324,7 +321,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Age__ = default(int);
             var __Age__b__ = false;
@@ -336,8 +333,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -388,7 +384,7 @@ namespace Utf8Json.Formatters
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name"),
-                
+
             };
         }
 
@@ -399,13 +395,13 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             formatterResolver.GetFormatterWithVerify<int?>().Serialize(ref writer, value.Age, formatterResolver);
             writer.WriteRaw(this.____stringByteKeys[1]);
             writer.WriteString(value.Name);
-            
+
             writer.WriteEndObject();
         }
 
@@ -415,7 +411,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Age__ = default(int?);
             var __Age__b__ = false;
@@ -427,8 +423,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -477,7 +472,7 @@ namespace Utf8Json.Formatters
             this.____stringByteKeys = new byte[][]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Huga"),
-                
+
             };
         }
 
@@ -488,11 +483,11 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteString(value.Huga);
-            
+
             writer.WriteEndObject();
         }
 
@@ -502,8 +497,8 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
-            
+
+
 	        throw new InvalidOperationException("generated serializer for IInterface does not support deserialize.");
         }
     }
@@ -524,7 +519,7 @@ namespace Utf8Json.Formatters
             this.____stringByteKeys = new byte[][]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Huga"),
-                
+
             };
         }
 
@@ -535,11 +530,11 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteString(value.Huga);
-            
+
             writer.WriteEndObject();
         }
 
@@ -549,7 +544,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Huga__ = default(string);
             var __Huga__b__ = false;
@@ -559,8 +554,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -608,7 +602,7 @@ namespace Utf8Json.Formatters
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("FirstName"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("FavoriteFruit"),
-                
+
             };
         }
 
@@ -619,7 +613,7 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteInt32(value.Age);
@@ -627,7 +621,7 @@ namespace Utf8Json.Formatters
             writer.WriteString(value.FirstName);
             writer.WriteRaw(this.____stringByteKeys[2]);
             formatterResolver.GetFormatterWithVerify<global::MyEnum>().Serialize(ref writer, value.FavoriteFruit, formatterResolver);
-            
+
             writer.WriteEndObject();
         }
 
@@ -637,7 +631,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Age__ = default(int);
             var __Age__b__ = false;
@@ -651,8 +645,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -710,7 +703,7 @@ namespace Utf8Json.Formatters
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("FirstName"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("LastName"),
-                
+
             };
         }
 
@@ -721,7 +714,7 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteInt32(value.Age);
@@ -729,7 +722,7 @@ namespace Utf8Json.Formatters
             writer.WriteString(value.FirstName);
             writer.WriteRaw(this.____stringByteKeys[2]);
             writer.WriteString(value.LastName);
-            
+
             writer.WriteEndObject();
         }
 
@@ -739,7 +732,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Age__ = default(int);
             var __Age__b__ = false;
@@ -753,8 +746,7 @@ namespace Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -844,7 +836,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number8"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Str"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Array"),
-                
+
             };
         }
 
@@ -855,7 +847,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteSByte(value.Number1);
@@ -877,7 +869,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             writer.WriteString(value.Str);
             writer.WriteRaw(this.____stringByteKeys[9]);
             formatterResolver.GetFormatterWithVerify<int[]>().Serialize(ref writer, value.Array, formatterResolver);
-            
+
             writer.WriteEndObject();
         }
 
@@ -887,7 +879,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Number1__ = default(sbyte);
             var __Number1__b__ = false;
@@ -915,8 +907,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -1013,13 +1004,13 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Float"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Double"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Long"),
-                
+
             };
         }
 
         public void Serialize(ref JsonWriter writer, global::Utf8Json.Formatters.LongUnion value, global::Utf8Json.IJsonFormatterResolver formatterResolver)
         {
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteInt32(value.Int1);
@@ -1031,7 +1022,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             writer.WriteDouble(value.Double);
             writer.WriteRaw(this.____stringByteKeys[4]);
             writer.WriteUInt64(value.Long);
-            
+
             writer.WriteEndObject();
         }
 
@@ -1041,7 +1032,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             {
                 throw new InvalidOperationException("typecode is null, struct not supported");
             }
-            
+
 
             var __Int1__ = default(int);
             var __Int1__b__ = false;
@@ -1059,8 +1050,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;
@@ -1142,7 +1132,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number8"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Str"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Array"),
-                
+
             };
         }
 
@@ -1153,7 +1143,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            
+
 
             writer.WriteRaw(this.____stringByteKeys[0]);
             writer.WriteSByte(value.Number1);
@@ -1175,7 +1165,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             writer.WriteString(value.Str);
             writer.WriteRaw(this.____stringByteKeys[9]);
             formatterResolver.GetFormatterWithVerify<int[]>().Serialize(ref writer, value.Array, formatterResolver);
-            
+
             writer.WriteEndObject();
         }
 
@@ -1185,7 +1175,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             {
                 return null;
             }
-            
+
 
             var __Number1__ = default(sbyte);
             var __Number1__b__ = false;
@@ -1213,8 +1203,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                if (!____keyMapping.TryGetValueSafe(stringKey, out var key))
                 {
                     reader.ReadNextBlock();
                     goto NEXT_LOOP;

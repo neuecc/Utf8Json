@@ -61,8 +61,7 @@ namespace Utf8Json.ImmutableCollection
                 var isNullable = genericTypeInfo.IsNullable();
                 var nullableElementType = isNullable ? ti.GenericTypeArguments[0] : null;
 
-                Type formatterType;
-                if (formatterMap.TryGetValue(genericType, out formatterType))
+                if (formatterMap.TryGetValue(genericType, out var formatterType))
                 {
                     return CreateInstance(formatterType, ti.GenericTypeArguments);
                 }

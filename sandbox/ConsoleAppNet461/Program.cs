@@ -809,8 +809,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             // automata lookup
             var key = reader.ReadPropertyNameSegmentRaw();
 
-            int switchKey;
-            if (!dictionary.TryGetValue(key, out switchKey)) switchKey = -1;
+            if (!dictionary.TryGetValue(key, out var switchKey)) switchKey = -1;
 
             switch (switchKey)
             {

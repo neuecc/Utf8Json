@@ -1068,8 +1068,7 @@ namespace Mono.Options
         {
             foreach (var source in sources)
             {
-                IEnumerable<string> replacement;
-                if (!source.GetArguments(argument, out replacement))
+                if (!source.GetArguments(argument, out var replacement))
                     continue;
                 ae.Add(replacement);
                 return true;
@@ -1122,8 +1121,7 @@ namespace Mono.Options
                 return true;
             }
 
-            string f, n, s, v;
-            if (!GetOptionParts(argument, out f, out n, out s, out v))
+            if (!GetOptionParts(argument, out var f, out var n, out var s, out var v))
                 return false;
 
             Option p;
