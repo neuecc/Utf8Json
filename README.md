@@ -241,7 +241,7 @@ Built-in support types
 ---
 These types can serialize by default.
 
-Primitives(`int`, `string`, etc...), `Enum`, `Nullable<>`,  `TimeSpan`,  `DateTime`, `DateTimeOffset`, `Guid`, `Uri`, `Version`, `StringBuilder`, `BitArray`, `Type`, `ArraySegment<>`, `BigInteger`, `Complext`, `Task`, `Array[]`, `Array[,]`, `Array[,,]`, `Array[,,,]`, `KeyValuePair<,>`, `Tuple<,...>`, `ValueTuple<,...>`, `List<>`, `LinkedList<>`, `Queue<>`, `Stack<>`, `HashSet<>`, `ReadOnlyCollection<>`, `IList<>`, `ICollection<>`, `IEnumerable<>`, `Dictionary<,>`, `IDictionary<,>`, `SortedDictionary<,>`, `SortedList<,>`, `ILookup<,>`, `IGrouping<,>`, `ObservableCollection<>`, `ReadOnlyOnservableCollection<>`, `IReadOnlyList<>`, `IReadOnlyCollection<>`, `ISet<>`, `ConcurrentBag<>`, `ConcurrentQueue<>`, `ConcurrentStack<>`, `ReadOnlyDictionary<,>`, `IReadOnlyDictionary<,>`, `ConcurrentDictionary<,>`, `Lazy<>`, `Task<>`, custom inherited `ICollection<>` or `IDictionary<,>` with paramterless constructor, `IEnumerable`, `ICollection`, `IList`, `IDictionary` and custom inherited `ICollection` or `IDictionary` with paramterless constructor(includes `ArrayList` and `Hashtable`) and your own class or struct(includes anonymous type).
+Primitives(`int`, `string`, etc...), `Enum`, `Nullable<>`,  `TimeSpan`,  `DateTime`, `DateTimeOffset`, `Guid`, `Uri`, `Version`, `StringBuilder`, `BitArray`, `Type`, `ArraySegment<>`, `BigInteger`, `Complext`, `ExpandoObject `, `Task`, `Array[]`, `Array[,]`, `Array[,,]`, `Array[,,,]`, `KeyValuePair<,>`, `Tuple<,...>`, `ValueTuple<,...>`, `List<>`, `LinkedList<>`, `Queue<>`, `Stack<>`, `HashSet<>`, `ReadOnlyCollection<>`, `IList<>`, `ICollection<>`, `IEnumerable<>`, `Dictionary<,>`, `IDictionary<,>`, `SortedDictionary<,>`, `SortedList<,>`, `ILookup<,>`, `IGrouping<,>`, `ObservableCollection<>`, `ReadOnlyOnservableCollection<>`, `IReadOnlyList<>`, `IReadOnlyCollection<>`, `ISet<>`, `ConcurrentBag<>`, `ConcurrentQueue<>`, `ConcurrentStack<>`, `ReadOnlyDictionary<,>`, `IReadOnlyDictionary<,>`, `ConcurrentDictionary<,>`, `Lazy<>`, `Task<>`, custom inherited `ICollection<>` or `IDictionary<,>` with paramterless constructor, `IEnumerable`, `ICollection`, `IList`, `IDictionary` and custom inherited `ICollection` or `IDictionary` with paramterless constructor(includes `ArrayList` and `Hashtable`) and your own class or struct(includes anonymous type).
 
 Utf8Json has sufficient extensiblity. You can add custom type support and has some official/third-party extension package. for example  ImmutableCollections(`ImmutableList<>`, etc), [Utf8Json.FSharpExtensions](https://github.com/pocketberserker/Utf8Json.FSharpExtensions)(FSharpOption, FSharpList, etc...). Please see [extensions section](https://github.com/neuecc/Utf8Json#extensions).
 
@@ -368,6 +368,24 @@ var r3 = json["nest"]["foobar"]; // true
 
 If target is object, you access by string indexer.
 
+JSON Comments
+---
+JSON Comments is invalid JSON Format but used widely(for example, [VSCode - settings.json](https://code.visualstudio.com/docs/languages/json#_json-comments)) and also supports JSON.NET. Utf8Json suports both single-line comment and multi-line comment.
+
+```js
+{
+    // allow single line comment
+    "foo": true, // trailing
+    /*
+      allow
+      multi
+      line
+      comment
+    */
+    "bar": 999 /* trailing */
+}
+```
+
 Which serializer should be used
 ---
 The performance of binary(protobuf, msgpack, avro, etc...) vs text(json, xml, yaml, etc...) depends on the implementation. However, binary has advantage basically. Utf8Json write directly to `byte[]` it is close to the binary serializer. But especialy `double` is still slower than binary write(Utf8Json uses [google/double-conversion](https://github.com/google/double-conversion/) algorithm, it is good but there are many processes, it can not be the fastest), write `string` requires escape and large payload must pay copy cost.
@@ -388,8 +406,12 @@ High-Level API(JsonSerializer)
 | `SetDefaultResolver` | Set default resolver of JsonSerializer APIs. |
 | `Serialize<T>` | Convert object to byte[] or write to stream. There has IJsonFormatterResolver overload, used specified resolver. |
 | `SerializeUnsafe<T>` | Same as `Serialize<T>` but return `ArraySegement<byte>`. The result of ArraySegment is contains internal buffer pool, it can not share across thread and can not hold, so use quickly. |
+| `SerializeAsync<T>` | Convert object to byte[] and write to stream async. |
 | `ToJsonString<T>` | Convert object to string. |
 | `Deserialize<T>` | Convert byte[] or `ArraySegment<byte>` or stream to object. There has IFormatterResolver overload, used specified resolver. |
+| `DeserializeAsync<T>` | Convert stream(read async to buffer byte[]) to object. |
+| `PrettyPrint` | Output indented json string. |
+| `PrettyPrintByteArray` | Output indented json string(UTF8 `byte[]`). |
 | `NonGeneric.*` | NonGeneric APIs of Serialize/Deserialize. There accept type parameter at first argument. This API is bit slower than generic API but useful for framework integration such as ASP.NET formatter. |
 
 Utf8Json operates at the byte[] level, so `Deserialize<T>(Stream)` read to end at first, it is not truly streaming deserialize.
@@ -453,6 +475,7 @@ Primitive API(JsonReader/JsonWriter)
 | SkipWhiteSpace | Skip whitespace. |
 | ReadNext | Skip JSON token. |
 | ReadNextBlock | Skip JSON token with sub structures(array/object). This is useful for create deserializer. |
+| ReadNextBlockSegment | Read next block and returns there array-segment.
 | ReadIsNull | If is null return true. |
 | ReadIsBeginArray | If is '[' return true. |
 | ReadIsBeginArrayWithVerify | If is '[' return true. |
@@ -696,6 +719,21 @@ public class ProjectDefaultResolver : IJsonFormatterResolver
             }
         }
     }
+}
+```
+
+Or you can create and store dynamic CompositeResolver.
+
+```csharp
+public static MyOwnProjectResolver
+{
+    // CompositeResolver.Create can create dynamic composite resolver.
+    // It can `not` garbage collect and create is slightly high cost.
+    // so you should store to static field.
+    public static readonly IJsonFormatterResolver Instance = CompositeResolver.Create(
+        /* IJsonFormatter[] */,
+        /* IJsonFormatterResolver[] */
+    );
 }
 ```
 
