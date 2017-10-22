@@ -255,14 +255,14 @@ namespace Utf8Json.Internal.DoubleConversion
                 if (exponent < 0 && -exponent < kExactPowersOfTenSize)
                 {
                     // 10^-exponent fits into a double.
-                    result = unchecked((double)(ReadUint64(trimmed, out read_digits)));
+                    result = unchecked(ReadUint64(trimmed, out read_digits));
                     result /= exact_powers_of_ten[-exponent];
                     return true;
                 }
                 if (0 <= exponent && exponent < kExactPowersOfTenSize)
                 {
                     // 10^exponent fits into a double.
-                    result = unchecked((double)(ReadUint64(trimmed, out read_digits)));
+                    result = unchecked(ReadUint64(trimmed, out read_digits));
                     result *= exact_powers_of_ten[exponent];
                     return true;
                 }
@@ -274,7 +274,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     // The trimmed string was short and we can multiply it with
                     // 10^remaining_digits. As a result the remaining exponent now fits
                     // into a double too.
-                    result = unchecked((double)(ReadUint64(trimmed, out read_digits)));
+                    result = unchecked(ReadUint64(trimmed, out read_digits));
                     result *= exact_powers_of_ten[remaining_digits];
                     result *= exact_powers_of_ten[exponent - remaining_digits];
                     return true;

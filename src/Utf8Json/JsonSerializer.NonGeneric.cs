@@ -444,7 +444,7 @@ namespace Utf8Json
                 static async System.Threading.Tasks.Task<object> TaskCast<T>(System.Threading.Tasks.Task<T> task)
                 {
                     var t = await task.ConfigureAwait(false);
-                    return (object)t;
+                    return t;
                 }
 
 #endif

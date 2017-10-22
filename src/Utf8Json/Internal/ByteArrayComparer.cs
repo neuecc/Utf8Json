@@ -52,18 +52,18 @@ namespace Utf8Json.Internal
                     case 2:
                         return *(short*)p1 == *(short*)p2;
                     case 3:
-                        if (*(byte*)p1 != *(byte*)p2) return false;
+                        if (*p1 != *p2) return false;
                         return *(short*)(p1 + 1) == *(short*)(p2 + 1);
                     case 4:
                         return *(int*)p1 == *(int*)p2;
                     case 5:
-                        if (*(byte*)p1 != *(byte*)p2) return false;
+                        if (*p1 != *p2) return false;
                         return *(int*)(p1 + 1) == *(int*)(p2 + 1);
                     case 6:
                         if (*(short*)p1 != *(short*)p2) return false;
                         return *(int*)(p1 + 2) == *(int*)(p2 + 2);
                     case 7:
-                        if (*(byte*)p1 != *(byte*)p2) return false;
+                        if (*p1 != *p2) return false;
                         if (*(short*)(p1 + 1) != *(short*)(p2 + 1)) return false;
                         return *(int*)(p1 + 3) == *(int*)(p2 + 3);
                     default:

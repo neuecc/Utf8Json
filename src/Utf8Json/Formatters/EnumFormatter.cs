@@ -155,7 +155,7 @@ namespace Utf8Json.Formatters
                 if (isBoxed)
                 {
                     var boxSerialize = (JsonSerializeAction<object>)serialize;
-                    defaultSerializeByUnderlyingValue = (ref JsonWriter writer, T value, IJsonFormatterResolver _) => boxSerialize.Invoke(ref writer, (object)value, _);
+                    defaultSerializeByUnderlyingValue = (ref JsonWriter writer, T value, IJsonFormatterResolver _) => boxSerialize.Invoke(ref writer, value, _);
                 }
                 else
                 {

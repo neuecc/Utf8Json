@@ -45,7 +45,7 @@ namespace Xunit
                 throw new AssertFailedException(formatted);
             }
 
-            return (T)exception;
+            return exception;
         }
 
         /// <summary>execute action and return exception when catched otherwise return null</summary>

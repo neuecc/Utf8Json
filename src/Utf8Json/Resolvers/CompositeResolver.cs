@@ -206,7 +206,7 @@ namespace Utf8Json.Resolvers
                     var ti = implInterface.GetTypeInfo();
                     if (ti.IsGenericType && ti.GenericTypeArguments[0] == typeof(T))
                     {
-                        return (IJsonFormatter<T>)(object)item;
+                        return (IJsonFormatter<T>)item;
                     }
                 }
             }

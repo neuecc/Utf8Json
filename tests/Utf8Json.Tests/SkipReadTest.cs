@@ -17,8 +17,8 @@ namespace Utf8Json.Tests
             CreateReader("   1").ReadByte().Is((byte)1);
             CreateReader("   1.21341").ReadDouble().Is(1.21341);
             CreateReader("        2").ReadInt16().Is((short)2);
-            CreateReader("        2").ReadInt32().Is((int)2);
-            CreateReader("        2").ReadInt64().Is((long)2);
+            CreateReader("        2").ReadInt32().Is(2);
+            CreateReader("        2").ReadInt64().Is(2);
             CreateReader("        [").ReadIsBeginArray().IsTrue();
             CreateReader("        {").ReadIsBeginObject().IsTrue();
             CreateReader("        ]").ReadIsEndArray().IsTrue();

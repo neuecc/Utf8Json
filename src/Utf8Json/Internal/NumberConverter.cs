@@ -166,21 +166,21 @@ namespace Utf8Json.Internal
 #endif
         public static int WriteByte(ref byte[] buffer, int offset, byte value)
         {
-            return WriteUInt64(ref buffer, offset, (ulong)value);
+            return WriteUInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteUInt16(ref byte[] buffer, int offset, ushort value)
         {
-            return WriteUInt64(ref buffer, offset, (ulong)value);
+            return WriteUInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteUInt32(ref byte[] buffer, int offset, uint value)
         {
-            return WriteUInt64(ref buffer, offset, (ulong)value);
+            return WriteUInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -297,21 +297,21 @@ namespace Utf8Json.Internal
 #endif
         public static int WriteSByte(ref byte[] buffer, int offset, sbyte value)
         {
-            return WriteInt64(ref buffer, offset, (long)value);
+            return WriteInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteInt16(ref byte[] buffer, int offset, short value)
         {
-            return WriteInt64(ref buffer, offset, (long)value);
+            return WriteInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteInt32(ref byte[] buffer, int offset, int value)
         {
-            return WriteInt64(ref buffer, offset, (long)value);
+            return WriteInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

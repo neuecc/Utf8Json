@@ -43,7 +43,7 @@ namespace Utf8Json.Tests
             var d = (IReadOnlyList<int>)new[] { 1, 10, 100 };
             var e = (IReadOnlyCollection<int>)new[] { 1, 10, 100 };
             var f = (ISet<int>)new HashSet<int>(new[] { 1, 10, 100 });
-            var g = (ILookup<bool, int>)Enumerable.Range(1, 100).ToLookup(x => x % 2 == 0);
+            var g = Enumerable.Range(1, 100).ToLookup(x => x % 2 == 0);
 
             Convert(a).Is(a);
             Convert(b).Is(b);

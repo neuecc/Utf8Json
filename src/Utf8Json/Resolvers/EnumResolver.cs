@@ -57,7 +57,7 @@ namespace Utf8Json.Resolvers.Internal
                 }
                 if (typeof(T).IsEnum)
                 {
-                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(true);
+                    formatter = new EnumFormatter<T>(true);
                 }
             }
         }
@@ -103,7 +103,7 @@ namespace Utf8Json.Resolvers.Internal
                 }
                 if (typeof(T).IsEnum)
                 {
-                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false);
+                    formatter = (IJsonFormatter<T>)new EnumFormatter<T>(false);
                 }
             }
         }

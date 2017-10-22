@@ -63,12 +63,12 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public static bool operator ==(Iterator lhs, byte rhs)
         {
-            return lhs.buffer[lhs.offset] == (byte)rhs;
+            return lhs.buffer[lhs.offset] == rhs;
         }
 
         public static bool operator !=(Iterator lhs, byte rhs)
         {
-            return lhs.buffer[lhs.offset] != (byte)rhs;
+            return lhs.buffer[lhs.offset] != rhs;
         }
 
         public static bool operator >=(Iterator lhs, char rhs)
@@ -255,7 +255,7 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 if (!AdvanceToNonspace(ref current, end))
                 {
-                    processed_characters_count = (int)(current - input);
+                    processed_characters_count = current - input;
                     return empty_string_value_;
                 }
                 if (!allow_leading_spaces && (input != current))

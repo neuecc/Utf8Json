@@ -476,7 +476,7 @@ namespace Utf8Json.Internal
                     {
                         case 1:
                             {
-                                key = *(byte*)p;
+                                key = *p;
                                 readSize = 1;
                                 break;
                             }
@@ -490,7 +490,7 @@ namespace Utf8Json.Internal
                             {
                                 var a = *p;
                                 var b = *(ushort*)(p + 1);
-                                key = ((ulong)a | (ulong)b << 8);
+                                key = (a | (ulong)b << 8);
                                 readSize = 3;
                                 break;
                             }
@@ -504,7 +504,7 @@ namespace Utf8Json.Internal
                             {
                                 var a = *p;
                                 var b = *(uint*)(p + 1);
-                                key = ((ulong)a | (ulong)b << 8);
+                                key = (a | (ulong)b << 8);
                                 readSize = 5;
                                 break;
                             }
@@ -518,10 +518,10 @@ namespace Utf8Json.Internal
                             }
                         case 7:
                             {
-                                var a = *(byte*)p;
+                                var a = *p;
                                 var b = *(ushort*)(p + 1);
                                 var c = *(uint*)(p + 3);
-                                key = ((ulong)a | (ulong)b << 8 | (ulong)c << 24);
+                                key = (a | (ulong)b << 8 | (ulong)c << 24);
                                 readSize = 7;
                                 break;
                             }
@@ -615,7 +615,7 @@ namespace Utf8Json.Internal
                 if (rest >= 8)
                 {
                     key = (ulong)bytes[offset] << 56 | (ulong)bytes[offset + 1] << 48 | (ulong)bytes[offset + 2] << 40 | (ulong)bytes[offset + 3] << 32
-                          | (ulong)bytes[offset + 4] << 24 | (ulong)bytes[offset + 5] << 16 | (ulong)bytes[offset + 6] << 8 | (ulong)bytes[offset + 7];
+                          | (ulong)bytes[offset + 4] << 24 | (ulong)bytes[offset + 5] << 16 | (ulong)bytes[offset + 6] << 8 | bytes[offset + 7];
                     readSize = 8;
                 }
                 else

@@ -79,7 +79,7 @@ namespace Utf8Json.Internal
             fixed (byte* pSrc = &src[0])
             fixed (byte* pDst = &writer.buffer[writer.offset])
             {
-                *(byte*)pDst = *(byte*)pSrc;
+                *pDst = *pSrc;
             }
 
             writer.offset += src.Length;
@@ -107,7 +107,7 @@ namespace Utf8Json.Internal
             fixed (byte* pSrc = &src[0])
             fixed (byte* pDst = &writer.buffer[writer.offset])
             {
-                *(byte*)pDst = *(byte*)pSrc;
+                *pDst = *pSrc;
                 *(short*)(pDst + 1) = *(short*)(pSrc + 1);
             }
 
@@ -125,7 +125,7 @@ namespace Utf8Json.Internal
             fixed (byte* pSrc = &src[0])
             fixed (byte* pDst = &writer.buffer[writer.offset])
             {
-                *(byte*)pDst = *(byte*)pSrc;
+                *pDst = *pSrc;
             }
 
             writer.offset += src.Length;
@@ -153,7 +153,7 @@ namespace Utf8Json.Internal
             fixed (byte* pSrc = &src[0])
             fixed (byte* pDst = &writer.buffer[writer.offset])
             {
-                *(byte*)pDst = *(byte*)pSrc;
+                *pDst = *pSrc;
                 *(short*)(pDst + 1) = *(short*)(pSrc + 1);
             }
 

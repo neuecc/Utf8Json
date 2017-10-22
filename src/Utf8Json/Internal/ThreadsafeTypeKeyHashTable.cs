@@ -164,7 +164,7 @@ namespace Utf8Json.Internal
 
         static int CalculateCapacity(int collectionSize, float loadFactor)
         {
-            var initialCapacity = (int)(((float)collectionSize) / loadFactor);
+            var initialCapacity = (int)(collectionSize / loadFactor);
             var capacity = 1;
             while (capacity < initialCapacity)
             {

@@ -555,7 +555,7 @@ namespace Utf8Json.Formatters
         public void Serialize(ref JsonWriter writer, ExpandoObject value, IJsonFormatterResolver formatterResolver)
         {
             var formatter = formatterResolver.GetFormatterWithVerify<IDictionary<string, object>>();
-            formatter.Serialize(ref writer, (IDictionary<string, object>)value, formatterResolver);
+            formatter.Serialize(ref writer, value, formatterResolver);
         }
 
         public ExpandoObject Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)

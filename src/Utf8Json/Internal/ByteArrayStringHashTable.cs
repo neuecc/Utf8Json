@@ -120,7 +120,7 @@ namespace Utf8Json.Internal
 
             if (Is32Bit)
             {
-                return (ulong)FarmHash.Hash32(x, offset, count);
+                return FarmHash.Hash32(x, offset, count);
             }
             return FarmHash.Hash64(x, offset, count);
 
@@ -146,7 +146,7 @@ namespace Utf8Json.Internal
 
         static int CalculateCapacity(int collectionSize, float loadFactor)
         {
-            var initialCapacity = (int)(((float)collectionSize) / loadFactor);
+            var initialCapacity = (int)(collectionSize / loadFactor);
             var capacity = 1;
             while (capacity < initialCapacity)
             {

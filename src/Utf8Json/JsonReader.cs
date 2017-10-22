@@ -724,10 +724,10 @@ namespace Utf8Json
 
                 for (var i = offset; i < bytes.Length; i++)
                 {
-                    if (bytes[i] == (char)'\"')
+                    if (bytes[i] == '\"')
                     {
                         // is escape?
-                        if (bytes[i - 1] == (char)'\\')
+                        if (bytes[i - 1] == '\\')
                         {
                             continue;
                         }
@@ -947,10 +947,10 @@ namespace Utf8Json
                     offset += 1; // position is "\"";
                     for (var i = offset; i < bytes.Length; i++)
                     {
-                        if (bytes[i] == (char)'\"')
+                        if (bytes[i] == '\"')
                         {
                             // is escape?
-                            if (bytes[i - 1] == (char)'\\')
+                            if (bytes[i - 1] == '\\')
                             {
                                 continue;
                             }
