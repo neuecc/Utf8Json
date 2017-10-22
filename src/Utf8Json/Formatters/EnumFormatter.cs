@@ -255,7 +255,7 @@ namespace Utf8Json.Formatters
             }
         }
 
-        public T DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public T DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (serializeByName)
             {

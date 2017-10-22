@@ -77,7 +77,7 @@ namespace Utf8Json.Formatters
             writer.WriteString(value);
         }
 
-        public string DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public string DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             return reader.ReadString();
         }
