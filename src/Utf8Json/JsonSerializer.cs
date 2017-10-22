@@ -116,12 +116,23 @@ namespace Utf8Json
         /// <summary>
         /// Serialize to stream(write async) with specified resolver.
         /// </summary>
-        public static System.Threading.Tasks.Task SerializeAsync<T>(Stream stream, T value, IJsonFormatterResolver resolver)
+        public static async System.Threading.Tasks.Task SerializeAsync<T>(Stream stream, T value, IJsonFormatterResolver resolver)
         {
             if (resolver == null) resolver = DefaultResolver;
 
-            var buffer = SerializeUnsafe(value, resolver);
-            return stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count);
+            var buf = BufferPool.Default.Rent();
+            try
+            {
+                var writer = new JsonWriter(buf);
+                var formatter = resolver.GetFormatterWithVerify<T>();
+                formatter.Serialize(ref writer, value, resolver);
+                var buffer = writer.GetBuffer();
+                await stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count).ConfigureAwait(false);
+            }
+            finally
+            {
+                BufferPool.Default.Return(buf);
+            }
         }
 
 #endif

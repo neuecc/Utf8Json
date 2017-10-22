@@ -67,6 +67,16 @@ namespace Utf8Json.Resolvers
             JsonSerializer.SetDefaultResolver(CompositeResolver.Instance);
         }
 
+        public static IJsonFormatterResolver Create(params IJsonFormatter[] formatters)
+        {
+            return Create(formatters, new IJsonFormatterResolver[0]);
+        }
+
+        public static IJsonFormatterResolver Create(params IJsonFormatterResolver[] resolvers)
+        {
+            return Create(new IJsonFormatter[0], resolvers);
+        }
+
         public static IJsonFormatterResolver Create(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
         {
             return DynamicCompositeResolver.Create(formatters, resolvers);
@@ -134,7 +144,7 @@ namespace Utf8Json.Resolvers
             var id = Guid.NewGuid().ToString().Replace("-", "");
             var resolverType = assembly.ModuleBuilder.DefineType("DynamicCompositeResolver_" + id, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, typeof(DynamicCompositeResolver));
             var cacheType = assembly.ModuleBuilder.DefineType("DynamicCompositeResolverCache_" + id, TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed, null);
-            var genericP = cacheType.DefineGenericParameters("T")[0].AsType();
+            var genericP = cacheType.DefineGenericParameters("T")[0];
 
             var resolverInstanceField = resolverType.DefineField("instance", resolverType, FieldAttributes.Public | FieldAttributes.Static);
 
@@ -147,7 +157,7 @@ namespace Utf8Json.Resolvers
                 il.Emit(OpCodes.Stsfld, f);
                 il.Emit(OpCodes.Ret);
             }
-            var cacheTypeT = cacheType.CreateTypeInfo();
+            var cacheTypeT = cacheType.CreateTypeInfo().AsType();
 
             {
                 var ctor = resolverType.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new[] { typeof(IJsonFormatter[]), typeof(IJsonFormatterResolver[]) });
@@ -160,7 +170,8 @@ namespace Utf8Json.Resolvers
             }
             {
                 var m = resolverType.DefineMethod("GetFormatter", MethodAttributes.Public | MethodAttributes.Virtual);
-                var gpp = m.DefineGenericParameters("T")[0].AsType();
+
+                var gpp = m.DefineGenericParameters("T")[0];
                 m.SetReturnType(typeof(IJsonFormatter<>).MakeGenericType(gpp));
 
                 var il = m.GetILGenerator();

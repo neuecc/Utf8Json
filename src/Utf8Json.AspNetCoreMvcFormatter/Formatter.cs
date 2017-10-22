@@ -37,13 +37,11 @@ namespace Utf8Json.AspNetCoreMvcFormatter
             // when 'object' use the concrete type(object.GetType())
             if (context.ObjectType == typeof(object))
             {
-                JsonSerializer.NonGeneric.Serialize(context.HttpContext.Response.Body, context.Object, resolver);
-                return Task.CompletedTask;
+                return JsonSerializer.NonGeneric.SerializeAsync(context.HttpContext.Response.Body, context.Object, resolver);
             }
             else
             {
-                JsonSerializer.NonGeneric.Serialize(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
-                return Task.CompletedTask;
+                return JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
             }
         }
     }
