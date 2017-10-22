@@ -533,7 +533,7 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return null;
                 }
-                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
             }
 
             Type elementType;
@@ -561,7 +561,7 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return null;
                 }
-                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
             }
 
             return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, allowPrivate);
@@ -592,7 +592,7 @@ namespace Utf8Json.Resolvers.Internal
             {
                 var method = typeBuilder.DefineMethod("Serialize", MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
                     null,
-                    new Type[] { typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) });
+                    new[] { typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) });
 
                 var il = method.GetILGenerator();
                 BuildSerialize(type, serializationInfo, il, () =>
@@ -613,7 +613,7 @@ namespace Utf8Json.Resolvers.Internal
             {
                 var method = typeBuilder.DefineMethod("Deserialize", MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
                     type,
-                    new Type[] { typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) });
+                    new[] { typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) });
 
                 var il = method.GetILGenerator();
                 BuildDeserialize(type, serializationInfo, il, (index, member) =>
@@ -689,7 +689,7 @@ namespace Utf8Json.Resolvers.Internal
                 }
             }
 
-            var serialize = new DynamicMethod("Serialize", null, new Type[] { typeof(byte[][]), typeof(object[]), typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) }, type.Module, true);
+            var serialize = new DynamicMethod("Serialize", null, new[] { typeof(byte[][]), typeof(object[]), typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) }, type.Module, true);
             {
                 var il = serialize.GetILGenerator();
                 BuildSerialize(type, serializationInfo, il, () =>
@@ -708,7 +708,7 @@ namespace Utf8Json.Resolvers.Internal
                  }, excludeNull, hasShouldSerialize, 2);
             }
 
-            var deserialize = new DynamicMethod("Deserialize", type, new Type[] { typeof(object[]), typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
+            var deserialize = new DynamicMethod("Deserialize", type, new[] { typeof(object[]), typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
             {
                 var il = deserialize.GetILGenerator();
                 BuildDeserialize(type, serializationInfo, il, (index, member) =>

@@ -26,7 +26,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal static class PowersOfTenCache
     {
-        static readonly CachedPower[] kCachedPowers = new CachedPower[]
+        static readonly CachedPower[] kCachedPowers = new[]
         {
             new CachedPower (0xfa8fd5a0081c0288, -1220, -348),
             new CachedPower (0xbaaee17fa23ebf76, -1193, -340),

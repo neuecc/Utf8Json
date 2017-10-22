@@ -39,8 +39,8 @@ namespace Utf8Json.Tests
         public void IsInArrayTest()
         {
             var empty = Array(new int[0]);
-            var one = Array(new int[] { 1 });
-            var five = Array(new int[] { 1, 10, 100, 1000, 10000 });
+            var one = Array(new[] { 1 });
+            var five = Array(new[] { 1, 10, 100, 1000, 10000 });
 
             empty.Item1.Is(0); empty.Item2.Length.Is(0);
             one.Item1.Is(1); one.Item2.Is(1);

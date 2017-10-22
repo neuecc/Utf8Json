@@ -726,7 +726,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             {  JsonWriter.GetEncodedPropertyNameWithoutQuotation("LastName"), 2 },
         };
 
-        nameCaches2 = new byte[][]
+        nameCaches2 = new[]
         {
             JsonWriter.GetEncodedPropertyName("Age"), // 
             JsonWriter.GetEncodedPropertyName("FirstName"), // 
@@ -941,7 +941,7 @@ namespace Utf8Json.Formatters
         private readonly byte[][] stringByteKeys;
         public DynamicCodeDumper_TargetClassContractlessFormatter3()
         {
-            this.stringByteKeys = new byte[][]
+            this.stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Number1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number2"),

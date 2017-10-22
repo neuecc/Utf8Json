@@ -112,7 +112,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("name"), 1},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Name"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("name"),
@@ -201,7 +201,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("name"), 1},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("_Name"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("name"),
@@ -290,7 +290,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 1},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name"),
@@ -380,7 +380,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Name"), 1},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Name"),
@@ -469,7 +469,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Huga"), 0},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Huga"),
 
@@ -516,7 +516,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Huga"), 0},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Huga"),
 
@@ -597,7 +597,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("FavoriteFruit"), 2},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("FirstName"),
@@ -698,7 +698,7 @@ namespace Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("LastName"), 2},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Age"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("FirstName"),
@@ -824,7 +824,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Array"), 9},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Number1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number2"),
@@ -997,7 +997,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Long"), 4},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Int1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Int2"),
@@ -1120,7 +1120,7 @@ namespace Utf8Json.Formatters.Utf8Json.Formatters
                 { JsonWriter.GetEncodedPropertyNameWithoutQuotation("Array"), 9},
             };
 
-            this.____stringByteKeys = new byte[][]
+            this.____stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Number1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number2"),

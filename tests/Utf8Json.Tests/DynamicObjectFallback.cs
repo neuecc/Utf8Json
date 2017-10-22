@@ -24,7 +24,7 @@ namespace Utf8Json.Tests
                 new DynamicObjectFallbackTestContainer
                 {
                     MyProperty = 100,
-                    MoreObject = new string[]{"a", "b", "c" }
+                    MoreObject = new[]{"a", "b", "c" }
                 },
 
                 new DynamicObjectFallbackTestContainer

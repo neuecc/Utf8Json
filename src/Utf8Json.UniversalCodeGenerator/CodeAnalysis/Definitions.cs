@@ -50,7 +50,7 @@ namespace Utf8Json.UniversalCodeGenerator
         public string MemberName { get; set; }
         public string ShortTypeName { get; set; }
 
-        readonly HashSet<string> primitiveTypes = new HashSet<string>(new string[]
+        readonly HashSet<string> primitiveTypes = new HashSet<string>(new[]
         {
             "short",
             "int",

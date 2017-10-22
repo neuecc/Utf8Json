@@ -90,7 +90,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // 2^64 = 18446744073709551616
         const uint64_t kMaxUint64 = 0xFFFFFFFFFFFFFFFF;
 
-        static readonly double[] exact_powers_of_ten = new double[]{
+        static readonly double[] exact_powers_of_ten = new[]{
             1.0,  // 10^0
             10.0,
             100.0,

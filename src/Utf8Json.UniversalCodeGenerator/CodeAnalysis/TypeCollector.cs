@@ -38,7 +38,7 @@ namespace Utf8Json.UniversalCodeGenerator
 
         static readonly SymbolDisplayFormat shortTypeNameFormat = new SymbolDisplayFormat(
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
-        static readonly HashSet<string> embeddedTypes = new HashSet<string>(new string[]
+        static readonly HashSet<string> embeddedTypes = new HashSet<string>(new[]
         {
             "short",
             "int",

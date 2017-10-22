@@ -682,7 +682,7 @@ namespace Utf8Json.Formatters.Internal
 
         static StandardClassLibraryFormatterHelper()
         {
-            keyValuePairName = new byte[][]
+            keyValuePairName = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Key"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Value"),

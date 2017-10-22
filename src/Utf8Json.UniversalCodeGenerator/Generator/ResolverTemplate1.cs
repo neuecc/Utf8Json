@@ -419,7 +419,7 @@ namespace Utf8Json.CodeGenerator.Generator
                     throw new global::System.ArgumentNullException("objectToConvert");
                 }
                 var t = objectToConvert.GetType();
-                var method = t.GetMethod("ToString", new System.Type[] {
+                var method = t.GetMethod("ToString", new[] {
                             typeof(System.IFormatProvider)});
                 if ((method == null))
                 {

@@ -28,7 +28,7 @@ namespace Utf8Json.Formatters.Internal
 
         static ValueTupleFormatterHelper()
         {
-            nameCache1 = new byte[][]
+            nameCache1 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
             };
@@ -36,7 +36,7 @@ namespace Utf8Json.Formatters.Internal
             {
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item1"), 0 },
             };
-            nameCache2 = new byte[][]
+            nameCache2 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),
@@ -46,7 +46,7 @@ namespace Utf8Json.Formatters.Internal
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item1"), 0 },
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item2"), 1 },
             };
-            nameCache3 = new byte[][]
+            nameCache3 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),
@@ -58,7 +58,7 @@ namespace Utf8Json.Formatters.Internal
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item2"), 1 },
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item3"), 2 },
             };
-            nameCache4 = new byte[][]
+            nameCache4 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),
@@ -72,7 +72,7 @@ namespace Utf8Json.Formatters.Internal
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item3"), 2 },
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item4"), 3 },
             };
-            nameCache5 = new byte[][]
+            nameCache5 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),
@@ -88,7 +88,7 @@ namespace Utf8Json.Formatters.Internal
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item4"), 3 },
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item5"), 4 },
             };
-            nameCache6 = new byte[][]
+            nameCache6 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),
@@ -106,7 +106,7 @@ namespace Utf8Json.Formatters.Internal
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item5"), 4 },
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item6"), 5 },
             };
-            nameCache7 = new byte[][]
+            nameCache7 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),
@@ -126,7 +126,7 @@ namespace Utf8Json.Formatters.Internal
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item6"), 5 },
                 {JsonWriter.GetEncodedPropertyNameWithoutQuotation("Item7"), 6 },
             };
-            nameCache8 = new byte[][]
+            nameCache8 = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Item1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Item2"),

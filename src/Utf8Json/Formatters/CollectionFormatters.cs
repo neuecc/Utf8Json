@@ -959,7 +959,7 @@ namespace Utf8Json.Formatters.Internal
 
         static CollectionFormatterHelper()
         {
-            groupingName = new byte[][]
+            groupingName = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Key"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Elements"),

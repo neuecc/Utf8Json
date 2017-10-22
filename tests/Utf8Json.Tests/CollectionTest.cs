@@ -17,7 +17,7 @@ namespace Utf8Json.Tests
 
         public static object collectionTestData = new object[]
         {
-            new object[]{ new int[]{ 1,10, 100 } , null },
+            new object[]{ new[]{ 1,10, 100 } , null },
             new object[]{ new List<int>{ 1,10, 100 } , null },
             new object[]{ new LinkedList<int>(new[] { 1, 10, 100 }) , null },
             new object[]{ new Queue<int>(new[] { 1, 10, 100 }) , null },
@@ -38,11 +38,11 @@ namespace Utf8Json.Tests
         [Fact]
         public void InterfaceCollectionTest()
         {
-            var a = (IList<int>)new int[] { 1, 10, 100 };
-            var b = (ICollection<int>)new int[] { 1, 10, 100 };
+            var a = (IList<int>)new[] { 1, 10, 100 };
+            var b = (ICollection<int>)new[] { 1, 10, 100 };
             var c = (Enumerable.Range(1, 100).AsEnumerable());
-            var d = (IReadOnlyList<int>)new int[] { 1, 10, 100 };
-            var e = (IReadOnlyCollection<int>)new int[] { 1, 10, 100 };
+            var d = (IReadOnlyList<int>)new[] { 1, 10, 100 };
+            var e = (IReadOnlyCollection<int>)new[] { 1, 10, 100 };
             var f = (ISet<int>)new HashSet<int>(new[] { 1, 10, 100 });
             var g = (ILookup<bool, int>)Enumerable.Range(1, 100).ToLookup(x => x % 2 == 0);
 
