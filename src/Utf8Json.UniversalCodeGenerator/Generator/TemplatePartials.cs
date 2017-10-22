@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utf8Json.UniversalCodeGenerator;
+﻿using Utf8Json.UniversalCodeGenerator;
 
 namespace Utf8Json.CodeGenerator.Generator
 {

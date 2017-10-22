@@ -6,7 +6,6 @@ using Utf8Json;
 using Utf8Json.Formatters;
 using Utf8Json.ImmutableCollection;
 using Utf8Json.Resolvers;
-using System.Linq;
 using System.Text;
 
 namespace ConsoleAppNetCore

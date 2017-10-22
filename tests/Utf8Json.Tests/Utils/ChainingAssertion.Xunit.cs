@@ -123,7 +123,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -164,15 +163,11 @@ namespace Xunit
                 var dumper = new ExpressionDumper<T>(value, predicate.Parameters.Single());
                 dumper.Visit(predicate);
                 var dump = string.Join(", ", dumper.Members.Select(kvp => kvp.Key + " = " + kvp.Value));
-                msg = string.Format("\r\n{0} = {1}\r\n{2}\r\n{3}{4}",
-                    paramName, value, dump, predicate,
-                    string.IsNullOrEmpty(message) ? "" : ", " + message);
+                msg = $"\r\n{paramName} = {value}\r\n{dump}\r\n{predicate}{(string.IsNullOrEmpty(message) ? "" : ", " + message)}";
             }
             catch
             {
-                msg = string.Format("{0} = {1}, {2}{3}",
-                    paramName, value, predicate,
-                    string.IsNullOrEmpty(message) ? "" : ", " + message);
+                msg = $"{paramName} = {value}, {predicate}{(string.IsNullOrEmpty(message) ? "" : ", " + message)}";
             }
 
             Assert.True(condition, msg);
@@ -372,8 +367,7 @@ namespace Xunit
             var r = StructuralEqual(actual, expected, new[] { actual.GetType().Name }); // root type
             if (!r.IsEquals)
             {
-                var msg = string.Format("is not structural equal, failed at {0}, actual = {1} expected = {2}{3}",
-                    string.Join(".", r.Names), r.Left, r.Right, message);
+                var msg = $"is not structural equal, failed at {string.Join(".", r.Names)}, actual = {r.Left} expected = {r.Right}{message}";
                 throw new AssertException(msg);
             }
         }

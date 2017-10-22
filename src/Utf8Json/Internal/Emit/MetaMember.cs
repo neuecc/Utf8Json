@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Runtime.Serialization;
 
 namespace Utf8Json.Internal.Emit
 {

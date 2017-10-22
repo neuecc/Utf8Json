@@ -1,6 +1,5 @@
 ﻿using System;
 using Xunit;
-using System.Collections.Generic;
 using System.Text;
 using Utf8Json.Formatters;
 using Newtonsoft.Json;

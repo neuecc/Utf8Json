@@ -6,7 +6,6 @@
 namespace Utf8Json.Resolvers
 {
     using System;
-    using Utf8Json;
 
     public class GeneratedResolver : global::Utf8Json.IJsonFormatterResolver
     {
@@ -96,7 +95,6 @@ namespace Utf8Json.Resolvers
 namespace Utf8Json.Formatters
 {
     using System;
-    using Utf8Json;
 
 
     public sealed class HogeFormatter : global::Utf8Json.IJsonFormatter<global::Hoge>
@@ -800,7 +798,6 @@ namespace Utf8Json.Formatters
 namespace Utf8Json.Formatters.Utf8Json.Formatters
 {
     using System;
-    using Utf8Json;
 
 
     public sealed class TargetClassContractlessFormatter : global::Utf8Json.IJsonFormatter<global::Utf8Json.Formatters.TargetClassContractless>

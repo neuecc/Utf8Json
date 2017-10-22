@@ -1,11 +1,9 @@
-﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
+﻿using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.CsProj;
 using PerfBenchmark;
 
 class Program

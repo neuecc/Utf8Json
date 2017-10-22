@@ -1,7 +1,5 @@
-﻿using System;
-using Xunit;
+﻿using Xunit;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Utf8Json.Tests
 {

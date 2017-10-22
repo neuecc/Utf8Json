@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DynamicCodeDumper
 {
@@ -246,7 +244,7 @@ namespace DynamicCodeDumper
                     addition = TrimVersion.Replace(((Type)Data).FullName, "");
                 }
 
-                return string.Format("IL_{0,4:X4}:  {1, -11} {2}", Offset, OpCode, addition);
+                return $"IL_{Offset,4:X4}:  {OpCode,-11} {addition}";
             }
         }
     }

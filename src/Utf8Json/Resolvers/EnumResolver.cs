@@ -1,9 +1,6 @@
 ﻿using System;
-using Utf8Json.Internal.Emit;
 using Utf8Json.Internal;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
 using Utf8Json.Formatters;
 using Utf8Json.Resolvers.Internal;
 

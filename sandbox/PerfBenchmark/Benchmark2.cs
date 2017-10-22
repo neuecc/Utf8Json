@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Utf8Json;
-using Jil;
+﻿using System.Text;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Attributes.Jobs;
 
 namespace PerfBenchmark
 {

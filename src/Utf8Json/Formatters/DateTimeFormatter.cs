@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using Utf8Json.Internal;
 
 namespace Utf8Json.Formatters

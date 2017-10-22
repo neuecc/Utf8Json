@@ -5,7 +5,6 @@ namespace Utf8Json.Internal.DoubleConversion
 {
     using uint64_t = System.UInt64;
     using uint32_t = System.UInt32;
-    using System.Collections.Generic;
 
     internal struct StringBuilder
     {

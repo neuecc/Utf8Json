@@ -1,6 +1,5 @@
 ﻿using Utf8Json.Formatters;
 using System.Collections.Immutable;
-using System;
 using Utf8Json.Internal;
 
 namespace Utf8Json.ImmutableCollection
