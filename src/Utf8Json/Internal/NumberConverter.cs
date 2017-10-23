@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Utf8Json.Internal.DoubleConversion;
 
 #if NETSTANDARD
@@ -90,7 +88,7 @@ namespace Utf8Json.Internal
                 sign = -1;
             }
 
-            for (int i = ((sign == -1) ? offset + 1 : offset); i < bytes.Length; i++)
+            for (var i = ((sign == -1) ? offset + 1 : offset); i < bytes.Length; i++)
             {
                 if (!IsNumber(bytes[i]))
                 {
@@ -134,7 +132,7 @@ namespace Utf8Json.Internal
         {
             var value = 0UL;
 
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 if (!IsNumber(bytes[i]))
                 {
@@ -168,21 +166,21 @@ namespace Utf8Json.Internal
 #endif
         public static int WriteByte(ref byte[] buffer, int offset, byte value)
         {
-            return WriteUInt64(ref buffer, offset, (ulong)value);
+            return WriteUInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteUInt16(ref byte[] buffer, int offset, ushort value)
         {
-            return WriteUInt64(ref buffer, offset, (ulong)value);
+            return WriteUInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteUInt32(ref byte[] buffer, int offset, uint value)
         {
-            return WriteUInt64(ref buffer, offset, (ulong)value);
+            return WriteUInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -200,98 +198,86 @@ namespace Utf8Json.Internal
                 if (num1 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 3); goto L3; }
                 BinaryUtil.EnsureCapacity(ref buffer, offset, 4); goto L4;
             }
-            else
+            num2 = num1 / 10000;
+            num1 -= num2 * 10000;
+            if (num2 < 10000)
             {
-                num2 = num1 / 10000;
-                num1 -= num2 * 10000;
-                if (num2 < 10000)
-                {
-                    if (num2 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 5); goto L5; }
-                    if (num2 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 6); goto L6; }
-                    if (num2 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 7); goto L7; }
-                    BinaryUtil.EnsureCapacity(ref buffer, offset, 8); goto L8;
-                }
-                else
-                {
-                    num3 = num2 / 10000;
-                    num2 -= num3 * 10000;
-                    if (num3 < 10000)
-                    {
-                        if (num3 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 9); goto L9; }
-                        if (num3 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 10); goto L10; }
-                        if (num3 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 11); goto L11; }
-                        BinaryUtil.EnsureCapacity(ref buffer, offset, 12); goto L12;
-                    }
-                    else
-                    {
-                        num4 = num3 / 10000;
-                        num3 -= num4 * 10000;
-                        if (num4 < 10000)
-                        {
-                            if (num4 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 13); goto L13; }
-                            if (num4 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 14); goto L14; }
-                            if (num4 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 15); goto L15; }
-                            BinaryUtil.EnsureCapacity(ref buffer, offset, 16); goto L16;
-                        }
-                        else
-                        {
-                            num5 = num4 / 10000;
-                            num4 -= num5 * 10000;
-                            if (num5 < 10000)
-                            {
-                                if (num5 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 17); goto L17; }
-                                if (num5 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 18); goto L18; }
-                                if (num5 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 19); goto L19; }
-                                BinaryUtil.EnsureCapacity(ref buffer, offset, 20); goto L20;
-                            }
-                            L20:
-                            buffer[offset++] = (byte)('0' + (div = (num5 * 8389UL) >> 23));
-                            num5 -= div * 1000;
-                            L19:
-                            buffer[offset++] = (byte)('0' + (div = (num5 * 5243UL) >> 19));
-                            num5 -= div * 100;
-                            L18:
-                            buffer[offset++] = (byte)('0' + (div = (num5 * 6554UL) >> 16));
-                            num5 -= div * 10;
-                            L17:
-                            buffer[offset++] = (byte)('0' + (num5));
-                        }
-                        L16:
-                        buffer[offset++] = (byte)('0' + (div = (num4 * 8389UL) >> 23));
-                        num4 -= div * 1000;
-                        L15:
-                        buffer[offset++] = (byte)('0' + (div = (num4 * 5243UL) >> 19));
-                        num4 -= div * 100;
-                        L14:
-                        buffer[offset++] = (byte)('0' + (div = (num4 * 6554UL) >> 16));
-                        num4 -= div * 10;
-                        L13:
-                        buffer[offset++] = (byte)('0' + (num4));
-                    }
-                    L12:
-                    buffer[offset++] = (byte)('0' + (div = (num3 * 8389UL) >> 23));
-                    num3 -= div * 1000;
-                    L11:
-                    buffer[offset++] = (byte)('0' + (div = (num3 * 5243UL) >> 19));
-                    num3 -= div * 100;
-                    L10:
-                    buffer[offset++] = (byte)('0' + (div = (num3 * 6554UL) >> 16));
-                    num3 -= div * 10;
-                    L9:
-                    buffer[offset++] = (byte)('0' + (num3));
-                }
-                L8:
-                buffer[offset++] = (byte)('0' + (div = (num2 * 8389UL) >> 23));
-                num2 -= div * 1000;
-                L7:
-                buffer[offset++] = (byte)('0' + (div = (num2 * 5243UL) >> 19));
-                num2 -= div * 100;
-                L6:
-                buffer[offset++] = (byte)('0' + (div = (num2 * 6554UL) >> 16));
-                num2 -= div * 10;
-                L5:
-                buffer[offset++] = (byte)('0' + (num2));
+                if (num2 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 5); goto L5; }
+                if (num2 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 6); goto L6; }
+                if (num2 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 7); goto L7; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 8); goto L8;
             }
+            num3 = num2 / 10000;
+            num2 -= num3 * 10000;
+            if (num3 < 10000)
+            {
+                if (num3 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 9); goto L9; }
+                if (num3 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 10); goto L10; }
+                if (num3 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 11); goto L11; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 12); goto L12;
+            }
+            num4 = num3 / 10000;
+            num3 -= num4 * 10000;
+            if (num4 < 10000)
+            {
+                if (num4 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 13); goto L13; }
+                if (num4 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 14); goto L14; }
+                if (num4 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 15); goto L15; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 16); goto L16;
+            }
+            num5 = num4 / 10000;
+            num4 -= num5 * 10000;
+            if (num5 < 10000)
+            {
+                if (num5 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 17); goto L17; }
+                if (num5 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 18); goto L18; }
+                if (num5 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 19); goto L19; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 20); goto L20;
+            }
+            L20:
+            buffer[offset++] = (byte)('0' + (div = (num5 * 8389UL) >> 23));
+            num5 -= div * 1000;
+            L19:
+            buffer[offset++] = (byte)('0' + (div = (num5 * 5243UL) >> 19));
+            num5 -= div * 100;
+            L18:
+            buffer[offset++] = (byte)('0' + (div = (num5 * 6554UL) >> 16));
+            num5 -= div * 10;
+            L17:
+            buffer[offset++] = (byte)('0' + (num5));
+            L16:
+            buffer[offset++] = (byte)('0' + (div = (num4 * 8389UL) >> 23));
+            num4 -= div * 1000;
+            L15:
+            buffer[offset++] = (byte)('0' + (div = (num4 * 5243UL) >> 19));
+            num4 -= div * 100;
+            L14:
+            buffer[offset++] = (byte)('0' + (div = (num4 * 6554UL) >> 16));
+            num4 -= div * 10;
+            L13:
+            buffer[offset++] = (byte)('0' + (num4));
+            L12:
+            buffer[offset++] = (byte)('0' + (div = (num3 * 8389UL) >> 23));
+            num3 -= div * 1000;
+            L11:
+            buffer[offset++] = (byte)('0' + (div = (num3 * 5243UL) >> 19));
+            num3 -= div * 100;
+            L10:
+            buffer[offset++] = (byte)('0' + (div = (num3 * 6554UL) >> 16));
+            num3 -= div * 10;
+            L9:
+            buffer[offset++] = (byte)('0' + (num3));
+            L8:
+            buffer[offset++] = (byte)('0' + (div = (num2 * 8389UL) >> 23));
+            num2 -= div * 1000;
+            L7:
+            buffer[offset++] = (byte)('0' + (div = (num2 * 5243UL) >> 19));
+            num2 -= div * 100;
+            L6:
+            buffer[offset++] = (byte)('0' + (div = (num2 * 6554UL) >> 16));
+            num2 -= div * 10;
+            L5:
+            buffer[offset++] = (byte)('0' + (num2));
             L4:
             buffer[offset++] = (byte)('0' + (div = (num1 * 8389UL) >> 23));
             num1 -= div * 1000;
@@ -311,21 +297,21 @@ namespace Utf8Json.Internal
 #endif
         public static int WriteSByte(ref byte[] buffer, int offset, sbyte value)
         {
-            return WriteInt64(ref buffer, offset, (long)value);
+            return WriteInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteInt16(ref byte[] buffer, int offset, short value)
         {
-            return WriteInt64(ref buffer, offset, (long)value);
+            return WriteInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public static int WriteInt32(ref byte[] buffer, int offset, int value)
         {
-            return WriteInt64(ref buffer, offset, (long)value);
+            return WriteInt64(ref buffer, offset, value);
         }
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -378,98 +364,86 @@ namespace Utf8Json.Internal
                 if (num1 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 3); goto L3; }
                 BinaryUtil.EnsureCapacity(ref buffer, offset, 4); goto L4;
             }
-            else
+            num2 = num1 / 10000;
+            num1 -= num2 * 10000;
+            if (num2 < 10000)
             {
-                num2 = num1 / 10000;
-                num1 -= num2 * 10000;
-                if (num2 < 10000)
-                {
-                    if (num2 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 5); goto L5; }
-                    if (num2 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 6); goto L6; }
-                    if (num2 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 7); goto L7; }
-                    BinaryUtil.EnsureCapacity(ref buffer, offset, 8); goto L8;
-                }
-                else
-                {
-                    num3 = num2 / 10000;
-                    num2 -= num3 * 10000;
-                    if (num3 < 10000)
-                    {
-                        if (num3 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 9); goto L9; }
-                        if (num3 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 10); goto L10; }
-                        if (num3 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 11); goto L11; }
-                        BinaryUtil.EnsureCapacity(ref buffer, offset, 12); goto L12;
-                    }
-                    else
-                    {
-                        num4 = num3 / 10000;
-                        num3 -= num4 * 10000;
-                        if (num4 < 10000)
-                        {
-                            if (num4 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 13); goto L13; }
-                            if (num4 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 14); goto L14; }
-                            if (num4 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 15); goto L15; }
-                            BinaryUtil.EnsureCapacity(ref buffer, offset, 16); goto L16;
-                        }
-                        else
-                        {
-                            num5 = num4 / 10000;
-                            num4 -= num5 * 10000;
-                            if (num5 < 10000)
-                            {
-                                if (num5 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 17); goto L17; }
-                                if (num5 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 18); goto L18; }
-                                if (num5 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 19); goto L19; }
-                                BinaryUtil.EnsureCapacity(ref buffer, offset, 20); goto L20;
-                            }
-                            L20:
-                            buffer[offset++] = (byte)('0' + (div = (num5 * 8389L) >> 23));
-                            num5 -= div * 1000;
-                            L19:
-                            buffer[offset++] = (byte)('0' + (div = (num5 * 5243L) >> 19));
-                            num5 -= div * 100;
-                            L18:
-                            buffer[offset++] = (byte)('0' + (div = (num5 * 6554L) >> 16));
-                            num5 -= div * 10;
-                            L17:
-                            buffer[offset++] = (byte)('0' + (num5));
-                        }
-                        L16:
-                        buffer[offset++] = (byte)('0' + (div = (num4 * 8389L) >> 23));
-                        num4 -= div * 1000;
-                        L15:
-                        buffer[offset++] = (byte)('0' + (div = (num4 * 5243L) >> 19));
-                        num4 -= div * 100;
-                        L14:
-                        buffer[offset++] = (byte)('0' + (div = (num4 * 6554L) >> 16));
-                        num4 -= div * 10;
-                        L13:
-                        buffer[offset++] = (byte)('0' + (num4));
-                    }
-                    L12:
-                    buffer[offset++] = (byte)('0' + (div = (num3 * 8389L) >> 23));
-                    num3 -= div * 1000;
-                    L11:
-                    buffer[offset++] = (byte)('0' + (div = (num3 * 5243L) >> 19));
-                    num3 -= div * 100;
-                    L10:
-                    buffer[offset++] = (byte)('0' + (div = (num3 * 6554L) >> 16));
-                    num3 -= div * 10;
-                    L9:
-                    buffer[offset++] = (byte)('0' + (num3));
-                }
-                L8:
-                buffer[offset++] = (byte)('0' + (div = (num2 * 8389L) >> 23));
-                num2 -= div * 1000;
-                L7:
-                buffer[offset++] = (byte)('0' + (div = (num2 * 5243L) >> 19));
-                num2 -= div * 100;
-                L6:
-                buffer[offset++] = (byte)('0' + (div = (num2 * 6554L) >> 16));
-                num2 -= div * 10;
-                L5:
-                buffer[offset++] = (byte)('0' + (num2));
+                if (num2 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 5); goto L5; }
+                if (num2 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 6); goto L6; }
+                if (num2 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 7); goto L7; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 8); goto L8;
             }
+            num3 = num2 / 10000;
+            num2 -= num3 * 10000;
+            if (num3 < 10000)
+            {
+                if (num3 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 9); goto L9; }
+                if (num3 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 10); goto L10; }
+                if (num3 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 11); goto L11; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 12); goto L12;
+            }
+            num4 = num3 / 10000;
+            num3 -= num4 * 10000;
+            if (num4 < 10000)
+            {
+                if (num4 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 13); goto L13; }
+                if (num4 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 14); goto L14; }
+                if (num4 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 15); goto L15; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 16); goto L16;
+            }
+            num5 = num4 / 10000;
+            num4 -= num5 * 10000;
+            if (num5 < 10000)
+            {
+                if (num5 < 10) { BinaryUtil.EnsureCapacity(ref buffer, offset, 17); goto L17; }
+                if (num5 < 100) { BinaryUtil.EnsureCapacity(ref buffer, offset, 18); goto L18; }
+                if (num5 < 1000) { BinaryUtil.EnsureCapacity(ref buffer, offset, 19); goto L19; }
+                BinaryUtil.EnsureCapacity(ref buffer, offset, 20); goto L20;
+            }
+            L20:
+            buffer[offset++] = (byte)('0' + (div = (num5 * 8389L) >> 23));
+            num5 -= div * 1000;
+            L19:
+            buffer[offset++] = (byte)('0' + (div = (num5 * 5243L) >> 19));
+            num5 -= div * 100;
+            L18:
+            buffer[offset++] = (byte)('0' + (div = (num5 * 6554L) >> 16));
+            num5 -= div * 10;
+            L17:
+            buffer[offset++] = (byte)('0' + (num5));
+            L16:
+            buffer[offset++] = (byte)('0' + (div = (num4 * 8389L) >> 23));
+            num4 -= div * 1000;
+            L15:
+            buffer[offset++] = (byte)('0' + (div = (num4 * 5243L) >> 19));
+            num4 -= div * 100;
+            L14:
+            buffer[offset++] = (byte)('0' + (div = (num4 * 6554L) >> 16));
+            num4 -= div * 10;
+            L13:
+            buffer[offset++] = (byte)('0' + (num4));
+            L12:
+            buffer[offset++] = (byte)('0' + (div = (num3 * 8389L) >> 23));
+            num3 -= div * 1000;
+            L11:
+            buffer[offset++] = (byte)('0' + (div = (num3 * 5243L) >> 19));
+            num3 -= div * 100;
+            L10:
+            buffer[offset++] = (byte)('0' + (div = (num3 * 6554L) >> 16));
+            num3 -= div * 10;
+            L9:
+            buffer[offset++] = (byte)('0' + (num3));
+            L8:
+            buffer[offset++] = (byte)('0' + (div = (num2 * 8389L) >> 23));
+            num2 -= div * 1000;
+            L7:
+            buffer[offset++] = (byte)('0' + (div = (num2 * 5243L) >> 19));
+            num2 -= div * 100;
+            L6:
+            buffer[offset++] = (byte)('0' + (div = (num2 * 6554L) >> 16));
+            num2 -= div * 10;
+            L5:
+            buffer[offset++] = (byte)('0' + (num2));
             L4:
             buffer[offset++] = (byte)('0' + (div = (num1 * 8389L) >> 23));
             num1 -= div * 1000;
@@ -514,7 +488,7 @@ namespace Utf8Json.Internal
                 readCount = 4;
                 return true;
             }
-            else if (bytes[offset] == 'f')
+            if (bytes[offset] == 'f')
             {
                 if (bytes[offset + 1] != 'a') goto ERROR_FALSE;
                 if (bytes[offset + 2] != 'l') goto ERROR_FALSE;
@@ -523,10 +497,7 @@ namespace Utf8Json.Internal
                 readCount = 5;
                 return false;
             }
-            else
-            {
-                throw new InvalidOperationException("value is not boolean.");
-            }
+            throw new InvalidOperationException("value is not boolean.");
 
             ERROR_TRUE:
             throw new InvalidOperationException("value is not boolean(true).");

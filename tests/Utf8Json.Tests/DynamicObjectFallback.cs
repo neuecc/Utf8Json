@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
@@ -24,7 +22,7 @@ namespace Utf8Json.Tests
                 new DynamicObjectFallbackTestContainer
                 {
                     MyProperty = 100,
-                    MoreObject = new string[]{"a", "b", "c" }
+                    MoreObject = new[]{"a", "b", "c" }
                 },
 
                 new DynamicObjectFallbackTestContainer
@@ -59,10 +57,7 @@ namespace Utf8Json.Tests
             {
                 return Resolvers.EnumResolver.UnderlyingValue.GetFormatter<T>();
             }
-            else
-            {
-                return Resolvers.StandardResolver.Default.GetFormatter<T>();
-            }
+            return Resolvers.StandardResolver.Default.GetFormatter<T>();
         }
     }
 }

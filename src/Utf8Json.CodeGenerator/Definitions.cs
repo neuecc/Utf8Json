@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 public interface IResolverRegisterInfo
 {
@@ -48,7 +46,7 @@ public class MemberSerializationInfo
     public string MemberName { get; set; }
     public string ShortTypeName { get; set; }
 
-    readonly HashSet<string> primitiveTypes = new HashSet<string>(new string[]
+    readonly HashSet<string> primitiveTypes = new HashSet<string>(new[]
     {
             "short",
             "int",
@@ -73,10 +71,7 @@ public class MemberSerializationInfo
         {
             return $"writer.Write{ShortTypeName.Replace("[]", "s")}(value.{Name})";
         }
-        else
-        {
-            return $"formatterResolver.GetFormatterWithVerify<{Type}>().Serialize(ref writer, value.{Name}, formatterResolver)";
-        }
+        return $"formatterResolver.GetFormatterWithVerify<{Type}>().Serialize(ref writer, value.{Name}, formatterResolver)";
     }
 
     public string GetDeserializeMethodString()
@@ -85,10 +80,7 @@ public class MemberSerializationInfo
         {
             return $"reader.Read{ShortTypeName.Replace("[]", "s")}()";
         }
-        else
-        {
-            return $"formatterResolver.GetFormatterWithVerify<{Type}>().Deserialize(ref reader, formatterResolver)";
-        }
+        return $"formatterResolver.GetFormatterWithVerify<{Type}>().Deserialize(ref reader, formatterResolver)";
     }
 }
 public class GenericSerializationInfo : IResolverRegisterInfo, IEquatable<GenericSerializationInfo>

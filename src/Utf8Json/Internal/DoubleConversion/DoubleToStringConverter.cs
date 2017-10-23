@@ -5,7 +5,6 @@ namespace Utf8Json.Internal.DoubleConversion
 {
     using uint64_t = System.UInt64;
     using uint32_t = System.UInt32;
-    using System.Collections.Generic;
 
     internal struct StringBuilder
     {
@@ -27,7 +26,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public void AddString(byte[] str)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
-            for (int i = 0; i < str.Length; i++)
+            for (var i = 0; i < str.Length; i++)
             {
                 buffer[offset + i] = str[i];
             }
@@ -37,7 +36,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public void AddSubstring(byte[] str, int length)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, length);
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 buffer[offset + i] = str[i];
             }
@@ -47,7 +46,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public void AddSubstring(byte[] str, int start, int length)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, length);
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 buffer[offset + i] = str[start + i];
             }
@@ -57,7 +56,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public void AddPadding(byte c, int count)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, count);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 buffer[offset + i] = c;
             }
@@ -228,14 +227,14 @@ namespace Utf8Json.Internal.DoubleConversion
         //  Modifies the generated digits in the buffer to approach (round towards) w.
         static bool RoundWeed(byte[] buffer,
                               int length,
-                              uint64_t distance_too_high_w,
-                              uint64_t unsafe_interval,
-                              uint64_t rest,
-                              uint64_t ten_kappa,
-                              uint64_t unit)
+                              ulong distance_too_high_w,
+                              ulong unsafe_interval,
+                              ulong rest,
+                              ulong ten_kappa,
+                              ulong unit)
         {
-            uint64_t small_distance = distance_too_high_w - unit;
-            uint64_t big_distance = distance_too_high_w + unit;
+            var small_distance = distance_too_high_w - unit;
+            var big_distance = distance_too_high_w + unit;
             // Let w_low  = too_high - big_distance, and
             //     w_high = too_high - small_distance.
             // Note: w_low < w < w_high
@@ -348,13 +347,13 @@ namespace Utf8Json.Internal.DoubleConversion
         // http://graphics.stanford.edu/~seander/bithacks.html#IntegerLog10
         static readonly uint[] kSmallPowersOfTen = new uint[] { 0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
-        static void BiggestPowerTen(uint32_t number,
+        static void BiggestPowerTen(uint number,
                                     int number_bits,
-                                    out uint32_t power,
+                                    out uint power,
                                     out int exponent_plus_one)
         {
             // 1233/4096 is approximately 1/lg(10).
-            int exponent_plus_one_guess = ((number_bits + 1) * 1233 >> 12);
+            var exponent_plus_one_guess = ((number_bits + 1) * 1233 >> 12);
             // We increment to skip over the first entry in the kPowersOf10 table.
             // Note: kPowersOf10[i] == 10^(i-1).
             exponent_plus_one_guess++;
@@ -427,12 +426,12 @@ namespace Utf8Json.Internal.DoubleConversion
             // We will now start by generating the digits within the uncertain
             // interval. Later we will weed out representations that lie outside the safe
             // interval and thus _might_ lie outside the correct interval.
-            uint64_t unit = 1;
-            DiyFp too_low = new DiyFp(low.f - unit, low.e);
-            DiyFp too_high = new DiyFp(high.f + unit, high.e);
+            ulong unit = 1;
+            var too_low = new DiyFp(low.f - unit, low.e);
+            var too_high = new DiyFp(high.f + unit, high.e);
             // too_low and too_high are guaranteed to lie outside the interval we want the
             // generated number in.
-            DiyFp unsafe_interval = DiyFp.Minus(ref too_high, ref too_low);
+            var unsafe_interval = DiyFp.Minus(ref too_high, ref too_low);
             // We now cut the input number into two parts: the integral digits and the
             // fractionals. We will not write any decimal separator though, but adapt
             // kappa instead.
@@ -440,12 +439,12 @@ namespace Utf8Json.Internal.DoubleConversion
             // such that:   too_low < buffer * 10^kappa < too_high
             // We use too_high for the digit_generation and stop as soon as possible.
             // If we stop early we effectively round down.
-            DiyFp one = new DiyFp((uint64_t)(1) << -w.e, w.e);
+            var one = new DiyFp((ulong)(1) << -w.e, w.e);
             // Division by one is a shift.
-            uint32_t integrals = (uint32_t)(too_high.f >> -one.e);
+            var integrals = (uint)(too_high.f >> -one.e);
             // Modulo by one is an and.
-            uint64_t fractionals = too_high.f & (one.f - 1);
-            uint32_t divisor;
+            var fractionals = too_high.f & (one.f - 1);
+            uint divisor;
             int divisor_exponent_plus_one;
             BiggestPowerTen(integrals, DiyFp.kSignificandSize - (-one.e),
                             out divisor, out divisor_exponent_plus_one);
@@ -457,15 +456,15 @@ namespace Utf8Json.Internal.DoubleConversion
             // that is smaller than integrals.
             while (kappa > 0)
             {
-                int digit = unchecked((int)(integrals / divisor));
+                var digit = unchecked((int)(integrals / divisor));
                 buffer[length] = (byte)((byte)'0' + digit);
                 (length)++;
                 integrals %= divisor;
                 (kappa)--;
                 // Note that kappa now equals the exponent of the divisor and that the
                 // invariant thus holds again.
-                uint64_t rest =
-                    ((uint64_t)(integrals) << -one.e) + fractionals;
+                var rest =
+                    ((ulong)(integrals) << -one.e) + fractionals;
                 // Invariant: too_high = buffer * 10^kappa + DiyFp(rest, one.e())
                 // Reminder: unsafe_interval.e() == one.e()
                 if (rest < unsafe_interval.f)
@@ -474,7 +473,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     // that lies within the unsafe interval.
                     return RoundWeed(buffer, length, DiyFp.Minus(ref too_high, ref w).f,
                                      unsafe_interval.f, rest,
-                                     (uint64_t)(divisor) << -one.e, unit);
+                                     (ulong)(divisor) << -one.e, unit);
                 }
                 divisor /= 10;
             }
@@ -491,7 +490,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 unit *= 10;
                 unsafe_interval.f = (unsafe_interval.f * 10);
                 // Integer division by one.
-                int digit = (int)(fractionals >> -one.e);
+                var digit = (int)(fractionals >> -one.e);
                 buffer[length] = (byte)((byte)'0' + digit);
                 (length)++;
                 fractionals &= one.f - 1;  // Modulo by one.
@@ -521,7 +520,7 @@ namespace Utf8Json.Internal.DoubleConversion
                            out int length,
                            out int decimal_exponent)
         {
-            DiyFp w = new Double(v).AsNormalizedDiyFp();
+            var w = new Double(v).AsNormalizedDiyFp();
             // boundary_minus and boundary_plus are the boundaries between v and its
             // closest floating-point neighbors. Any number strictly between
             // boundary_minus and boundary_plus will round to v when convert to a double.
@@ -533,7 +532,7 @@ namespace Utf8Json.Internal.DoubleConversion
             }
             else if (mode == FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE)
             {
-                float single_v = (float)(v);
+                var single_v = (float)(v);
                 new Single(single_v).NormalizedBoundaries(out boundary_minus, out boundary_plus);
             }
             else
@@ -543,9 +542,9 @@ namespace Utf8Json.Internal.DoubleConversion
 
             DiyFp ten_mk;  // Cached power of ten: 10^-k
             int mk;        // -k
-            int ten_mk_minimal_binary_exponent =
+            var ten_mk_minimal_binary_exponent =
                kMinimalTargetExponent - (w.e + DiyFp.kSignificandSize);
-            int ten_mk_maximal_binary_exponent =
+            var ten_mk_maximal_binary_exponent =
                kMaximalTargetExponent - (w.e + DiyFp.kSignificandSize);
             PowersOfTenCache.GetCachedPowerForBinaryExponentRange(
                 ten_mk_minimal_binary_exponent,
@@ -561,15 +560,15 @@ namespace Utf8Json.Internal.DoubleConversion
             // In fact: scaled_w - w*10^k < 1ulp (unit in the last place) of scaled_w.
             // In other words: let f = scaled_w.f() and e = scaled_w.e(), then
             //           (f-1) * 2^e < w*10^k < (f+1) * 2^e
-            DiyFp scaled_w = DiyFp.Times(ref w, ref ten_mk);
+            var scaled_w = DiyFp.Times(ref w, ref ten_mk);
 
             // In theory it would be possible to avoid some recomputations by computing
             // the difference between w and boundary_minus/plus (a power of 2) and to
             // compute scaled_boundary_minus/plus by subtracting/adding from
             // scaled_w. However the code becomes much less readable and the speed
             // enhancements are not terriffic.
-            DiyFp scaled_boundary_minus = DiyFp.Times(ref boundary_minus, ref ten_mk);
-            DiyFp scaled_boundary_plus = DiyFp.Times(ref boundary_plus, ref ten_mk);
+            var scaled_boundary_minus = DiyFp.Times(ref boundary_minus, ref ten_mk);
+            var scaled_boundary_plus = DiyFp.Times(ref boundary_plus, ref ten_mk);
 
             // DigitGen will generate the digits of scaled_w. Therefore we have
             // v == (double) (scaled_w * 10^-mk).
@@ -578,7 +577,7 @@ namespace Utf8Json.Internal.DoubleConversion
             // the buffer will be filled with "123" und the decimal_exponent will be
             // decreased by 2.
             int kappa;
-            bool result = DigitGen(scaled_boundary_minus, scaled_w, scaled_boundary_plus,
+            var result = DigitGen(scaled_boundary_minus, scaled_w, scaled_boundary_plus,
                                    buffer, out length, out kappa);
             decimal_exponent = -mk + kappa;
             return result;
@@ -591,8 +590,8 @@ namespace Utf8Json.Internal.DoubleConversion
               out int length,
               out int decimal_point)
         {
-            bool result = false;
-            int decimal_exponent = 0;
+            var result = false;
+            var decimal_exponent = 0;
             switch (mode)
             {
                 case FastDtoaMode.FAST_DTOA_SHORTEST:
@@ -621,7 +620,7 @@ namespace Utf8Json.Internal.DoubleConversion
             double value,
             ref StringBuilder result_builder)
         {
-            Double double_inspect = new Double(value);
+            var double_inspect = new Double(value);
             if (double_inspect.IsInfinite())
             {
                 if (infinity_symbol_ == null) return false;
@@ -668,13 +667,13 @@ namespace Utf8Json.Internal.DoubleConversion
                 return true;
             }
 
-            bool unique_zero = (flags_ & Flags.UNIQUE_ZERO) != 0;
+            var unique_zero = (flags_ & Flags.UNIQUE_ZERO) != 0;
             if (sign && (value != 0.0 || !unique_zero))
             {
                 result_builder.AddCharacter((byte)'-');
             }
 
-            int exponent = decimal_point - 1;
+            var exponent = decimal_point - 1;
             if ((decimal_in_shortest_low_ <= exponent) &&
                 (exponent < decimal_in_shortest_high_))
             {
@@ -709,7 +708,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     result_builder.AddCharacter((byte)'.');
                     result_builder.AddPadding((byte)'0', -decimal_point);
                     result_builder.AddSubstring(decimal_digits, length);
-                    int remaining_digits = digits_after_point - (-decimal_point) - length;
+                    var remaining_digits = digits_after_point - (-decimal_point) - length;
                     result_builder.AddPadding((byte)'0', remaining_digits);
                 }
             }
@@ -730,7 +729,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 result_builder.AddSubstring(decimal_digits, decimal_point);
                 result_builder.AddCharacter((byte)'.');
                 result_builder.AddSubstring(decimal_digits, decimal_point, length - decimal_point);
-                int remaining_digits = digits_after_point - (length - decimal_point);
+                var remaining_digits = digits_after_point - (length - decimal_point);
                 result_builder.AddPadding((byte)'0', remaining_digits);
             }
             if (digits_after_point == 0)
@@ -777,9 +776,9 @@ namespace Utf8Json.Internal.DoubleConversion
                 return;
             }
             const int kMaxExponentLength = 5;
-            byte[] buffer = GetExponentialRepBuffer(kMaxExponentLength + 1);
+            var buffer = GetExponentialRepBuffer(kMaxExponentLength + 1);
             buffer[kMaxExponentLength] = (byte)'\0';
-            int first_char_pos = kMaxExponentLength;
+            var first_char_pos = kMaxExponentLength;
             while (exponent > 0)
             {
                 buffer[--first_char_pos] = (byte)((byte)'0' + (exponent % 10));

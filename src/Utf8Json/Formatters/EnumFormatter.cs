@@ -142,7 +142,7 @@ namespace Utf8Json.Formatters
             nameValueMapping = new ByteArrayStringHashTable<T>(names.Length);
             valueNameMapping = new Dictionary<T, string>(names.Length);
 
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
                 nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i]), (T)values.GetValue(i));
                 valueNameMapping[(T)values.GetValue(i)] = names[i];
@@ -155,7 +155,7 @@ namespace Utf8Json.Formatters
                 if (isBoxed)
                 {
                     var boxSerialize = (JsonSerializeAction<object>)serialize;
-                    defaultSerializeByUnderlyingValue = (ref JsonWriter writer, T value, IJsonFormatterResolver _) => boxSerialize.Invoke(ref writer, (object)value, _);
+                    defaultSerializeByUnderlyingValue = (ref JsonWriter writer, T value, IJsonFormatterResolver _) => boxSerialize.Invoke(ref writer, value, _);
                 }
                 else
                 {
@@ -233,7 +233,7 @@ namespace Utf8Json.Formatters
                 }
                 return value;
             }
-            else if (token == JsonToken.Number)
+            if (token == JsonToken.Number)
             {
                 return deserializeByUnderlyingValue(ref reader, formatterResolver);
             }
@@ -255,22 +255,19 @@ namespace Utf8Json.Formatters
             }
         }
 
-        public T DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public T DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (serializeByName)
             {
                 return Deserialize(ref reader, formatterResolver);
             }
-            else
-            {
-                var token = reader.GetCurrentJsonToken();
-                if (token != JsonToken.String) throw new InvalidOperationException("Can't parse JSON to Enum format.");
-                reader.AdvanceOffset(1); // skip \""
-                var t = Deserialize(ref reader, formatterResolver); // token is Number
-                reader.SkipWhiteSpace();
-                reader.AdvanceOffset(1); // skip \""
-                return t;
-            }
+            var token = reader.GetCurrentJsonToken();
+            if (token != JsonToken.String) throw new InvalidOperationException("Can't parse JSON to Enum format.");
+            reader.AdvanceOffset(1); // skip \""
+            var t = Deserialize(ref reader, formatterResolver); // token is Number
+            reader.SkipWhiteSpace();
+            reader.AdvanceOffset(1); // skip \""
+            return t;
         }
     }
 }

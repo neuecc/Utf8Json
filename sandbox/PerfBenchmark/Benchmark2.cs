@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Utf8Json;
-using Jil;
+﻿using System.Text;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Attributes.Jobs;
 
 namespace PerfBenchmark
 {
@@ -40,7 +34,7 @@ namespace PerfBenchmark
             m.X = $"abcdefg";
             m.Y = $"@aiweraw";
             m.Z = int.MaxValue;
-            for (int i = 0; i < LoopNum; i++)
+            for (var i = 0; i < LoopNum; i++)
             {
                 Jil.JSON.Serialize(m);
             }
@@ -52,7 +46,7 @@ namespace PerfBenchmark
             m.X = $"abcdefg";
             m.Y = $"@aiweraw";
             m.Z = int.MaxValue;
-            for (int i = 0; i < LoopNum; i++)
+            for (var i = 0; i < LoopNum; i++)
             {
                 Encoding.UTF8.GetBytes(Jil.JSON.Serialize(m));
             }
@@ -64,7 +58,7 @@ namespace PerfBenchmark
             m.X = $"abcdefg";
             m.Y = $"@aiweraw";
             m.Z = int.MaxValue;
-            for (int i = 0; i < LoopNum; i++)
+            for (var i = 0; i < LoopNum; i++)
             {
                 Utf8Json.JsonSerializer.Serialize(m);
             }
@@ -72,7 +66,7 @@ namespace PerfBenchmark
         [Benchmark]
         public void JilJsonDeserialize_String()
         {
-            for (int i = 0; i < LoopNum; i++)
+            for (var i = 0; i < LoopNum; i++)
             {
                 Jil.JSON.Deserialize<MyModel>(json);
             }
@@ -80,7 +74,7 @@ namespace PerfBenchmark
         [Benchmark]
         public void JilJsonDeserialize_Utf8()
         {
-            for (int i = 0; i < LoopNum; i++)
+            for (var i = 0; i < LoopNum; i++)
             {
                 Jil.JSON.Deserialize<MyModel>(Encoding.UTF8.GetString(jsonBytes));
             }
@@ -88,7 +82,7 @@ namespace PerfBenchmark
         [Benchmark]
         public void Utf8JsonDeserialize()
         {
-            for (int i = 0; i < LoopNum; i++)
+            for (var i = 0; i < LoopNum; i++)
             {
                 Utf8Json.JsonSerializer.Deserialize<MyModel>(jsonBytes);
             }

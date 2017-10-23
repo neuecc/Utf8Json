@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using Utf8Json.Formatters;
 
@@ -38,27 +37,27 @@ namespace Utf8Json.Resolvers
             static readonly Dictionary<Type, object> formatterMap = new Dictionary<Type, object>()
             {
                 // Primitive
-                {typeof(Int16), Int16Formatter.Default},
-                {typeof(Int32), Int32Formatter.Default},
-                {typeof(Int64), Int64Formatter.Default},
-                {typeof(UInt16), UInt16Formatter.Default},
-                {typeof(UInt32), UInt32Formatter.Default},
-                {typeof(UInt64), UInt64Formatter.Default},
-                {typeof(Single), SingleFormatter.Default},
-                {typeof(Double), DoubleFormatter.Default},
+                {typeof(short), Int16Formatter.Default},
+                {typeof(int), Int32Formatter.Default},
+                {typeof(long), Int64Formatter.Default},
+                {typeof(ushort), UInt16Formatter.Default},
+                {typeof(uint), UInt32Formatter.Default},
+                {typeof(ulong), UInt64Formatter.Default},
+                {typeof(float), SingleFormatter.Default},
+                {typeof(double), DoubleFormatter.Default},
                 {typeof(bool), BooleanFormatter.Default},
                 {typeof(byte), ByteFormatter.Default},
                 {typeof(sbyte), SByteFormatter.Default},
 
                 // Nulllable Primitive
-                {typeof(Nullable<Int16>), NullableInt16Formatter.Default},
-                {typeof(Nullable<Int32>), NullableInt32Formatter.Default},
-                {typeof(Nullable<Int64>), NullableInt64Formatter.Default},
-                {typeof(Nullable<UInt16>), NullableUInt16Formatter.Default},
-                {typeof(Nullable<UInt32>), NullableUInt32Formatter.Default},
-                {typeof(Nullable<UInt64>), NullableUInt64Formatter.Default},
-                {typeof(Nullable<Single>), NullableSingleFormatter.Default},
-                {typeof(Nullable<Double>), NullableDoubleFormatter.Default},
+                {typeof(Nullable<short>), NullableInt16Formatter.Default},
+                {typeof(Nullable<int>), NullableInt32Formatter.Default},
+                {typeof(Nullable<long>), NullableInt64Formatter.Default},
+                {typeof(Nullable<ushort>), NullableUInt16Formatter.Default},
+                {typeof(Nullable<uint>), NullableUInt32Formatter.Default},
+                {typeof(Nullable<ulong>), NullableUInt64Formatter.Default},
+                {typeof(Nullable<float>), NullableSingleFormatter.Default},
+                {typeof(Nullable<double>), NullableDoubleFormatter.Default},
                 {typeof(Nullable<bool>), NullableBooleanFormatter.Default},
                 {typeof(Nullable<byte>), NullableByteFormatter.Default},
                 {typeof(Nullable<sbyte>), NullableSByteFormatter.Default},
@@ -90,34 +89,34 @@ namespace Utf8Json.Resolvers
                 {typeof(byte[]), ByteArrayFormatter.Default},
             
                 // otpmitized primitive array formatter
-                {typeof(Int16[]), Int16ArrayFormatter.Default},
-                {typeof(Int32[]), Int32ArrayFormatter.Default},
-                {typeof(Int64[]), Int64ArrayFormatter.Default},
-                {typeof(UInt16[]), UInt16ArrayFormatter.Default},
-                {typeof(UInt32[]), UInt32ArrayFormatter.Default},
-                {typeof(UInt64[]), UInt64ArrayFormatter.Default},
-                {typeof(Single[]), SingleArrayFormatter.Default},
-                {typeof(Double[]), DoubleArrayFormatter.Default},
-                {typeof(Boolean[]), BooleanArrayFormatter.Default},
-                {typeof(SByte[]), SByteArrayFormatter.Default},
+                {typeof(short[]), Int16ArrayFormatter.Default},
+                {typeof(int[]), Int32ArrayFormatter.Default},
+                {typeof(long[]), Int64ArrayFormatter.Default},
+                {typeof(ushort[]), UInt16ArrayFormatter.Default},
+                {typeof(uint[]), UInt32ArrayFormatter.Default},
+                {typeof(ulong[]), UInt64ArrayFormatter.Default},
+                {typeof(float[]), SingleArrayFormatter.Default},
+                {typeof(double[]), DoubleArrayFormatter.Default},
+                {typeof(bool[]), BooleanArrayFormatter.Default},
+                {typeof(sbyte[]), SByteArrayFormatter.Default},
 
-                {typeof(Char[]), CharArrayFormatter.Default},
+                {typeof(char[]), CharArrayFormatter.Default},
                 {typeof(string[]), NullableStringArrayFormatter.Default},
 
                 // well known collections
-                {typeof(List<Int16>), new ListFormatter<Int16>()},
-                {typeof(List<Int32>), new ListFormatter<Int32>()},
-                {typeof(List<Int64>), new ListFormatter<Int64>()},
-                {typeof(List<UInt16>), new ListFormatter<UInt16>()},
-                {typeof(List<UInt32>), new ListFormatter<UInt32>()},
-                {typeof(List<UInt64>), new ListFormatter<UInt64>()},
-                {typeof(List<Single>), new ListFormatter<Single>()},
-                {typeof(List<Double>), new ListFormatter<Double>()},
-                {typeof(List<Boolean>), new ListFormatter<Boolean>()},
+                {typeof(List<short>), new ListFormatter<short>()},
+                {typeof(List<int>), new ListFormatter<int>()},
+                {typeof(List<long>), new ListFormatter<long>()},
+                {typeof(List<ushort>), new ListFormatter<ushort>()},
+                {typeof(List<uint>), new ListFormatter<uint>()},
+                {typeof(List<ulong>), new ListFormatter<ulong>()},
+                {typeof(List<float>), new ListFormatter<float>()},
+                {typeof(List<double>), new ListFormatter<double>()},
+                {typeof(List<bool>), new ListFormatter<bool>()},
                 {typeof(List<byte>), new ListFormatter<byte>()},
-                {typeof(List<SByte>), new ListFormatter<SByte>()},
+                {typeof(List<sbyte>), new ListFormatter<sbyte>()},
                 {typeof(List<DateTime>), new ListFormatter<DateTime>()},
-                {typeof(List<Char>), new ListFormatter<Char>()},
+                {typeof(List<char>), new ListFormatter<char>()},
                 {typeof(List<string>), new ListFormatter<string>()},
 
                 { typeof(ArraySegment<byte>), ByteArraySegmentFormatter.Default },

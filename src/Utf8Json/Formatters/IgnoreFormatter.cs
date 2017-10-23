@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Utf8Json.Formatters
+﻿namespace Utf8Json.Formatters
 {
     public sealed class IgnoreFormatter<T> : IJsonFormatter<T>
     {

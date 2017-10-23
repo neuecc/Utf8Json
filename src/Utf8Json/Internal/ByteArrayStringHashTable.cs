@@ -54,7 +54,7 @@ namespace Utf8Json.Internal
             else
             {
                 // check duplicate
-                for (int i = 0; i < array.Length; i++)
+                for (var i = 0; i < array.Length; i++)
                 {
                     var e = array[i].Key;
                     if (ByteArrayComparer.Equals(key, 0, key.Length, e))
@@ -90,7 +90,7 @@ namespace Utf8Json.Internal
                 }
             }
 
-            for (int i = 1; i < entry.Length; i++)
+            for (var i = 1; i < entry.Length; i++)
             {
                 var v = entry[i];
                 if (ByteArrayComparer.Equals(key.Array, key.Offset, key.Count, v.Key))
@@ -120,12 +120,9 @@ namespace Utf8Json.Internal
 
             if (Is32Bit)
             {
-                return (ulong)FarmHash.Hash32(x, offset, count);
+                return FarmHash.Hash32(x, offset, count);
             }
-            else
-            {
-                return FarmHash.Hash64(x, offset, count);
-            }
+            return FarmHash.Hash64(x, offset, count);
 
 #else
 
@@ -149,7 +146,7 @@ namespace Utf8Json.Internal
 
         static int CalculateCapacity(int collectionSize, float loadFactor)
         {
-            var initialCapacity = (int)(((float)collectionSize) / loadFactor);
+            var initialCapacity = (int)(collectionSize / loadFactor);
             var capacity = 1;
             while (capacity < initialCapacity)
             {

@@ -18,30 +18,30 @@ namespace Utf8Json.Tests
 
         public static object[] primitiveFormatterTestData = new object[]
         {
-            new object[] { Int16.MinValue, Int16.MaxValue },
-            new object[] { (Int16?)100, null },
-            new object[] { Int32.MinValue, Int32.MaxValue },
-            new object[] { (Int32?)100, null },
-            new object[] { Int64.MinValue, Int64.MaxValue },
-            new object[] { (Int64?)100, null },
-            new object[] { UInt16.MinValue, UInt16.MaxValue },
-            new object[] { (UInt16?)100, null },
-            new object[] { UInt32.MinValue, UInt32.MaxValue },
-            new object[] { (UInt32?)100, null },
-            new object[] { UInt64.MinValue, UInt64.MaxValue },
-            new object[] { (UInt64?)100, null },
-            new object[] { Single.MinValue, Single.MaxValue },
-            new object[] { (Single?)100.100, null },
-            new object[] { Double.MinValue, Double.MaxValue },
-            new object[] { (Double?)100.100, null },
+            new object[] { short.MinValue, short.MaxValue },
+            new object[] { (short?)100, null },
+            new object[] { int.MinValue, int.MaxValue },
+            new object[] { (int?)100, null },
+            new object[] { long.MinValue, long.MaxValue },
+            new object[] { (long?)100, null },
+            new object[] { ushort.MinValue, ushort.MaxValue },
+            new object[] { (ushort?)100, null },
+            new object[] { uint.MinValue, uint.MaxValue },
+            new object[] { (uint?)100, null },
+            new object[] { ulong.MinValue, ulong.MaxValue },
+            new object[] { (ulong?)100, null },
+            new object[] { float.MinValue, float.MaxValue },
+            new object[] { (float?)100.100, null },
+            new object[] { double.MinValue, double.MaxValue },
+            new object[] { (double?)100.100, null },
             new object[] { true, false },
-            new object[] { (Boolean?)true, null },
-            new object[] { Byte.MinValue, Byte.MaxValue },
-            new object[] { (Byte?)100.100, null },
-            new object[] { SByte.MinValue, SByte.MaxValue },
-            new object[] { (SByte?)100.100, null },
-            new object[] { Char.MinValue, Char.MaxValue },
-            new object[] { (Char?)'a', null },
+            new object[] { (bool?)true, null },
+            new object[] { byte.MinValue, byte.MaxValue },
+            new object[] { (byte?)100.100, null },
+            new object[] { sbyte.MinValue, sbyte.MaxValue },
+            new object[] { (sbyte?)100.100, null },
+            new object[] { char.MinValue, char.MaxValue },
+            new object[] { (char?)'a', null },
             //new object[] { DateTime.MinValue.ToUniversalTime(), DateTime.MaxValue.ToUniversalTime() },
             //new object[] { (DateTime?)DateTime.UtcNow, null },
         };
@@ -170,7 +170,7 @@ namespace Utf8Json.Tests
             Task nullUnitTask = null;
             Convert(nullUnitTask).Status.Is(TaskStatus.RanToCompletion); // write to nil
 
-            ValueTask<int> valueTask = new ValueTask<int>(100);
+            var valueTask = new ValueTask<int>(100);
             Convert(valueTask).Result.Is(100);
 
             ValueTask<int>? nullValueTask = new ValueTask<int>(100);

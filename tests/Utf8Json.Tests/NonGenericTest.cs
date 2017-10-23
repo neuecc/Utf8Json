@@ -1,9 +1,6 @@
 ﻿using SharedData;
 using System.Linq;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Xunit;
 using Utf8Json.Resolvers;
 

@@ -1,9 +1,6 @@
 ﻿using System;
-using Utf8Json.Internal.Emit;
 using Utf8Json.Internal;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Text;
 using Utf8Json.Formatters;
 using Utf8Json.Resolvers.Internal;
 
@@ -55,12 +52,12 @@ namespace Utf8Json.Resolvers.Internal
                     {
                         return;
                     }
-                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
                     return;
                 }
-                else if (typeof(T).IsEnum)
+                if (typeof(T).IsEnum)
                 {
-                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(true);
+                    formatter = new EnumFormatter<T>(true);
                 }
             }
         }
@@ -101,12 +98,12 @@ namespace Utf8Json.Resolvers.Internal
                     {
                         return;
                     }
-                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
                     return;
                 }
-                else if (typeof(T).IsEnum)
+                if (typeof(T).IsEnum)
                 {
-                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false);
+                    formatter = (IJsonFormatter<T>)new EnumFormatter<T>(false);
                 }
             }
         }

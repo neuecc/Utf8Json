@@ -73,11 +73,8 @@ namespace Utf8Json.Internal
                     value = -1;
                     return false;
                 }
-                else
-                {
-                    value = node.Value;
-                    return true;
-                }
+                value = node.Value;
+                return true;
             }
         }
 #else
@@ -130,11 +127,8 @@ namespace Utf8Json.Internal
                 value = -1;
                 return false;
             }
-            else
-            {
-                value = node.Value;
-                return true;
-            }
+            value = node.Value;
+            return true;
         }
 
         // for debugging
@@ -235,10 +229,7 @@ namespace Utf8Json.Internal
                     Array.Sort(nextKeys, 0, count);
                     return nextNode;
                 }
-                else
-                {
-                    return nexts[index];
-                }
+                return nexts[index];
             }
 
             public AutomataNode Add(ulong key, int value, string originalKey)
@@ -255,7 +246,7 @@ namespace Utf8Json.Internal
                 if (count < 4)
                 {
                     // linear search
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         if (nextKeys[i] == key)
                         {
@@ -282,7 +273,7 @@ namespace Utf8Json.Internal
                 if (count < 4)
                 {
                     // linear search
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         if (nextKeys[i] == key)
                         {
@@ -305,11 +296,11 @@ namespace Utf8Json.Internal
 
             internal static int BinarySearch(ulong[] array, int index, int length, ulong value)
             {
-                int lo = index;
-                int hi = index + length - 1;
+                var lo = index;
+                var hi = index + length - 1;
                 while (lo <= hi)
                 {
-                    int i = lo + ((hi - lo) >> 1);
+                    var i = lo + ((hi - lo) >> 1);
 
                     var arrayValue = array[i];
                     int order;
@@ -338,7 +329,7 @@ namespace Utf8Json.Internal
 
             public IEnumerable<AutomataNode> YieldChildren()
             {
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     yield return nexts[i];
                 }
@@ -381,7 +372,7 @@ namespace Utf8Json.Internal
                     }
                     {
                         var ifValueNexts = Enumerable.Range(0, Math.Max(valueExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
-                        for (int i = 0; i < valueExists.Length; i++)
+                        for (var i = 0; i < valueExists.Length; i++)
                         {
                             var notFoundLabel = il.DefineLabel();
                             if (i != 0)
@@ -410,7 +401,7 @@ namespace Utf8Json.Internal
 
                     il.MarkLabel(gotoSearchNext);
                     var ifRecNext = Enumerable.Range(0, Math.Max(childrenExists.Length - 1, 0)).Select(_ => il.DefineLabel()).ToArray();
-                    for (int i = 0; i < childrenExists.Length; i++)
+                    for (var i = 0; i < childrenExists.Length; i++)
                     {
                         var notFoundLabel = il.DefineLabel();
                         if (i != 0)
@@ -485,7 +476,7 @@ namespace Utf8Json.Internal
                     {
                         case 1:
                             {
-                                key = *(byte*)p;
+                                key = *p;
                                 readSize = 1;
                                 break;
                             }
@@ -499,7 +490,7 @@ namespace Utf8Json.Internal
                             {
                                 var a = *p;
                                 var b = *(ushort*)(p + 1);
-                                key = ((ulong)a | (ulong)b << 8);
+                                key = (a | (ulong)b << 8);
                                 readSize = 3;
                                 break;
                             }
@@ -513,7 +504,7 @@ namespace Utf8Json.Internal
                             {
                                 var a = *p;
                                 var b = *(uint*)(p + 1);
-                                key = ((ulong)a | (ulong)b << 8);
+                                key = (a | (ulong)b << 8);
                                 readSize = 5;
                                 break;
                             }
@@ -527,10 +518,10 @@ namespace Utf8Json.Internal
                             }
                         case 7:
                             {
-                                var a = *(byte*)p;
+                                var a = *p;
                                 var b = *(ushort*)(p + 1);
                                 var c = *(uint*)(p + 3);
-                                key = ((ulong)a | (ulong)b << 8 | (ulong)c << 24);
+                                key = (a | (ulong)b << 8 | (ulong)c << 24);
                                 readSize = 7;
                                 break;
                             }
@@ -619,74 +610,71 @@ namespace Utf8Json.Internal
                     return key;
                 }
             }
-            else
+            unchecked
             {
-                unchecked
+                if (rest >= 8)
                 {
-                    if (rest >= 8)
-                    {
-                        key = (ulong)bytes[offset] << 56 | (ulong)bytes[offset + 1] << 48 | (ulong)bytes[offset + 2] << 40 | (ulong)bytes[offset + 3] << 32
-                            | (ulong)bytes[offset + 4] << 24 | (ulong)bytes[offset + 5] << 16 | (ulong)bytes[offset + 6] << 8 | (ulong)bytes[offset + 7];
-                        readSize = 8;
-                    }
-                    else
-                    {
-                        switch (rest)
-                        {
-                            case 1:
-                                {
-                                    key = bytes[offset];
-                                    readSize = 1;
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    key = (ulong)bytes[offset] << 8 | (ulong)bytes[offset + 1] << 0;
-                                    readSize = 2;
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    key = (ulong)bytes[offset] << 16 | (ulong)bytes[offset + 1] << 8 | (ulong)bytes[offset + 2] << 0;
-                                    readSize = 3;
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    key = (ulong)bytes[offset] << 24 | (ulong)bytes[offset + 1] << 16 | (ulong)bytes[offset + 2] << 8 | (ulong)bytes[offset + 3] << 0;
-                                    readSize = 4;
-                                    break;
-                                }
-                            case 5:
-                                {
-                                    key = (ulong)bytes[offset] << 32 | (ulong)bytes[offset + 1] << 24 | (ulong)bytes[offset + 2] << 16 | (ulong)bytes[offset + 3] << 8
-                                        | (ulong)bytes[offset + 4] << 0;
-                                    readSize = 5;
-                                    break;
-                                }
-                            case 6:
-                                {
-                                    key = (ulong)bytes[offset] << 40 | (ulong)bytes[offset + 1] << 32 | (ulong)bytes[offset + 2] << 24 | (ulong)bytes[offset + 3] << 16
-                                        | (ulong)bytes[offset + 4] << 8 | (ulong)bytes[offset + 5] << 0;
-                                    readSize = 6;
-                                    break;
-                                }
-                            case 7:
-                                {
-                                    key = (ulong)bytes[offset] << 48 | (ulong)bytes[offset + 1] << 40 | (ulong)bytes[offset + 2] << 32 | (ulong)bytes[offset + 3] << 24
-                                        | (ulong)bytes[offset + 4] << 16 | (ulong)bytes[offset + 5] << 8 | (ulong)bytes[offset + 6] << 0;
-                                    readSize = 7;
-                                    break;
-                                }
-                            default:
-                                throw new InvalidOperationException("Not Supported Length");
-                        }
-                    }
-
-                    offset += readSize;
-                    rest -= readSize;
-                    return key;
+                    key = (ulong)bytes[offset] << 56 | (ulong)bytes[offset + 1] << 48 | (ulong)bytes[offset + 2] << 40 | (ulong)bytes[offset + 3] << 32
+                          | (ulong)bytes[offset + 4] << 24 | (ulong)bytes[offset + 5] << 16 | (ulong)bytes[offset + 6] << 8 | bytes[offset + 7];
+                    readSize = 8;
                 }
+                else
+                {
+                    switch (rest)
+                    {
+                        case 1:
+                        {
+                            key = bytes[offset];
+                            readSize = 1;
+                            break;
+                        }
+                        case 2:
+                        {
+                            key = (ulong)bytes[offset] << 8 | (ulong)bytes[offset + 1] << 0;
+                            readSize = 2;
+                            break;
+                        }
+                        case 3:
+                        {
+                            key = (ulong)bytes[offset] << 16 | (ulong)bytes[offset + 1] << 8 | (ulong)bytes[offset + 2] << 0;
+                            readSize = 3;
+                            break;
+                        }
+                        case 4:
+                        {
+                            key = (ulong)bytes[offset] << 24 | (ulong)bytes[offset + 1] << 16 | (ulong)bytes[offset + 2] << 8 | (ulong)bytes[offset + 3] << 0;
+                            readSize = 4;
+                            break;
+                        }
+                        case 5:
+                        {
+                            key = (ulong)bytes[offset] << 32 | (ulong)bytes[offset + 1] << 24 | (ulong)bytes[offset + 2] << 16 | (ulong)bytes[offset + 3] << 8
+                                  | (ulong)bytes[offset + 4] << 0;
+                            readSize = 5;
+                            break;
+                        }
+                        case 6:
+                        {
+                            key = (ulong)bytes[offset] << 40 | (ulong)bytes[offset + 1] << 32 | (ulong)bytes[offset + 2] << 24 | (ulong)bytes[offset + 3] << 16
+                                  | (ulong)bytes[offset + 4] << 8 | (ulong)bytes[offset + 5] << 0;
+                            readSize = 6;
+                            break;
+                        }
+                        case 7:
+                        {
+                            key = (ulong)bytes[offset] << 48 | (ulong)bytes[offset + 1] << 40 | (ulong)bytes[offset + 2] << 32 | (ulong)bytes[offset + 3] << 24
+                                  | (ulong)bytes[offset + 4] << 16 | (ulong)bytes[offset + 5] << 8 | (ulong)bytes[offset + 6] << 0;
+                            readSize = 7;
+                            break;
+                        }
+                        default:
+                            throw new InvalidOperationException("Not Supported Length");
+                    }
+                }
+
+                offset += readSize;
+                rest -= readSize;
+                return key;
             }
         }
     }

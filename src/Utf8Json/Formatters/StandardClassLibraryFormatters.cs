@@ -77,7 +77,7 @@ namespace Utf8Json.Formatters
             writer.WriteString(value);
         }
 
-        public string DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public string DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             return reader.ReadString();
         }
@@ -101,7 +101,7 @@ namespace Utf8Json.Formatters
                 {
                     writer.WriteString(value[0]);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     writer.WriteString(value[i]);
@@ -117,23 +117,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new string[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new string[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = reader.ReadString();
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = reader.ReadString();
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -153,11 +150,11 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public sealed class NullableCharFormatter : IJsonFormatter<Char?>
+    public sealed class NullableCharFormatter : IJsonFormatter<char?>
     {
         public static readonly NullableCharFormatter Default = new NullableCharFormatter();
 
-        public void Serialize(ref JsonWriter writer, Char? value, IJsonFormatterResolver formatterResolver)
+        public void Serialize(ref JsonWriter writer, char? value, IJsonFormatterResolver formatterResolver)
         {
             if (value == null)
             {
@@ -169,16 +166,13 @@ namespace Utf8Json.Formatters
             }
         }
 
-        public Char? Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public char? Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull())
             {
                 return null;
             }
-            else
-            {
-                return CharFormatter.Default.Deserialize(ref reader, formatterResolver);
-            }
+            return CharFormatter.Default.Deserialize(ref reader, formatterResolver);
         }
     }
 
@@ -200,7 +194,7 @@ namespace Utf8Json.Formatters
                 {
                     CharFormatter.Default.Serialize(ref writer, value[0], formatterResolver);
                 }
-                for (int i = 1; i < value.Length; i++)
+                for (var i = 1; i < value.Length; i++)
                 {
                     writer.WriteValueSeparator();
                     CharFormatter.Default.Serialize(ref writer, value[i], formatterResolver);
@@ -216,23 +210,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            reader.ReadIsBeginArrayWithVerify();
+            var array = new char[4];
+            var count = 0;
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
-                reader.ReadIsBeginArrayWithVerify();
-                var array = new char[4];
-                var count = 0;
-                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                if (array.Length < count)
                 {
-                    if (array.Length < count)
-                    {
-                        Array.Resize(ref array, count * 2);
-                    }
-                    array[count - 1] = CharFormatter.Default.Deserialize(ref reader, formatterResolver);
+                    Array.Resize(ref array, count * 2);
                 }
-
-                Array.Resize(ref array, count);
-                return array;
+                array[count - 1] = CharFormatter.Default.Deserialize(ref reader, formatterResolver);
             }
+
+            Array.Resize(ref array, count);
+            return array;
         }
     }
 
@@ -298,14 +289,11 @@ namespace Utf8Json.Formatters
                 var number = reader.ReadNumberSegment();
                 return decimal.Parse(StringEncoding.UTF8.GetString(number.Array, number.Offset, number.Count), NumberStyles.Float, CultureInfo.InvariantCulture);
             }
-            else if (token == JsonToken.String)
+            if (token == JsonToken.String)
             {
                 return decimal.Parse(reader.ReadString(), NumberStyles.Float, CultureInfo.InvariantCulture);
             }
-            else
-            {
-                throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
-            }
+            throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
         }
     }
 
@@ -331,10 +319,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return new Uri(reader.ReadString(), UriKind.RelativeOrAbsolute);
-            }
+            return new Uri(reader.ReadString(), UriKind.RelativeOrAbsolute);
         }
     }
 
@@ -360,10 +345,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return new Version(reader.ReadString());
-            }
+            return new Version(reader.ReadString());
         }
     }
 
@@ -383,8 +365,8 @@ namespace Utf8Json.Formatters
         {
             if (reader.ReadIsNull()) throw new InvalidOperationException("Data is Nil, KeyValuePair can not be null.");
 
-            TKey resultKey = default(TKey);
-            TValue resultValue = default(TValue);
+            var resultKey = default(TKey);
+            var resultValue = default(TValue);
 
             reader.ReadIsBeginObjectWithVerify();
 
@@ -444,7 +426,7 @@ namespace Utf8Json.Formatters
             if (value == null) { writer.WriteNull(); return; }
 
             writer.WriteBeginArray();
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 if (i != 0) writer.WriteValueSeparator();
                 writer.WriteBoolean(value[i]);
@@ -573,7 +555,7 @@ namespace Utf8Json.Formatters
         public void Serialize(ref JsonWriter writer, ExpandoObject value, IJsonFormatterResolver formatterResolver)
         {
             var formatter = formatterResolver.GetFormatterWithVerify<IDictionary<string, object>>();
-            formatter.Serialize(ref writer, (IDictionary<string, object>)value, formatterResolver);
+            formatter.Serialize(ref writer, value, formatterResolver);
         }
 
         public ExpandoObject Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -682,7 +664,7 @@ namespace Utf8Json.Formatters.Internal
 
         static StandardClassLibraryFormatterHelper()
         {
-            keyValuePairName = new byte[][]
+            keyValuePairName = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Key"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Value"),

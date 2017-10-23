@@ -50,11 +50,8 @@ namespace Utf8Json.Internal
             {
                 return oneByteOpCodes[code];
             }
-            else
-            {
-                code = ReadByte();
-                return twoByteOpCodes[code];
-            }
+            code = ReadByte();
+            return twoByteOpCodes[code];
         }
 
         public int ReadMetadataToken()
@@ -122,7 +119,7 @@ namespace Utf8Json.Internal
                         case OperandType.InlineSwitch:
                             {
                                 var count = reader.ReadUInt32();
-                                for (int i = 0; i < count; i++)
+                                for (var i = 0; i < count; i++)
                                 {
                                     // data =...
                                     reader.ReadInt32();
@@ -252,7 +249,7 @@ namespace Utf8Json.Internal
                     var info = Data as FieldInfo;
                     addition = TrimVersion.Replace(info.DeclaringType.FullName, "") + "." + info.Name;
                 }
-                else if (Data is String)
+                else if (Data is string)
                 {
                     addition = (string)Data;
                 }

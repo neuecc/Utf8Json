@@ -290,7 +290,7 @@ namespace Utf8Json.Internal.Emit
         /// </summary>
         public static void EmitPop(this ILGenerator il, int count)
         {
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 il.Emit(OpCodes.Pop);
             }

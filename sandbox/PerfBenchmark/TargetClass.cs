@@ -1,10 +1,6 @@
 ﻿using MessagePack;
-using Utf8Json.Internal;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
-using Utf8Json;
 
 namespace PerfBenchmark
 {
@@ -63,12 +59,12 @@ namespace PerfBenchmark
                 {
                     Number1 = (sbyte)random.Next(),
                     Number2 = (short)random.Next(),
-                    Number3 = (int)random.Next(),
+                    Number3 = random.Next(),
                     Number4 = (long)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
                     Number5 = (byte)random.Next(),
                     Number6 = (ushort)random.Next(),
                     Number7 = (uint)random.Next(),
-                    Number8 = (ulong)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
+                    Number8 = new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
                 };
             }
         }

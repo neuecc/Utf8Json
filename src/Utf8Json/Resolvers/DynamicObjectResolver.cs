@@ -533,7 +533,7 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return null;
                 }
-                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
             }
 
             Type elementType;
@@ -561,7 +561,7 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return null;
                 }
-                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new[] { innerFormatter });
             }
 
             return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, allowPrivate);
@@ -592,7 +592,7 @@ namespace Utf8Json.Resolvers.Internal
             {
                 var method = typeBuilder.DefineMethod("Serialize", MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
                     null,
-                    new Type[] { typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) });
+                    new[] { typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) });
 
                 var il = method.GetILGenerator();
                 BuildSerialize(type, serializationInfo, il, () =>
@@ -613,7 +613,7 @@ namespace Utf8Json.Resolvers.Internal
             {
                 var method = typeBuilder.DefineMethod("Deserialize", MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
                     type,
-                    new Type[] { typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) });
+                    new[] { typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) });
 
                 var il = method.GetILGenerator();
                 BuildDeserialize(type, serializationInfo, il, (index, member) =>
@@ -638,7 +638,7 @@ namespace Utf8Json.Resolvers.Internal
             var hasShouldSerialize = serializationInfo.Members.Any(x => x.ShouldSerializeMethodInfo != null);
 
             // build instance instead of emit constructor.
-            List<byte[]> stringByteKeysField = new List<byte[]>();
+            var stringByteKeysField = new List<byte[]>();
             var i = 0;
             foreach (var item in serializationInfo.Members.Where(x => x.IsReadable))
             {
@@ -660,8 +660,8 @@ namespace Utf8Json.Resolvers.Internal
                 i++;
             }
 
-            List<object> serializeCustomFormatters = new List<object>();
-            List<object> deserializeCustomFormatters = new List<object>();
+            var serializeCustomFormatters = new List<object>();
+            var deserializeCustomFormatters = new List<object>();
             foreach (var item in serializationInfo.Members.Where(x => x.IsReadable))
             {
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
@@ -689,7 +689,7 @@ namespace Utf8Json.Resolvers.Internal
                 }
             }
 
-            var serialize = new DynamicMethod("Serialize", null, new Type[] { typeof(byte[][]), typeof(object[]), typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) }, type.Module, true);
+            var serialize = new DynamicMethod("Serialize", null, new[] { typeof(byte[][]), typeof(object[]), typeof(JsonWriter).MakeByRefType(), type, typeof(IJsonFormatterResolver) }, type.Module, true);
             {
                 var il = serialize.GetILGenerator();
                 BuildSerialize(type, serializationInfo, il, () =>
@@ -708,7 +708,7 @@ namespace Utf8Json.Resolvers.Internal
                  }, excludeNull, hasShouldSerialize, 2);
             }
 
-            var deserialize = new DynamicMethod("Deserialize", type, new Type[] { typeof(object[]), typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
+            var deserialize = new DynamicMethod("Deserialize", type, new[] { typeof(object[]), typeof(JsonReader).MakeByRefType(), typeof(IJsonFormatterResolver) }, type.Module, true);
             {
                 var il = deserialize.GetILGenerator();
                 BuildDeserialize(type, serializationInfo, il, (index, member) =>
@@ -776,7 +776,7 @@ namespace Utf8Json.Resolvers.Internal
 
         static Dictionary<MetaMember, FieldInfo> BuildCustomFormatterField(TypeBuilder builder, MetaType info, ILGenerator il)
         {
-            Dictionary<MetaMember, FieldInfo> dict = new Dictionary<MetaMember, FieldInfo>();
+            var dict = new Dictionary<MetaMember, FieldInfo>();
             foreach (var item in info.Members.Where(x => x.IsReadable || x.IsWritable))
             {
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
@@ -871,7 +871,7 @@ namespace Utf8Json.Resolvers.Internal
 
             // for-loop WriteRaw -> WriteValue, EndObject
             LocalBuilder wrote = null;
-            Label endObjectLabel = il.DefineLabel();
+            var endObjectLabel = il.DefineLabel();
             Label[] labels = null;
             if (excludeNull || hasShouldSerialize)
             {
@@ -940,7 +940,7 @@ namespace Utf8Json.Resolvers.Internal
                 il.EmitLdc_I4(index);
                 il.Emit(OpCodes.Ldelem_Ref);
 #if NETSTANDARD
-                byte[] rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
+                var rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
                 if (rawField.Length < 32)
                 {
                     if (UnsafeMemory.Is32Bit)
@@ -1078,7 +1078,7 @@ namespace Utf8Json.Resolvers.Internal
             // read member loop
             {
                 var automata = new AutomataDictionary();
-                for (int i = 0; i < info.Members.Length; i++)
+                for (var i = 0; i < info.Members.Length; i++)
                 {
                     automata.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(info.Members[i].Name), i);
                 }
@@ -1349,20 +1349,14 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return true;
                 }
-                else
+                // use empty constuctor.
+                var bassCtorInfo = ctorInfo.DeclaringType.BaseType.GetConstructor(Type.EmptyTypes);
+                if (bassCtorInfo == null)
                 {
-                    // use empty constuctor.
-                    var bassCtorInfo = ctorInfo.DeclaringType.BaseType.GetConstructor(Type.EmptyTypes);
-                    if (bassCtorInfo == null)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        // check parent constructor
-                        return IsSideEffectFreeConstructorType(bassCtorInfo);
-                    }
+                    return false;
                 }
+                // check parent constructor
+                return IsSideEffectFreeConstructorType(bassCtorInfo);
             }
 
             return false;

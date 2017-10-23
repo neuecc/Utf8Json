@@ -39,10 +39,7 @@ namespace Utf8Json.AspNetCoreMvcFormatter
             {
                 return JsonSerializer.NonGeneric.SerializeAsync(context.HttpContext.Response.Body, context.Object, resolver);
             }
-            else
-            {
-                return JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
-            }
+            return JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
         }
     }
 

@@ -7,18 +7,13 @@ using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.CsProj;
 using System;
 using System.IO;
 using System.Text;
 using Utf8Json;
-using Utf8Json.Formatters;
 using Utf8Json.Internal;
-using System.Collections.Generic;
-using MessagePack.Resolvers;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using Utf8Json.Resolvers;
 
 
 // [assembly: AllowPartiallyTrustedCallers]
@@ -27,7 +22,7 @@ using Utf8Json.Resolvers;
 
 class Program
 {
-    static void Main(string[] args)
+    static void Main()
     {
         var switcher = new BenchmarkSwitcher(new[]
         {
@@ -78,10 +73,7 @@ public class MyPerson
         {
             return true;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 }
 
@@ -209,7 +201,7 @@ public class MyResolver : IJsonFormatterResolver
 
     public IJsonFormatter<T> GetFormatter<T>()
     {
-        return (IJsonFormatter<T>)(object)f;
+        return (IJsonFormatter<T>)f;
     }
 }
 
@@ -297,13 +289,13 @@ public class StringToDoubleBenchmark
     [Benchmark]
     public double DoubleParse()
     {
-        return Double.Parse(str);
+        return double.Parse(str);
     }
 
     [Benchmark]
-    public Double DoubleParseWithDecode()
+    public double DoubleParseWithDecode()
     {
-        return Double.Parse(Encoding.UTF8.GetString(strBytes));
+        return double.Parse(Encoding.UTF8.GetString(strBytes));
     }
 
 
@@ -726,7 +718,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             {  JsonWriter.GetEncodedPropertyNameWithoutQuotation("LastName"), 2 },
         };
 
-        nameCaches2 = new byte[][]
+        nameCaches2 = new[]
         {
             JsonWriter.GetEncodedPropertyName("Age"), // 
             JsonWriter.GetEncodedPropertyName("FirstName"), // 
@@ -754,7 +746,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
     {
         if (value == null) { writer.WriteNull(); return; }
 
-        bool wrote = false;
+        var wrote = false;
         writer.WriteBeginObject();
         // if(value.Age != nul)
         {
@@ -799,9 +791,9 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
 
         reader.ReadIsBeginObjectWithVerify(); // "{"
 
-        int age = default(int);
-        string firstName = default(string);
-        string lastName = default(string);
+        var age = default(int);
+        var firstName = default(string);
+        var lastName = default(string);
 
         var count = 0;
         while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count)) // "}", skip "," when count != 0
@@ -809,8 +801,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             // automata lookup
             var key = reader.ReadPropertyNameSegmentRaw();
 
-            int switchKey;
-            if (!dictionary.TryGetValue(key, out switchKey)) switchKey = -1;
+            if (!dictionary.TryGetValue(key, out var switchKey)) switchKey = -1;
 
             switch (switchKey)
             {
@@ -829,7 +820,7 @@ public class SimplePersonFormatter : IJsonFormatter<SimplePerson>
             }
         }
 
-        var result = new SimplePerson() { Age = age, FirstName = firstName, LastName = lastName };
+        var result = new SimplePerson { Age = age, FirstName = firstName, LastName = lastName };
         return result;
     }
 }
@@ -922,12 +913,12 @@ namespace Utf8Json.Formatters
                 {
                     Number1 = (sbyte)random.Next(),
                     Number2 = (short)random.Next(),
-                    Number3 = (int)random.Next(),
+                    Number3 = random.Next(),
                     Number4 = (long)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
                     Number5 = (byte)random.Next(),
                     Number6 = (ushort)random.Next(),
                     Number7 = (uint)random.Next(),
-                    Number8 = (ulong)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
+                    Number8 = new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Long,
                     //Number9 = (float)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Float,
                     //Number10 = (double)new LongUnion { Int1 = random.Next(), Int2 = random.Next() }.Double,
                     //Str = "FooBarBazBaz",
@@ -942,7 +933,7 @@ namespace Utf8Json.Formatters
         private readonly byte[][] stringByteKeys;
         public DynamicCodeDumper_TargetClassContractlessFormatter3()
         {
-            this.stringByteKeys = new byte[][]
+            this.stringByteKeys = new[]
             {
                 JsonWriter.GetEncodedPropertyNameWithBeginObject("Number1"),
                 JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("Number2"),
@@ -992,7 +983,7 @@ namespace Utf8Json.Formatters
                 return null;
             }
             ptr.ReadIsBeginObjectWithVerify();
-            byte[] bufferUnsafe = ptr.GetBufferUnsafe();
+            var bufferUnsafe = ptr.GetBufferUnsafe();
             string str = default;
             int[] array = default;
             sbyte number = default;
@@ -1008,12 +999,12 @@ namespace Utf8Json.Formatters
                 int num = default;
                 while (!ptr.ReadIsEndObjectWithSkipValueSeparator(ref num))
                 {
-                    ArraySegment<byte> arraySegment = ptr.ReadPropertyNameSegmentRaw();
-                    byte* ptr3 = ptr2 + arraySegment.Offset;
-                    int count = arraySegment.Count;
+                    var arraySegment = ptr.ReadPropertyNameSegmentRaw();
+                    var ptr3 = ptr2 + arraySegment.Offset;
+                    var count = arraySegment.Count;
                     if (count != 0)
                     {
-                        ulong key = AutomataKeyGen.GetKey(ref ptr3, ref count);
+                        var key = AutomataKeyGen.GetKey(ref ptr3, ref count);
                         if (key < 14762478557558094uL)
                         {
                             if (key < 13918053627426126uL)

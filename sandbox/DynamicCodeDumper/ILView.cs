@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DynamicCodeDumper
 {
@@ -101,13 +99,13 @@ namespace DynamicCodeDumper
                         case OperandType.InlineNone:
                             break;
                         case OperandType.InlineBrTarget:
-                            // data = 
+                            // data =
                             reader.ReadUInt32();
                             break;
                         case OperandType.InlineSwitch:
                             {
                                 var count = reader.ReadUInt32();
-                                for (int i = 0; i < count; i++)
+                                for (var i = 0; i < count; i++)
                                 {
                                     // data =...
                                     reader.ReadInt32();
@@ -237,7 +235,7 @@ namespace DynamicCodeDumper
                     var info = Data as FieldInfo;
                     addition = TrimVersion.Replace(info.DeclaringType.FullName, "") + "." + info.Name;
                 }
-                else if (Data is String)
+                else if (Data is string)
                 {
                     addition = (string)Data;
                 }
@@ -246,7 +244,7 @@ namespace DynamicCodeDumper
                     addition = TrimVersion.Replace(((Type)Data).FullName, "");
                 }
 
-                return string.Format("IL_{0,4:X4}:  {1, -11} {2}", Offset, OpCode, addition);
+                return $"IL_{Offset,4:X4}:  {OpCode,-11} {addition}";
             }
         }
     }

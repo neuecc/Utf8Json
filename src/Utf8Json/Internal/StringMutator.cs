@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace Utf8Json.Internal
 {
@@ -36,11 +35,11 @@ namespace Utf8Json.Internal
             if (string.IsNullOrEmpty(s)) return s;
 
             var sb = new StringBuilder();
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
             {
                 var c = s[i];
 
-                if (Char.IsUpper(c))
+                if (char.IsUpper(c))
                 {
                     // first
                     if (i == 0)

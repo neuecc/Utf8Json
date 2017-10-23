@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
@@ -64,12 +63,12 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public static bool operator ==(Iterator lhs, byte rhs)
         {
-            return lhs.buffer[lhs.offset] == (byte)rhs;
+            return lhs.buffer[lhs.offset] == rhs;
         }
 
         public static bool operator !=(Iterator lhs, byte rhs)
         {
-            return lhs.buffer[lhs.offset] != (byte)rhs;
+            return lhs.buffer[lhs.offset] != rhs;
         }
 
         public static bool operator >=(Iterator lhs, char rhs)
@@ -160,7 +159,7 @@ namespace Utf8Json.Internal.DoubleConversion
         static readonly byte[] kWhitespaceTable7 = new byte[] { 32, 13, 10, 9, 11, 12 };
         static readonly int kWhitespaceTable7Length = kWhitespaceTable7.Length;
 
-        static readonly UInt16[] kWhitespaceTable16 = new UInt16[]{
+        static readonly ushort[] kWhitespaceTable16 = new ushort[]{
               160, 8232, 8233, 5760, 6158, 8192, 8193, 8194, 8195,
               8196, 8197, 8198, 8199, 8200, 8201, 8202, 8239, 8287, 12288, 65279
         };
@@ -170,14 +169,14 @@ namespace Utf8Json.Internal.DoubleConversion
         {
             if (x < 128)
             {
-                for (int i = 0; i < kWhitespaceTable7Length; i++)
+                for (var i = 0; i < kWhitespaceTable7Length; i++)
                 {
                     if (kWhitespaceTable7[i] == x) return true;
                 }
             }
             else
             {
-                for (int i = 0; i < kWhitespaceTable16Length; i++)
+                for (var i = 0; i < kWhitespaceTable16Length; i++)
                 {
                     if (kWhitespaceTable16[i] == x) return true;
                 }
@@ -199,7 +198,7 @@ namespace Utf8Json.Internal.DoubleConversion
                                         Iterator end,
                                         byte[] substring)
         {
-            for (int i = 1; i < substring.Length; i++)
+            for (var i = 1; i < substring.Length; i++)
             {
                 ++current;
                 if (current == end || current != substring[i])
@@ -231,15 +230,15 @@ namespace Utf8Json.Internal.DoubleConversion
                     bool read_as_double,
                     out int processed_characters_count)
         {
-            Iterator current = input;
-            Iterator end = input + length;
+            var current = input;
+            var end = input + length;
 
             processed_characters_count = 0;
 
-            bool allow_trailing_junk = (flags_ & Flags.ALLOW_TRAILING_JUNK) != 0;
-            bool allow_leading_spaces = (flags_ & Flags.ALLOW_LEADING_SPACES) != 0;
-            bool allow_trailing_spaces = (flags_ & Flags.ALLOW_TRAILING_SPACES) != 0;
-            bool allow_spaces_after_sign = (flags_ & Flags.ALLOW_SPACES_AFTER_SIGN) != 0;
+            var allow_trailing_junk = (flags_ & Flags.ALLOW_TRAILING_JUNK) != 0;
+            var allow_leading_spaces = (flags_ & Flags.ALLOW_LEADING_SPACES) != 0;
+            var allow_trailing_spaces = (flags_ & Flags.ALLOW_TRAILING_SPACES) != 0;
+            var allow_spaces_after_sign = (flags_ & Flags.ALLOW_SPACES_AFTER_SIGN) != 0;
             // bool allow_case_insensibility = (flags_ & Flags.ALLOW_CASE_INSENSIBILITY) != 0;
 
             // To make sure that iterator dereferencing is valid the following
@@ -256,7 +255,7 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 if (!AdvanceToNonspace(ref current, end))
                 {
-                    processed_characters_count = (int)(current - input);
+                    processed_characters_count = current - input;
                     return empty_string_value_;
                 }
                 if (!allow_leading_spaces && (input != current))
@@ -267,23 +266,23 @@ namespace Utf8Json.Internal.DoubleConversion
             }
 
             // The longest form of simplified number is: "-<significant digits>.1eXXX\0".
-            byte[] buffer = GetBuffer();  // NOLINT: size is known at compile time.
-            int buffer_pos = 0;
+            var buffer = GetBuffer();  // NOLINT: size is known at compile time.
+            var buffer_pos = 0;
 
             // Exponent will be adjusted if insignificant digits of the integer part
             // or insignificant leading zeros of the fractional part are dropped.
-            int exponent = 0;
-            int significant_digits = 0;
-            int insignificant_digits = 0;
-            bool nonzero_digit_dropped = false;
+            var exponent = 0;
+            var significant_digits = 0;
+            var insignificant_digits = 0;
+            var nonzero_digit_dropped = false;
 
-            bool sign = false;
+            var sign = false;
 
             if (current == '+' || current == '-')
             {
                 sign = (current == '-');
                 current++;
-                Iterator next_non_space = current;
+                var next_non_space = current;
                 // Skip following spaces (if allowed).
                 if (!AdvanceToNonspace(ref next_non_space, end)) return junk_string_value_;
                 if (!allow_spaces_after_sign && (current != next_non_space))
@@ -339,7 +338,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 }
             }
 
-            bool leading_zero = false;
+            var leading_zero = false;
             if (current == '0')
             {
                 current++;
@@ -388,7 +387,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 }
             }
 
-            bool octal = leading_zero && (flags_ & Flags.ALLOW_OCTALS) != 0;
+            var octal = leading_zero && (flags_ & Flags.ALLOW_OCTALS) != 0;
 
             // Copy significant digits of the integer part (if any) to the buffer.
             while (current >= '0' && current <= '9')
@@ -426,10 +425,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     {
                         return junk_string_value_;
                     }
-                    else
-                    {
-                        goto parsing_done;
-                    }
+                    goto parsing_done;
                 }
 
                 if (significant_digits == 0)
@@ -490,12 +486,9 @@ namespace Utf8Json.Internal.DoubleConversion
                     {
                         goto parsing_done;
                     }
-                    else
-                    {
-                        return junk_string_value_;
-                    }
+                    return junk_string_value_;
                 }
-                byte exponen_sign = (byte)'+';
+                var exponen_sign = (byte)'+';
                 if (current == '+' || current == '-')
                 {
                     exponen_sign = current.Value;
@@ -506,10 +499,7 @@ namespace Utf8Json.Internal.DoubleConversion
                         {
                             goto parsing_done;
                         }
-                        else
-                        {
-                            return junk_string_value_;
-                        }
+                        return junk_string_value_;
                     }
                 }
 
@@ -519,19 +509,16 @@ namespace Utf8Json.Internal.DoubleConversion
                     {
                         goto parsing_done;
                     }
-                    else
-                    {
-                        return junk_string_value_;
-                    }
+                    return junk_string_value_;
                 }
 
                 const int max_exponent = int.MaxValue / 2;
 
-                int num = 0;
+                var num = 0;
                 do
                 {
                     // Check overflow.
-                    int digit = current.Value - (byte)'0';
+                    var digit = current.Value - (byte)'0';
                     if (num >= max_exponent / 10
                         && !(num == max_exponent / 10 && digit <= max_exponent % 10))
                     {

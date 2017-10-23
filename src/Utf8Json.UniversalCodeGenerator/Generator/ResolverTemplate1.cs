@@ -9,11 +9,6 @@
 // ------------------------------------------------------------------------------
 namespace Utf8Json.CodeGenerator.Generator
 {
-    using System.Linq;
-    using System.Text;
-    using System.Collections.Generic;
-    using System;
-    
     /// <summary>
     /// Class to produce the template output
     /// </summary>
@@ -332,7 +327,7 @@ namespace Utf8Json.CodeGenerator.Generator
         /// </summary>
         public void Error(string message)
         {
-            System.CodeDom.Compiler.CompilerError error = new global::System.CodeDom.Compiler.CompilerError();
+            var error = new global::System.CodeDom.Compiler.CompilerError();
             error.ErrorText = message;
             this.Errors.Add(error);
         }
@@ -341,7 +336,7 @@ namespace Utf8Json.CodeGenerator.Generator
         /// </summary>
         public void Warning(string message)
         {
-            System.CodeDom.Compiler.CompilerError error = new global::System.CodeDom.Compiler.CompilerError();
+            var error = new global::System.CodeDom.Compiler.CompilerError();
             error.ErrorText = message;
             error.IsWarning = true;
             this.Errors.Add(error);
@@ -363,10 +358,10 @@ namespace Utf8Json.CodeGenerator.Generator
         /// </summary>
         public string PopIndent()
         {
-            string returnValue = "";
+            var returnValue = "";
             if ((this.indentLengths.Count > 0))
             {
-                int indentLength = this.indentLengths[(this.indentLengths.Count - 1)];
+                var indentLength = this.indentLengths[(this.indentLengths.Count - 1)];
                 this.indentLengths.RemoveAt((this.indentLengths.Count - 1));
                 if ((indentLength > 0))
                 {
@@ -418,18 +413,15 @@ namespace Utf8Json.CodeGenerator.Generator
                 {
                     throw new global::System.ArgumentNullException("objectToConvert");
                 }
-                System.Type t = objectToConvert.GetType();
-                System.Reflection.MethodInfo method = t.GetMethod("ToString", new System.Type[] {
+                var t = objectToConvert.GetType();
+                var method = t.GetMethod("ToString", new[] {
                             typeof(System.IFormatProvider)});
                 if ((method == null))
                 {
                     return objectToConvert.ToString();
                 }
-                else
-                {
-                    return ((string)(method.Invoke(objectToConvert, new object[] {
-                                this.formatProviderField })));
-                }
+                return ((string)(method.Invoke(objectToConvert, new object[] {
+                    this.formatProviderField })));
             }
         }
         private ToStringInstanceHelper toStringHelperField = new ToStringInstanceHelper();

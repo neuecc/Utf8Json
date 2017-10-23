@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Utf8Json.UniversalCodeGenerator
 {
@@ -46,7 +45,7 @@ namespace Utf8Json.UniversalCodeGenerator
                 }
             }
 
-            CSharpCompilation compilation = CSharpCompilation.Create(
+            var compilation = CSharpCompilation.Create(
                 "Assembly-CSharp",
                 syntaxTrees: syntaxTrees,
                 references: references

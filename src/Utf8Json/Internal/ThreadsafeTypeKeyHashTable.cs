@@ -42,7 +42,7 @@ namespace Utf8Json.Internal
                 {
                     // rehash
                     var nextBucket = new Entry[nextCapacity];
-                    for (int i = 0; i < buckets.Length; i++)
+                    for (var i = 0; i < buckets.Length; i++)
                     {
                         var e = buckets[i];
                         while (e != null)
@@ -164,7 +164,7 @@ namespace Utf8Json.Internal
 
         static int CalculateCapacity(int collectionSize, float loadFactor)
         {
-            var initialCapacity = (int)(((float)collectionSize) / loadFactor);
+            var initialCapacity = (int)(collectionSize / loadFactor);
             var capacity = 1;
             while (capacity < initialCapacity)
             {

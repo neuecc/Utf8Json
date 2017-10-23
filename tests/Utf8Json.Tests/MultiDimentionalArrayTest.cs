@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Utf8Json.Tests
@@ -23,15 +21,15 @@ namespace Utf8Json.Tests
             var three = new ValueTuple<int, int, int>[dataI, dataJ, dataK];
             var four = new ValueTuple<int, int, int, int>[dataI, dataJ, dataK, dataL];
 
-            for (int i = 0; i < dataI; i++)
+            for (var i = 0; i < dataI; i++)
             {
-                for (int j = 0; j < dataJ; j++)
+                for (var j = 0; j < dataJ; j++)
                 {
                     two[i, j] = (i, j);
-                    for (int k = 0; k < dataK; k++)
+                    for (var k = 0; k < dataK; k++)
                     {
                         three[i, j, k] = (i, j, k);
-                        for (int l = 0; l < dataL; l++)
+                        for (var l = 0; l < dataL; l++)
                         {
                             four[i, j, k, l] = (i, j, k, l);
                         }
@@ -47,15 +45,15 @@ namespace Utf8Json.Tests
             cThree.Length.Is(three.Length);
             cFour.Length.Is(four.Length);
 
-            for (int i = 0; i < dataI; i++)
+            for (var i = 0; i < dataI; i++)
             {
-                for (int j = 0; j < dataJ; j++)
+                for (var j = 0; j < dataJ; j++)
                 {
                     cTwo[i, j].Is(two[i, j]);
-                    for (int k = 0; k < dataK; k++)
+                    for (var k = 0; k < dataK; k++)
                     {
                         cThree[i, j, k].Is(three[i, j, k]);
-                        for (int l = 0; l < dataL; l++)
+                        for (var l = 0; l < dataL; l++)
                         {
                             cFour[i, j, k, l].Is(four[i, j, k, l]);
                         }

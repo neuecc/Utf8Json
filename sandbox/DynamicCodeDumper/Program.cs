@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using Utf8Json;
 using Utf8Json.Resolvers;
 using Utf8Json.Resolvers.Internal;
@@ -14,7 +12,7 @@ namespace DynamicCodeDumper
 {
     public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             try
             {

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 #if NETSTANDARD
 using System.Runtime.CompilerServices;
 #endif
@@ -30,7 +27,7 @@ namespace Utf8Json.Internal
             var current = bytes.Length;
             if (newLength > current)
             {
-                int num = newLength;
+                var num = newLength;
                 if (num < 256)
                 {
                     num = 256;
@@ -68,7 +65,7 @@ namespace Utf8Json.Internal
         {
             if (newSize < 0) throw new ArgumentOutOfRangeException("newSize");
 
-            byte[] array2 = array;
+            var array2 = array;
             if (array2 == null)
             {
                 array = new byte[newSize];
@@ -77,7 +74,7 @@ namespace Utf8Json.Internal
 
             if (array2.Length != newSize)
             {
-                byte[] array3 = new byte[newSize];
+                var array3 = new byte[newSize];
                 Buffer.BlockCopy(array2, 0, array3, 0, (array2.Length > newSize) ? newSize : array2.Length);
                 array = array3;
             }
@@ -97,7 +94,7 @@ namespace Utf8Json.Internal
 
             if (src == null) return new byte[newSize];
 
-            byte[] dst = new byte[newSize];
+            var dst = new byte[newSize];
 
 #if NETSTANDARD && !NET45
             fixed (byte* pSrc = &src[0])

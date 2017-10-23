@@ -6,7 +6,6 @@ using Utf8Json;
 using Utf8Json.Formatters;
 using Utf8Json.ImmutableCollection;
 using Utf8Json.Resolvers;
-using System.Linq;
 using System.Text;
 
 namespace ConsoleAppNetCore
@@ -201,56 +200,53 @@ namespace ConsoleAppNetCore
                 readSize = 1;
                 return x1;
             }
-            else
+            if (x1 < 0xC2)
             {
-                if (x1 < 0xC2)
-                {
-                    readSize = 1;
-                    goto ERROR;
-                }
-
-                if (x1 <= 0xDF)
-                {
-                    readSize = 2;
-                    var x2 = utf8Bytes[index + 1];
-                    if (0x80 <= x2 && x2 <= 0xBF)
-                    {
-                        return ((uint)(x1 & 0x1F) << 6) | (uint)(x2 & 0x3F);
-                    }
-                }
-                else if (x1 <= 0xEF)
-                {
-                    readSize = 3;
-                    var x2 = utf8Bytes[index + 1];
-                    if (0x80 <= x2 && x2 <= 0xBF)
-                    {
-                        var x3 = utf8Bytes[index + 2];
-                        if (0x80 <= x3 && x3 <= 0xBF)
-                        {
-                            return ((uint)(x1 & 0x0F) << 12) | (uint)((x2 & 0x3F) << 6) | (uint)(x3 & 0x3F);
-                        }
-                    }
-                }
-                else if (x1 <= 0xF4)
-                {
-                    readSize = 4;
-                    var x2 = utf8Bytes[index + 1];
-                    if (0x80 <= x2 && x2 <= 0xBF)
-                    {
-                        var x3 = utf8Bytes[index + 2];
-                        if (0x80 <= x3 && x3 <= 0xBF)
-                        {
-                            var x4 = utf8Bytes[index + 3];
-                            if (0x80 <= x4 && x4 <= 0xBF)
-                            {
-                                return ((uint)(x1 & 0x07) << 18) | (uint)((x2 & 0x3F) << 12) | (uint)((x3 & 0x3F) << 6) | (uint)(x4 & 0x3F);
-                            }
-                        }
-                    }
-                }
-
                 readSize = 1;
+                goto ERROR;
             }
+
+            if (x1 <= 0xDF)
+            {
+                readSize = 2;
+                var x2 = utf8Bytes[index + 1];
+                if (0x80 <= x2 && x2 <= 0xBF)
+                {
+                    return ((uint)(x1 & 0x1F) << 6) | (uint)(x2 & 0x3F);
+                }
+            }
+            else if (x1 <= 0xEF)
+            {
+                readSize = 3;
+                var x2 = utf8Bytes[index + 1];
+                if (0x80 <= x2 && x2 <= 0xBF)
+                {
+                    var x3 = utf8Bytes[index + 2];
+                    if (0x80 <= x3 && x3 <= 0xBF)
+                    {
+                        return ((uint)(x1 & 0x0F) << 12) | (uint)((x2 & 0x3F) << 6) | (uint)(x3 & 0x3F);
+                    }
+                }
+            }
+            else if (x1 <= 0xF4)
+            {
+                readSize = 4;
+                var x2 = utf8Bytes[index + 1];
+                if (0x80 <= x2 && x2 <= 0xBF)
+                {
+                    var x3 = utf8Bytes[index + 2];
+                    if (0x80 <= x3 && x3 <= 0xBF)
+                    {
+                        var x4 = utf8Bytes[index + 3];
+                        if (0x80 <= x4 && x4 <= 0xBF)
+                        {
+                            return ((uint)(x1 & 0x07) << 18) | (uint)((x2 & 0x3F) << 12) | (uint)((x3 & 0x3F) << 6) | (uint)(x4 & 0x3F);
+                        }
+                    }
+                }
+            }
+
+            readSize = 1;
 
             ERROR:
             return 0xFFFD;
@@ -326,7 +322,7 @@ namespace ConsoleAppNetCore
         }
 
 
-        static unsafe void Main(string[] args)
+        static unsafe void Main()
         {
             MyTest t = new MyTest();
             t.SetId(Guid.NewGuid());

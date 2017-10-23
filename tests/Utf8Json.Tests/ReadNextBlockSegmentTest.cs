@@ -28,7 +28,7 @@ namespace Utf8Json.Tests
                     if (reader.ReadIsNull()) return null;
 
                     string type = null;
-                    ArraySegment<byte> valueSegment = default(ArraySegment<byte>);
+                    var valueSegment = default(ArraySegment<byte>);
 
                     var count = 0;
                     while (reader.ReadIsInObject(ref count))

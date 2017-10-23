@@ -24,10 +24,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return formatterResolver.GetFormatterWithVerify<T>().Deserialize(ref reader, formatterResolver);
-            }
+            return formatterResolver.GetFormatterWithVerify<T>().Deserialize(ref reader, formatterResolver);
         }
     }
 
@@ -71,10 +68,7 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
-            {
-                return underlyingFormatter.Deserialize(ref reader, formatterResolver);
-            }
+            return underlyingFormatter.Deserialize(ref reader, formatterResolver);
         }
     }
 }

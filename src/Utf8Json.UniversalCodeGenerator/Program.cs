@@ -45,20 +45,17 @@ namespace Utf8Json.UniversalCodeGenerator
             {
                 goto SHOW_HELP;
             }
-            else
+            option.Parse(args);
+
+            if ((InputFiles.Count == 0 && InputDirectories.Count == 0) || OutputPath == null)
             {
-                option.Parse(args);
-
-                if ((InputFiles.Count == 0 && InputDirectories.Count == 0) || OutputPath == null)
-                {
-                    Console.WriteLine("Invalid Argument:" + string.Join(" ", args));
-                    Console.WriteLine();
-                    goto SHOW_HELP;
-                }
-
-                IsParsed = true;
-                return;
+                Console.WriteLine("Invalid Argument:" + string.Join(" ", args));
+                Console.WriteLine();
+                goto SHOW_HELP;
             }
+
+            IsParsed = true;
+            return;
 
             SHOW_HELP:
             Console.WriteLine("arguments help:");

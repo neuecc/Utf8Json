@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Utf8Json.Internal;
 
@@ -244,10 +243,7 @@ namespace Utf8Json
                         return JsonToken.None;
                 }
             }
-            else
-            {
-                return JsonToken.None;
-            }
+            return JsonToken.None;
         }
 
 #if NETSTANDARD
@@ -256,7 +252,7 @@ namespace Utf8Json
         public void SkipWhiteSpace()
         {
             // eliminate array bound check
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 switch (bytes[i])
                 {
@@ -332,10 +328,7 @@ namespace Utf8Json
                 offset += 4;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
 
             ERROR:
             throw CreateParsingException("null");
@@ -349,10 +342,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsBeginArrayWithVerify()
@@ -368,10 +358,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsEndArrayWithVerify()
@@ -387,14 +374,11 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
+            if (count++ != 0)
             {
-                if (count++ != 0)
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
-                return false;
+                ReadIsValueSeparatorWithVerify();
             }
+            return false;
         }
 
         /// <summary>
@@ -416,10 +400,7 @@ namespace Utf8Json
                 {
                     return false;
                 }
-                else
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
+                ReadIsValueSeparatorWithVerify();
             }
 
             count++;
@@ -434,10 +415,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsBeginObjectWithVerify()
@@ -453,10 +431,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
         public void ReadIsEndObjectWithVerify()
         {
@@ -471,14 +446,11 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
+            if (count++ != 0)
             {
-                if (count++ != 0)
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
-                return false;
+                ReadIsValueSeparatorWithVerify();
             }
+            return false;
         }
 
         /// <summary>
@@ -500,10 +472,7 @@ namespace Utf8Json
                 {
                     return false;
                 }
-                else
-                {
-                    ReadIsValueSeparatorWithVerify();
-                }
+                ReadIsValueSeparatorWithVerify();
             }
 
             count++;
@@ -518,10 +487,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsValueSeparatorWithVerify()
@@ -537,10 +503,7 @@ namespace Utf8Json
                 offset += 1;
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void ReadIsNameSeparatorWithVerify()
@@ -563,7 +526,7 @@ namespace Utf8Json
             var from = offset;
 
             // eliminate array-bound check
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 byte escapeCharacter = 0;
                 switch (bytes[i])
@@ -702,11 +665,11 @@ namespace Utf8Json
             {
                 return x - '0';
             }
-            else if ('a' <= x && x <= 'f')
+            if ('a' <= x && x <= 'f')
             {
                 return x - 'a' + 10;
             }
-            else if ('A' <= x && x <= 'F')
+            if ('A' <= x && x <= 'F')
             {
                 return x - 'A' + 10;
             }
@@ -747,7 +710,7 @@ namespace Utf8Json
         /// <summary>Get raw string-span(do not unescape)</summary>
         public ArraySegment<byte> ReadStringSegmentRaw()
         {
-            ArraySegment<byte> key = default(ArraySegment<byte>);
+            var key = default(ArraySegment<byte>);
             if (ReadIsNull())
             {
                 key = nullTokenSegment;
@@ -759,20 +722,17 @@ namespace Utf8Json
 
                 var from = offset;
 
-                for (int i = offset; i < bytes.Length; i++)
+                for (var i = offset; i < bytes.Length; i++)
                 {
-                    if (bytes[i] == (char)'\"')
+                    if (bytes[i] == '\"')
                     {
                         // is escape?
-                        if (bytes[i - 1] == (char)'\\')
+                        if (bytes[i - 1] == '\\')
                         {
                             continue;
                         }
-                        else
-                        {
-                            offset = i + 1;
-                            goto OK;
-                        }
+                        offset = i + 1;
+                        goto OK;
                     }
                 }
                 throw CreateParsingExceptionMessage("not found end string.");
@@ -803,7 +763,7 @@ namespace Utf8Json
                 offset += 4;
                 return true;
             }
-            else if (bytes[offset] == 'f')
+            if (bytes[offset] == 'f')
             {
                 if (bytes[offset + 1] != 'a') goto ERROR_FALSE;
                 if (bytes[offset + 2] != 'l') goto ERROR_FALSE;
@@ -812,10 +772,7 @@ namespace Utf8Json
                 offset += 5;
                 return false;
             }
-            else
-            {
-                throw CreateParsingException("true | false");
-            }
+            throw CreateParsingException("true | false");
 
             ERROR_TRUE:
             throw CreateParsingException("true");
@@ -988,25 +945,22 @@ namespace Utf8Json
                     break;
                 case JsonToken.String:
                     offset += 1; // position is "\"";
-                    for (int i = offset; i < bytes.Length; i++)
+                    for (var i = offset; i < bytes.Length; i++)
                     {
-                        if (bytes[i] == (char)'\"')
+                        if (bytes[i] == '\"')
                         {
                             // is escape?
-                            if (bytes[i - 1] == (char)'\\')
+                            if (bytes[i - 1] == '\\')
                             {
                                 continue;
                             }
-                            else
-                            {
-                                offset = i + 1;
-                                return; // end
-                            }
+                            offset = i + 1;
+                            return; // end
                         }
                     }
                     throw CreateParsingExceptionMessage("not found end string.");
                 case JsonToken.Number:
-                    for (int i = offset; i < bytes.Length; i++)
+                    for (var i = offset; i < bytes.Length; i++)
                     {
                         if (IsWordBreak(bytes[i]))
                         {
@@ -1135,7 +1089,7 @@ namespace Utf8Json
             return v;
         }
 
-        public Single ReadSingle()
+        public float ReadSingle()
         {
             SkipWhiteSpace();
             int readCount;
@@ -1148,7 +1102,7 @@ namespace Utf8Json
             return v;
         }
 
-        public Double ReadDouble()
+        public double ReadDouble()
         {
             SkipWhiteSpace();
             int readCount;
@@ -1165,7 +1119,7 @@ namespace Utf8Json
         {
             SkipWhiteSpace();
             var initialOffset = offset;
-            for (int i = offset; i < bytes.Length; i++)
+            for (var i = offset; i < bytes.Length; i++)
             {
                 if (!NumberConverter.IsNumberRepresentation(bytes[i]))
                 {
@@ -1187,7 +1141,7 @@ namespace Utf8Json
             {
                 // single line
                 offset += 2;
-                for (int i = offset; i < bytes.Length; i++)
+                for (var i = offset; i < bytes.Length; i++)
                 {
                     if (bytes[i] == '\r' || bytes[i] == '\n')
                     {
@@ -1197,11 +1151,11 @@ namespace Utf8Json
 
                 throw new JsonParsingException("Can not find end token of single line comment(\r or \n).");
             }
-            else if (bytes[offset + 1] == '*')
+            if (bytes[offset + 1] == '*')
             {
 
                 offset += 2; // '/' + '*';
-                for (int i = offset; i < bytes.Length; i++)
+                for (var i = offset; i < bytes.Length; i++)
                 {
                     if (bytes[i] == '*' && bytes[i + 1] == '/')
                     {

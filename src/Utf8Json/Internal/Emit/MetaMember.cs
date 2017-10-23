@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Runtime.Serialization;
 
 namespace Utf8Json.Internal.Emit
 {
@@ -73,10 +70,7 @@ namespace Utf8Json.Internal.Emit
             {
                 return PropertyInfo.GetCustomAttribute<T>(inherit);
             }
-            else
-            {
-                return FieldInfo.GetCustomAttribute<T>(inherit);
-            }
+            return FieldInfo.GetCustomAttribute<T>(inherit);
         }
 
         public void EmitLoadValue(ILGenerator il)

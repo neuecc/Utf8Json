@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
 {
@@ -12,9 +10,9 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal struct CachedPower
     {
-        public readonly uint64_t significand;
-        public readonly int16_t binary_exponent;
-        public readonly int16_t decimal_exponent;
+        public readonly ulong significand;
+        public readonly short binary_exponent;
+        public readonly short decimal_exponent;
 
         public CachedPower(ulong significand, short binary_exponent, short decimal_exponent)
         {
@@ -26,7 +24,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal static class PowersOfTenCache
     {
-        static readonly CachedPower[] kCachedPowers = new CachedPower[]
+        static readonly CachedPower[] kCachedPowers = new[]
         {
             new CachedPower (0xfa8fd5a0081c0288, -1220, -348),
             new CachedPower (0xbaaee17fa23ebf76, -1193, -340),
@@ -130,12 +128,12 @@ namespace Utf8Json.Internal.DoubleConversion
             out DiyFp power,
             out int decimal_exponent)
         {
-            int kQ = DiyFp.kSignificandSize;
-            double k = Math.Ceiling((min_exponent + kQ - 1) * kD_1_LOG2_10);
-            int foo = kCachedPowersOffset;
-            int index = (foo + (int)(k) - 1) / kDecimalExponentDistance + 1;
+            var kQ = DiyFp.kSignificandSize;
+            var k = Math.Ceiling((min_exponent + kQ - 1) * kD_1_LOG2_10);
+            var foo = kCachedPowersOffset;
+            var index = (foo + (int)(k) - 1) / kDecimalExponentDistance + 1;
 
-            CachedPower cached_power = kCachedPowers[index];
+            var cached_power = kCachedPowers[index];
             // (void)max_exponent;  // Mark variable as used.
             decimal_exponent = cached_power.decimal_exponent;
             power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
@@ -145,8 +143,8 @@ namespace Utf8Json.Internal.DoubleConversion
                                                         out DiyFp power,
                                                         out int found_exponent)
         {
-            int index = (requested_exponent + kCachedPowersOffset) / kDecimalExponentDistance;
-            CachedPower cached_power = kCachedPowers[index];
+            var index = (requested_exponent + kCachedPowersOffset) / kDecimalExponentDistance;
+            var cached_power = kCachedPowers[index];
             power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
             found_exponent = cached_power.decimal_exponent;
         }

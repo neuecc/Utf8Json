@@ -276,7 +276,7 @@ namespace Utf8Json
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void WriteSingle(Single value)
+        public void WriteSingle(float value)
         {
             offset += Utf8Json.Internal.DoubleConversion.DoubleToStringConverter.GetBytes(ref buffer, offset, value);
         }
@@ -294,7 +294,7 @@ namespace Utf8Json
 #endif
         public void WriteByte(byte value)
         {
-            WriteUInt64((ulong)value);
+            WriteUInt64(value);
         }
 
 #if NETSTANDARD
@@ -302,7 +302,7 @@ namespace Utf8Json
 #endif
         public void WriteUInt16(ushort value)
         {
-            WriteUInt64((ulong)value);
+            WriteUInt64(value);
         }
 
 #if NETSTANDARD
@@ -310,7 +310,7 @@ namespace Utf8Json
 #endif
         public void WriteUInt32(uint value)
         {
-            WriteUInt64((ulong)value);
+            WriteUInt64(value);
         }
 
         public void WriteUInt64(ulong value)
@@ -323,7 +323,7 @@ namespace Utf8Json
 #endif
         public void WriteSByte(sbyte value)
         {
-            WriteInt64((long)value);
+            WriteInt64(value);
         }
 
 #if NETSTANDARD
@@ -331,7 +331,7 @@ namespace Utf8Json
 #endif
         public void WriteInt16(short value)
         {
-            WriteInt64((long)value);
+            WriteInt64(value);
         }
 
 #if NETSTANDARD
@@ -339,7 +339,7 @@ namespace Utf8Json
 #endif
         public void WriteInt32(int value)
         {
-            WriteInt64((long)value);
+            WriteInt64(value);
         }
 
         public void WriteInt64(long value)
@@ -368,9 +368,9 @@ namespace Utf8Json
             buffer[offset++] = (byte)'\"';
 
             // for JIT Optimization, for-loop i < str.Length
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
-                byte escapeChar = default(byte);
+                var escapeChar = default(byte);
                 switch (value[i])
                 {
                     case '"':

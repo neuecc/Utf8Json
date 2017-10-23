@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Utf8Json.CodeGenerator.Generator
+﻿namespace Utf8Json.CodeGenerator.Generator
 {
     public partial class FormatterTemplate
     {

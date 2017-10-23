@@ -33,7 +33,7 @@ namespace Utf8Json.ImmutableCollection
 
     internal static class ImmutableCollectionGetFormatterHelper
     {
-        static readonly Dictionary<Type, Type> formatterMap = new Dictionary<Type, Type>()
+        static readonly Dictionary<Type, Type> formatterMap = new Dictionary<Type, Type>
         {
               {typeof(ImmutableArray<>), typeof(ImmutableArrayFormatter<>)},
               {typeof(ImmutableList<>), typeof(ImmutableListFormatter<>)},
@@ -61,12 +61,11 @@ namespace Utf8Json.ImmutableCollection
                 var isNullable = genericTypeInfo.IsNullable();
                 var nullableElementType = isNullable ? ti.GenericTypeArguments[0] : null;
 
-                Type formatterType;
-                if (formatterMap.TryGetValue(genericType, out formatterType))
+                if (formatterMap.TryGetValue(genericType, out var formatterType))
                 {
                     return CreateInstance(formatterType, ti.GenericTypeArguments);
                 }
-                else if (isNullable && nullableElementType.IsConstructedGenericType && nullableElementType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
+                if (isNullable && nullableElementType.IsConstructedGenericType && nullableElementType.GetGenericTypeDefinition() == typeof(ImmutableArray<>))
                 {
                     return CreateInstance(typeof(NullableFormatter<>), new[] { nullableElementType });
                 }

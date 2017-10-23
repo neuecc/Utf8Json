@@ -38,7 +38,7 @@ namespace Utf8Json.UniversalCodeGenerator
 
         static readonly SymbolDisplayFormat shortTypeNameFormat = new SymbolDisplayFormat(
                 typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypes);
-        static readonly HashSet<string> embeddedTypes = new HashSet<string>(new string[]
+        static readonly HashSet<string> embeddedTypes = new HashSet<string>(new[]
         {
             "short",
             "int",
@@ -478,10 +478,7 @@ namespace Utf8Json.UniversalCodeGenerator
                                     ctor = null;
                                     continue;
                                 }
-                                else
-                                {
-                                    throw new CodeGeneratorResolveFailedException("duplicate matched constructor parameter name:" + type.Name + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
-                                }
+                                throw new CodeGeneratorResolveFailedException("duplicate matched constructor parameter name:" + type.Name + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
                             }
 
                             paramMember = hasKey.First().Value;
@@ -496,10 +493,7 @@ namespace Utf8Json.UniversalCodeGenerator
                                     ctor = null;
                                     continue;
                                 }
-                                else
-                                {
-                                    throw new CodeGeneratorResolveFailedException("can't find matched constructor parameter, parameterType mismatch. type:" + type.Name + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
-                                }
+                                throw new CodeGeneratorResolveFailedException("can't find matched constructor parameter, parameterType mismatch. type:" + type.Name + " parameterName:" + item.Name + " paramterType:" + item.Type.Name);
                             }
                         }
                         else
@@ -509,10 +503,7 @@ namespace Utf8Json.UniversalCodeGenerator
                                 ctor = null;
                                 continue;
                             }
-                            else
-                            {
-                                throw new CodeGeneratorResolveFailedException("can't find matched constructor parameter, index not found. type:" + type.Name + " parameterName:" + item.Name);
-                            }
+                            throw new CodeGeneratorResolveFailedException("can't find matched constructor parameter, index not found. type:" + type.Name + " parameterName:" + item.Name);
                         }
                         ctorParamIndex++;
                     }
@@ -552,11 +543,8 @@ namespace Utf8Json.UniversalCodeGenerator
                 ctor = ctorEnumerator.Current;
                 return true;
             }
-            else
-            {
-                ctor = null;
-                return false;
-            }
+            ctor = null;
+            return false;
         }
 
         bool IsAllowAccessibility(ITypeSymbol symbol)

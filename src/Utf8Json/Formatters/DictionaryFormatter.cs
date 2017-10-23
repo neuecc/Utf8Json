@@ -20,71 +20,68 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            else
+            var keyFormatter = formatterResolver.GetFormatterWithVerify<TKey>() as IObjectPropertyNameFormatter<TKey>;
+            var valueFormatter = formatterResolver.GetFormatterWithVerify<TValue>();
+
+            writer.WriteBeginObject();
+
+            var e = GetSourceEnumerator(value);
+            try
             {
-                var keyFormatter = formatterResolver.GetFormatterWithVerify<TKey>() as IObjectPropertyNameFormatter<TKey>;
-                var valueFormatter = formatterResolver.GetFormatterWithVerify<TValue>();
-
-                writer.WriteBeginObject();
-
-                var e = GetSourceEnumerator(value);
-                try
+                if (keyFormatter != null)
                 {
-                    if (keyFormatter != null)
+                    if (e.MoveNext())
                     {
-                        if (e.MoveNext())
-                        {
-                            var item = e.Current;
-                            keyFormatter.SerializeToPropertyName(ref writer, item.Key, formatterResolver);
-                            writer.WriteNameSeparator();
-                            valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                        }
-                        else
-                        {
-                            goto END;
-                        }
-
-                        while (e.MoveNext())
-                        {
-                            writer.WriteValueSeparator();
-                            var item = e.Current;
-                            keyFormatter.SerializeToPropertyName(ref writer, item.Key, formatterResolver);
-                            writer.WriteNameSeparator();
-                            valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                        }
+                        var item = e.Current;
+                        keyFormatter.SerializeToPropertyName(ref writer, item.Key, formatterResolver);
+                        writer.WriteNameSeparator();
+                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                     }
                     else
                     {
-                        if (e.MoveNext())
-                        {
-                            var item = e.Current;
-                            writer.WriteString(item.Key.ToString());
-                            writer.WriteNameSeparator();
-                            valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                        }
-                        else
-                        {
-                            goto END;
-                        }
+                        goto END;
+                    }
 
-                        while (e.MoveNext())
-                        {
-                            writer.WriteValueSeparator();
-                            var item = e.Current;
-                            writer.WriteString(item.Key.ToString());
-                            writer.WriteNameSeparator();
-                            valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                        }
+                    while (e.MoveNext())
+                    {
+                        writer.WriteValueSeparator();
+                        var item = e.Current;
+                        keyFormatter.SerializeToPropertyName(ref writer, item.Key, formatterResolver);
+                        writer.WriteNameSeparator();
+                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                     }
                 }
-                finally
+                else
                 {
-                    e.Dispose();
-                }
+                    if (e.MoveNext())
+                    {
+                        var item = e.Current;
+                        writer.WriteString(item.Key.ToString());
+                        writer.WriteNameSeparator();
+                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
+                    }
+                    else
+                    {
+                        goto END;
+                    }
 
-                END:
-                writer.WriteEndObject();
+                    while (e.MoveNext())
+                    {
+                        writer.WriteValueSeparator();
+                        var item = e.Current;
+                        writer.WriteString(item.Key.ToString());
+                        writer.WriteNameSeparator();
+                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
+                    }
+                }
             }
+            finally
+            {
+                e.Dispose();
+            }
+
+            END:
+            writer.WriteEndObject();
         }
 
         public TDictionary Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -93,26 +90,23 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            var keyFormatter = formatterResolver.GetFormatterWithVerify<TKey>() as IObjectPropertyNameFormatter<TKey>;
+            if (keyFormatter == null) throw new InvalidOperationException(typeof(TKey) + " does not support dictionary key deserialize.");
+            var valueFormatter = formatterResolver.GetFormatterWithVerify<TValue>();
+
+            reader.ReadIsBeginObjectWithVerify();
+
+            var dict = Create();
+            var i = 0;
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
             {
-                var keyFormatter = formatterResolver.GetFormatterWithVerify<TKey>() as IObjectPropertyNameFormatter<TKey>;
-                if (keyFormatter == null) throw new InvalidOperationException(typeof(TKey) + " does not support dictionary key deserialize.");
-                var valueFormatter = formatterResolver.GetFormatterWithVerify<TValue>();
-
-                reader.ReadIsBeginObjectWithVerify();
-
-                var dict = Create();
-                var i = 0;
-                while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
-                {
-                    var key = keyFormatter.DesrializeFromPropertyName(ref reader, formatterResolver);
-                    reader.ReadIsNameSeparatorWithVerify();
-                    var value = valueFormatter.Deserialize(ref reader, formatterResolver);
-                    Add(ref dict, i - 1, key, value);
-                }
-
-                return Complete(ref dict);
+                var key = keyFormatter.DeserializeFromPropertyName(ref reader, formatterResolver);
+                reader.ReadIsNameSeparatorWithVerify();
+                var value = valueFormatter.Deserialize(ref reader, formatterResolver);
+                Add(ref dict, i - 1, key, value);
             }
+
+            return Complete(ref dict);
         }
 
         // abstraction for serialize
@@ -300,46 +294,43 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            else
+            var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            writer.WriteBeginObject();
+
+            var e = value.GetEnumerator();
+            try
             {
-                var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
-
-                writer.WriteBeginObject();
-
-                var e = value.GetEnumerator();
-                try
+                if (e.MoveNext())
                 {
-                    if (e.MoveNext())
-                    {
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
-                        writer.WritePropertyName(item.Key.ToString());
-                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                    }
-                    else
-                    {
-                        goto END;
-                    }
-
-                    while (e.MoveNext())
-                    {
-                        writer.WriteValueSeparator();
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
-                        writer.WritePropertyName(item.Key.ToString());
-                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                    }
+                    var item = (System.Collections.DictionaryEntry)e.Current;
+                    writer.WritePropertyName(item.Key.ToString());
+                    valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                 }
-                finally
+                else
                 {
-                    var disp = e as IDisposable;
-                    if (disp != null)
-                    {
-                        disp.Dispose();
-                    }
+                    goto END;
                 }
 
-                END:
-                writer.WriteEndObject();
+                while (e.MoveNext())
+                {
+                    writer.WriteValueSeparator();
+                    var item = (System.Collections.DictionaryEntry)e.Current;
+                    writer.WritePropertyName(item.Key.ToString());
+                    valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
+                }
             }
+            finally
+            {
+                var disp = e as IDisposable;
+                if (disp != null)
+                {
+                    disp.Dispose();
+                }
+            }
+
+            END:
+            writer.WriteEndObject();
         }
 
         public T Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -348,23 +339,20 @@ namespace Utf8Json.Formatters
             {
                 return default(T);
             }
-            else
+            var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            reader.ReadIsBeginObjectWithVerify();
+
+            var dict = new T();
+            var i = 0;
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
             {
-                var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
-
-                reader.ReadIsBeginObjectWithVerify();
-
-                var dict = new T();
-                var i = 0;
-                while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
-                {
-                    var key = reader.ReadPropertyName();
-                    var value = valueFormatter.Deserialize(ref reader, formatterResolver);
-                    dict.Add(key, value);
-                }
-
-                return dict;
+                var key = reader.ReadPropertyName();
+                var value = valueFormatter.Deserialize(ref reader, formatterResolver);
+                dict.Add(key, value);
             }
+
+            return dict;
         }
     }
 
@@ -380,46 +368,43 @@ namespace Utf8Json.Formatters
                 writer.WriteNull();
                 return;
             }
-            else
+            var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            writer.WriteBeginObject();
+
+            var e = value.GetEnumerator();
+            try
             {
-                var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
-
-                writer.WriteBeginObject();
-
-                var e = value.GetEnumerator();
-                try
+                if (e.MoveNext())
                 {
-                    if (e.MoveNext())
-                    {
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
-                        writer.WritePropertyName(item.Key.ToString());
-                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                    }
-                    else
-                    {
-                        goto END;
-                    }
-
-                    while (e.MoveNext())
-                    {
-                        writer.WriteValueSeparator();
-                        System.Collections.DictionaryEntry item = (System.Collections.DictionaryEntry)e.Current;
-                        writer.WritePropertyName(item.Key.ToString());
-                        valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
-                    }
+                    var item = (System.Collections.DictionaryEntry)e.Current;
+                    writer.WritePropertyName(item.Key.ToString());
+                    valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
                 }
-                finally
+                else
                 {
-                    var disp = e as IDisposable;
-                    if (disp != null)
-                    {
-                        disp.Dispose();
-                    }
+                    goto END;
                 }
 
-                END:
-                writer.WriteEndObject();
+                while (e.MoveNext())
+                {
+                    writer.WriteValueSeparator();
+                    var item = (System.Collections.DictionaryEntry)e.Current;
+                    writer.WritePropertyName(item.Key.ToString());
+                    valueFormatter.Serialize(ref writer, item.Value, formatterResolver);
+                }
             }
+            finally
+            {
+                var disp = e as IDisposable;
+                if (disp != null)
+                {
+                    disp.Dispose();
+                }
+            }
+
+            END:
+            writer.WriteEndObject();
         }
 
         public System.Collections.IDictionary Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
@@ -428,23 +413,20 @@ namespace Utf8Json.Formatters
             {
                 return null;
             }
-            else
+            var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
+
+            reader.ReadIsBeginObjectWithVerify();
+
+            var dict = new Dictionary<object, object>();
+            var i = 0;
+            while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
             {
-                var valueFormatter = formatterResolver.GetFormatterWithVerify<object>();
-
-                reader.ReadIsBeginObjectWithVerify();
-
-                var dict = new Dictionary<object, object>();
-                var i = 0;
-                while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref i))
-                {
-                    var key = reader.ReadPropertyName();
-                    var value = valueFormatter.Deserialize(ref reader, formatterResolver);
-                    dict.Add(key, value);
-                }
-
-                return dict;
+                var key = reader.ReadPropertyName();
+                var value = valueFormatter.Deserialize(ref reader, formatterResolver);
+                dict.Add(key, value);
             }
+
+            return dict;
         }
     }
 }
