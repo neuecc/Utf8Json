@@ -236,7 +236,7 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public sealed class GuidFormatter : IJsonFormatter<Guid>
+    public sealed class GuidFormatter : IJsonFormatter<Guid>, IObjectPropertyNameFormatter<Guid>
     {
         public static readonly IJsonFormatter<Guid> Default = new GuidFormatter();
 
@@ -257,6 +257,16 @@ namespace Utf8Json.Formatters
         {
             var segment = reader.ReadStringSegmentUnsafe();
             return new GuidBits(ref segment).Value;
+        }
+
+        public void SerializeToPropertyName(ref JsonWriter writer, Guid value, IJsonFormatterResolver formatterResolver)
+        {
+            Serialize(ref writer, value, formatterResolver);
+        }
+
+        public Guid DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            return Deserialize(ref reader, formatterResolver);
         }
     }
 
