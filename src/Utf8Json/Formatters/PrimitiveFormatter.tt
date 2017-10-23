@@ -47,7 +47,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public <#= t.Name #> DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public <#= t.Name #> DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -92,7 +92,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public <#= t.Name #>? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public <#= t.Name #>? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 

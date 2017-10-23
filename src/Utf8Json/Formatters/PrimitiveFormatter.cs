@@ -24,7 +24,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public SByte DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public SByte DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -69,7 +69,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public SByte? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public SByte? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -154,7 +154,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Int16 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Int16 DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -199,7 +199,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Int16? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Int16? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -284,7 +284,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Int32 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Int32 DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -329,7 +329,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Int32? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Int32? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -414,7 +414,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Int64 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Int64 DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -459,7 +459,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Int64? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Int64? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -544,7 +544,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Byte DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Byte DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -589,7 +589,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Byte? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Byte? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -621,7 +621,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public UInt16 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public UInt16 DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -666,7 +666,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public UInt16? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public UInt16? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -751,7 +751,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public UInt32 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public UInt32 DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -796,7 +796,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public UInt32? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public UInt32? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -881,7 +881,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public UInt64 DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public UInt64 DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -926,7 +926,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public UInt64? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public UInt64? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -1011,7 +1011,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Single DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Single DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -1056,7 +1056,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Single? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Single? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -1141,7 +1141,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Double DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Double DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -1186,7 +1186,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Double? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Double? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
@@ -1271,7 +1271,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Boolean DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Boolean DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var key = reader.ReadStringSegmentRaw();
             int _;
@@ -1316,7 +1316,7 @@ namespace Utf8Json.Formatters
             writer.WriteQuotation();
         }
 
-        public Boolean? DesrializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public Boolean? DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull()) return null;
 
