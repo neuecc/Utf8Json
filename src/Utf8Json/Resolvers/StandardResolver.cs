@@ -704,7 +704,7 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.ExcludeNull }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivateExcludeNull }).ToArray();
 
             InnerResolver()
             {

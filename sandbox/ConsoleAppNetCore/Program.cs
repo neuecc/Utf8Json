@@ -312,14 +312,29 @@ namespace ConsoleAppNetCore
             }
         }
 
+        public abstract class TestBase
+        {
+            public Guid Id { get; protected set; }
+        }
+
+        public class MyTest : TestBase
+        {
+            public void SetId(Guid id)
+            {
+                Id = id;
+            }
+        }
+
 
         static unsafe void Main(string[] args)
         {
-            var resolver = CompositeResolver.Create(new IJsonFormatter[0], new[] { EnumResolver.Default, StandardResolver.CamelCase });
+            MyTest t = new MyTest();
+            t.SetId(Guid.NewGuid());
 
+            var output = JsonSerializer.ToJsonString(t, StandardResolver.AllowPrivateExcludeNull);
+            var input = JsonSerializer.Deserialize<MyTest>(output, StandardResolver.AllowPrivateExcludeNull);
 
-            var json = JsonSerializer.ToJsonString(new MyEnumType { YeaHore = MyEnum.Grape }, resolver);
-            Console.WriteLine(json);
+            Console.WriteLine(input.Id);
 
         }
 
