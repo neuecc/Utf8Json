@@ -88,7 +88,7 @@ namespace Utf8Json.Resolvers.Internal
                 var rank = t.GetArrayRank();
                 if (rank == 1)
                 {
-                    if (t.GetElementType() == typeof(byte[])) // byte[] is also supported in builtin formatter.
+                    if (t.GetElementType() == typeof(byte)) // byte[] is also supported in builtin formatter.
                     {
                         return ByteArrayFormatter.Default;
                     }

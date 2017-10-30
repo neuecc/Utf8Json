@@ -118,5 +118,25 @@ namespace Utf8Json.Tests
             nullableTest = null;
             Convert(nullableTest).IsNull();
         }
+
+        [Fact]
+        public void ByteArrayArrayTest()
+        {
+            var xs1 = new byte[100];
+            var xs2 = new byte[100];
+            for (int i = 0; i < xs1.Length; i++)
+            {
+                xs1[i] = 1;
+                xs2[i] = 1;
+            }
+
+            var bin = JsonSerializer.Serialize(new[] { xs1, xs2 });
+            var foo = JsonSerializer.Deserialize<byte[][]>(bin);
+            for (int i = 0; i < foo[0].Length; i++)
+            {
+                foo[0][i].Is((byte)1);
+                foo[1][i].Is((byte)1);
+            }
+        }
     }
 }
