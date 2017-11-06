@@ -73,11 +73,11 @@ namespace Utf8Json.UniversalCodeGenerator
         {
             if (primitiveTypes.Contains(Type))
             {
-                return $"writer.Write{ShortTypeName.Replace("[]", "s")}(value.{Name})";
+                return $"writer.Write{ShortTypeName.Replace("[]", "s")}(value.{MemberName})";
             }
             else
             {
-                return $"formatterResolver.GetFormatterWithVerify<{Type}>().Serialize(ref writer, value.{Name}, formatterResolver)";
+                return $"formatterResolver.GetFormatterWithVerify<{Type}>().Serialize(ref writer, value.{MemberName}, formatterResolver)";
             }
         }
 

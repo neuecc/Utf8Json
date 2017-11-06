@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -390,9 +391,7 @@ namespace Utf8Json.UniversalCodeGenerator
                 if (item.GetAttributes().FindAttributeShortName(typeReferences.IgnoreDataMemberAttribute) != null) continue;
                 var dm = item.GetAttributes().FindAttributeShortName(typeReferences.DataMemberAttribute);
 
-                var name = (dm != null && dm.GetSingleNamedArgumentValue("Name") != null)
-                    ? (string)dm.GetSingleNamedArgumentValue("Name")
-                    : item.Name; // nameMutetor(item.Name); // mutator support?
+                var name = (dm.GetSingleNamedArgumentValueFromSyntaxTree("Name") as string) ?? item.Name;
 
                 var member = new MemberSerializationInfo
                 {
@@ -417,9 +416,7 @@ namespace Utf8Json.UniversalCodeGenerator
                 if (item.IsImplicitlyDeclared) continue;
 
                 var dm = item.GetAttributes().FindAttributeShortName(typeReferences.DataMemberAttribute);
-                var name = (dm != null && dm.GetSingleNamedArgumentValue("Name") != null)
-                    ? (string)dm.GetSingleNamedArgumentValue("Name")
-                    : item.Name; // nameMutetor(item.Name); // mutator support?
+                var name = (dm.GetSingleNamedArgumentValueFromSyntaxTree("Name") as string) ?? item.Name;
 
                 var member = new MemberSerializationInfo
                 {

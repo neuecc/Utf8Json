@@ -125,13 +125,16 @@ namespace Utf8Json.UniversalCodeGenerator
                 .FirstOrDefault();
         }
 
-        public static object GetSingleNamedArgumentValue(this AttributeData attribute, string key)
+        public static object GetSingleNamedArgumentValueFromSyntaxTree(this AttributeData attribute, string key)
         {
-            foreach (var item in attribute.NamedArguments)
+            if (attribute == null) return null;
+
+            var ctxxx = attribute.ApplicationSyntaxReference.GetSyntax();
+            foreach (var p in ctxxx.DescendantNodes().OfType<AttributeArgumentSyntax>())
             {
-                if (item.Key == key)
+                if (p.NameEquals.Name.Identifier.ValueText == key)
                 {
-                    return item.Value.Value;
+                    return (p.Expression as LiteralExpressionSyntax).Token.ValueText;
                 }
             }
 

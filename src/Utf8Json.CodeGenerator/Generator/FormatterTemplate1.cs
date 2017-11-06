@@ -242,7 +242,7 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("            var __");
             
             #line 78 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
@@ -256,7 +256,7 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write(");\r\n            var __");
             
             #line 79 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
@@ -299,7 +299,7 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write(":\r\n                        __");
             
             #line 98 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
@@ -313,7 +313,7 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write(";\r\n                        __");
             
             #line 99 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
@@ -343,21 +343,21 @@ namespace Utf8Json.CodeGenerator.Generator
             this.Write("            if(__");
             
             #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
             this.Write("__b__) ____result.");
             
             #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
             this.Write(" = __");
             
             #line 113 "C:\Users\y.kawai\Documents\neuecc\Utf8Json\src\Utf8Json.CodeGenerator\Generator\FormatterTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(x.Name));
+            this.Write(this.ToStringHelper.ToStringWithCulture(x.MemberName));
             
             #line default
             #line hidden
