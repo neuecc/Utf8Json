@@ -426,7 +426,7 @@ namespace Utf8Json
                     break;
                 case JsonToken.Null:
                     {
-                        var v = reader.ReadIsNull();
+                        reader.ReadIsNull();
                         writer.WriteNull();
                     }
                     break;

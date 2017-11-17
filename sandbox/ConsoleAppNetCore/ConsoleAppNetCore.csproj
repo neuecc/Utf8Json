@@ -14,6 +14,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DumpAsm|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Utf8Json.ImmutableCollection\Utf8Json.ImmutableCollection.csproj" />
     <ProjectReference Include="..\..\src\Utf8Json\Utf8Json.csproj" />

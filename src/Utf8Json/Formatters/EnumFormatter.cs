@@ -151,7 +151,7 @@ namespace Utf8Json.Formatters
                   .FirstOrDefault();
 
                 values.Add(value);
-                names.Add((dataMember != null && !string.IsNullOrWhiteSpace(dataMember.Name)) ? dataMember.Name : name);
+                names.Add((dataMember != null && !string.IsNullOrEmpty(dataMember.Name)) ? dataMember.Name : name);
             }
 
             nameValueMapping = new ByteArrayStringHashTable<T>(names.Count);
