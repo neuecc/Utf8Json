@@ -155,7 +155,7 @@ namespace Utf8Json.Formatters
 
                 values.Add(value);
                 names.Add(
-                     (enumMember != null) ? enumMember.Value
+                     (enumMember != null && !string.IsNullOrEmpty(enumMember.Value)) ? enumMember.Value
                    : (dataMember != null && !string.IsNullOrEmpty(dataMember.Name)) ? dataMember.Name
                    : name);
             }
