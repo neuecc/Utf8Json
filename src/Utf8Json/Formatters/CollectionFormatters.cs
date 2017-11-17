@@ -6,6 +6,10 @@ using System.Linq;
 using Utf8Json.Formatters.Internal;
 using Utf8Json.Internal;
 
+#if NETSTANDARD
+using System.Collections.Concurrent;
+#endif
+
 namespace Utf8Json.Formatters
 {
     public class ArrayFormatter<T> : IJsonFormatter<T[]>
