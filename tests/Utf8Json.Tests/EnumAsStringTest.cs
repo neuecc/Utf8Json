@@ -44,6 +44,22 @@ namespace Utf8Json.Tests
         FooBarBaz = 32
     }
 
+    [Flags]
+    public enum EnumMemberFlag
+    {
+        [EnumMember(Value = "F")]
+        [DataMember(Name = "Boo")]
+        Foo = 0,
+        Bar = 1,
+        Baz = 2,
+        [EnumMember(Value = "FB")]
+        FooBar = 4,
+        FooBaz = 8,
+        BarBaz = 16,
+        [EnumMember(Value = "FBB")]
+        FooBarBaz = 32
+    }
+
     public class EnumAsStringTest
     {
         public static object enumData = new object[]
@@ -95,6 +111,27 @@ namespace Utf8Json.Tests
                 var v = JsonSerializer.ToJsonString(item.Item1);
                 v.Trim('\"').Is(item.Item2);
                 JsonSerializer.Deserialize<DataMemberFlag>(v).Is(item.Item1);
+            }
+        }
+
+        [Fact]
+        public void EnumMemberTest()
+        {
+            var xs = new[] {
+                (EnumMemberFlag.Foo, "F"),
+                (EnumMemberFlag.Bar, "Bar"),
+                (EnumMemberFlag.Baz, "Baz"),
+                (EnumMemberFlag.FooBar, "FB"),
+                (EnumMemberFlag.FooBaz, "FooBaz"),
+                (EnumMemberFlag.BarBaz, "BarBaz"),
+                (EnumMemberFlag.FooBarBaz, "FBB"),
+
+            };
+            foreach (var item in xs)
+            {
+                var v = JsonSerializer.ToJsonString(item.Item1);
+                v.Trim('\"').Is(item.Item2);
+                JsonSerializer.Deserialize<EnumMemberFlag>(v).Is(item.Item1);
             }
         }
     }

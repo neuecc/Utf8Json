@@ -149,9 +149,15 @@ namespace Utf8Json.Formatters
                 var dataMember = item.GetCustomAttributes(typeof(DataMemberAttribute), true)
                   .OfType<DataMemberAttribute>()
                   .FirstOrDefault();
+                var enumMember = item.GetCustomAttributes(typeof(EnumMemberAttribute), true)
+                   .OfType<EnumMemberAttribute>()
+                   .FirstOrDefault();
 
                 values.Add(value);
-                names.Add((dataMember != null && !string.IsNullOrEmpty(dataMember.Name)) ? dataMember.Name : name);
+                names.Add(
+                     (enumMember != null) ? enumMember.Value
+                   : (dataMember != null && !string.IsNullOrEmpty(dataMember.Name)) ? dataMember.Name
+                   : name);
             }
 
             nameValueMapping = new ByteArrayStringHashTable<T>(names.Count);
