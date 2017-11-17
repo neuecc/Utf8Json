@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text;
 using Xunit;
 
@@ -25,6 +26,21 @@ namespace Utf8Json.Tests
         FooBar = 4,
         FooBaz = 8,
         BarBaz = 16,
+        FooBarBaz = 32
+    }
+
+    [Flags]
+    public enum DataMemberFlag
+    {
+        [DataMember(Name ="F")]
+        Foo = 0,
+        Bar = 1,
+        Baz = 2,
+        [DataMember(Name ="FB")]
+        FooBar = 4,
+        FooBaz = 8,
+        BarBaz = 16,
+        [DataMember(Name ="FBB")]
         FooBarBaz = 32
     }
 
@@ -59,6 +75,27 @@ namespace Utf8Json.Tests
             var bin2 = JsonSerializer.Serialize(y);
             Encoding.UTF8.GetString(bin2).Trim('\"').Is(yName);
             JsonSerializer.Deserialize<T?>(bin2).Is(y);
+        }
+
+        [Fact]
+        public void DataMemberTest()
+        {
+            var xs = new[] {
+                (DataMemberFlag.Foo, "F"),
+                (DataMemberFlag.Bar, "Bar"),
+                (DataMemberFlag.Baz, "Baz"),
+                (DataMemberFlag.FooBar, "FB"),
+                (DataMemberFlag.FooBaz, "FooBaz"),
+                (DataMemberFlag.BarBaz, "BarBaz"),
+                (DataMemberFlag.FooBarBaz, "FBB"),
+
+            };
+            foreach(var item in xs)
+            {
+                var v = JsonSerializer.ToJsonString(item.Item1);
+                v.Trim('\"').Is(item.Item2);
+                JsonSerializer.Deserialize<DataMemberFlag>(v).Is(item.Item1);
+            }
         }
     }
 }

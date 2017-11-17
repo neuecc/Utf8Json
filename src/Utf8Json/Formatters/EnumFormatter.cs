@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using Utf8Json.Internal;
+using System.Runtime.Serialization;
 
 namespace Utf8Json.Formatters
 {
@@ -136,16 +138,29 @@ namespace Utf8Json.Formatters
 
         static EnumFormatter()
         {
-            var names = Enum.GetNames(typeof(T));
-            var values = Enum.GetValues(typeof(T));
+            var names = new List<String>();
+            var values = new List<object>();
 
-            nameValueMapping = new ByteArrayStringHashTable<T>(names.Length);
-            valueNameMapping = new Dictionary<T, string>(names.Length);
-
-            for (int i = 0; i < names.Length; i++)
+            var type = typeof(T);
+            foreach (var item in type.GetFields().Where(fi => fi.FieldType == type))
             {
-                nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i]), (T)values.GetValue(i));
-                valueNameMapping[(T)values.GetValue(i)] = names[i];
+                var value = item.GetValue(null);
+                var name = Enum.GetName(type, value);
+                var dataMember = item.GetCustomAttributes(typeof(DataMemberAttribute), true)
+                  .OfType<DataMemberAttribute>()
+                  .FirstOrDefault();
+
+                values.Add(value);
+                names.Add((dataMember != null && !string.IsNullOrWhiteSpace(dataMember.Name)) ? dataMember.Name : name);
+            }
+
+            nameValueMapping = new ByteArrayStringHashTable<T>(names.Count);
+            valueNameMapping = new Dictionary<T, string>(names.Count);
+
+            for (int i = 0; i < names.Count; i++)
+            {
+                nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i]), (T)values[i]);
+                valueNameMapping[(T)values[i]] = names[i];
             }
 
             // boxed... or generate...
