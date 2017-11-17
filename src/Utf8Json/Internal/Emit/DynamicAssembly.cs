@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Utf8Json.Internal.Emit
@@ -11,7 +12,36 @@ namespace Utf8Json.Internal.Emit
         readonly AssemblyBuilder assemblyBuilder;
         readonly ModuleBuilder moduleBuilder;
 
-        public ModuleBuilder ModuleBuilder { get { return moduleBuilder; } }
+        // don't expose ModuleBuilder
+        // public ModuleBuilder ModuleBuilder { get { return moduleBuilder; } }
+
+        readonly object gate = new object();
+
+        // requires lock on mono environment. see: https://github.com/neuecc/MessagePack-CSharp/issues/161
+
+        public TypeBuilder DefineType(string name, TypeAttributes attr)
+        {
+            lock (gate)
+            {
+                return moduleBuilder.DefineType(name, attr);
+            }
+        }
+
+        public TypeBuilder DefineType(string name, TypeAttributes attr, Type parent)
+        {
+            lock (gate)
+            {
+                return moduleBuilder.DefineType(name, attr, parent);
+            }
+        }
+
+        public TypeBuilder DefineType(string name, TypeAttributes attr, Type parent, Type[] interfaces)
+        {
+            lock (gate)
+            {
+                return moduleBuilder.DefineType(name, attr, parent, interfaces);
+            }
+        }
 
         public DynamicAssembly(string moduleName)
         {
