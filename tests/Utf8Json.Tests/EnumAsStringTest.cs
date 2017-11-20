@@ -32,16 +32,19 @@ namespace Utf8Json.Tests
     [Flags]
     public enum DataMemberFlag
     {
-        [DataMember(Name ="F")]
+        [DataMember(Name = "F")]
         Foo = 0,
         Bar = 1,
         Baz = 2,
-        [DataMember(Name ="FB")]
+        [DataMember(Name = "FB")]
         FooBar = 4,
         FooBaz = 8,
         BarBaz = 16,
-        [DataMember(Name ="FBB")]
-        FooBarBaz = 32
+        [DataMember(Name = "FBB")]
+        FooBarBaz = 32,
+
+        [DataMember(Name = "")]
+        Empty = 64
     }
 
     [Flags]
@@ -104,9 +107,21 @@ namespace Utf8Json.Tests
                 (DataMemberFlag.FooBaz, "FooBaz"),
                 (DataMemberFlag.BarBaz, "BarBaz"),
                 (DataMemberFlag.FooBarBaz, "FBB"),
-
             };
-            foreach(var item in xs)
+            foreach (var item in xs)
+            {
+                var v = JsonSerializer.ToJsonString(item.Item1);
+                v.Trim('\"').Is(item.Item2);
+                JsonSerializer.Deserialize<DataMemberFlag>(v).Is(item.Item1);
+            }
+        }
+
+        [Fact]
+        public void EmptyTest()
+        {
+            var xs = new[] { (DataMemberFlag.Empty, "") };
+
+            foreach (var item in xs)
             {
                 var v = JsonSerializer.ToJsonString(item.Item1);
                 v.Trim('\"').Is(item.Item2);

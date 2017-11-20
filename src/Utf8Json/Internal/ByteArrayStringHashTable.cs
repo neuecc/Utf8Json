@@ -116,7 +116,7 @@ namespace Utf8Json.Internal
         {
 #if NETSTANDARD
             // FarmHash https://github.com/google/farmhash
-            if (x == null) return 0;
+            if (x == null || x.Length == 0 || count == 0) return 0;
 
             if (Is32Bit)
             {
