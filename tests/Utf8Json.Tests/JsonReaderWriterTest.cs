@@ -14,7 +14,7 @@ namespace Utf8Json.Tests
 
             return new JsonReader(result.Array, result.Offset);
         }
-
+        /*
         [Fact]
         public void NullTest()
         {
@@ -189,6 +189,19 @@ namespace Utf8Json.Tests
             var js = JsonSerializer.Serialize<string>(v);
             var ok = JsonSerializer.Deserialize<string>(js);
             ok.Is(v);
+        }
+        */
+        [Fact]
+        public void LargeString()
+        {
+            var origstr = new string('a', 99999);
+            var str = "\\u0313" + origstr;
+            str = "\"" + str + "\"";
+
+            var reader = new JsonReader(Encoding.UTF8.GetBytes(str), 0);
+            var aaa = reader.ReadString();
+
+            aaa.Is("\u0313" + origstr);
         }
     }
 }
