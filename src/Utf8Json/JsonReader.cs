@@ -628,6 +628,7 @@ namespace Utf8Json
                         if (codePointStringOffet != 0)
                         {
                             if (builder == null) builder = StringBuilderCache.GetBuffer();
+                            BinaryUtil.EnsureCapacity(ref builder, builderOffset, StringEncoding.UTF8.GetMaxByteCount(codePointStringOffet));
                             builderOffset += StringEncoding.UTF8.GetBytes(codePointStringBuffer, 0, codePointStringOffet, builder, builderOffset);
                             codePointStringOffet = 0;
                         }
@@ -640,6 +641,7 @@ namespace Utf8Json
                     if (builder == null) builder = StringBuilderCache.GetBuffer();
                     if (codePointStringOffet != 0)
                     {
+                        BinaryUtil.EnsureCapacity(ref builder, builderOffset, StringEncoding.UTF8.GetMaxByteCount(codePointStringOffet));
                         builderOffset += StringEncoding.UTF8.GetBytes(codePointStringBuffer, 0, codePointStringOffet, builder, builderOffset);
                         codePointStringOffet = 0;
                     }
@@ -671,11 +673,13 @@ namespace Utf8Json
                 if (builder == null) builder = StringBuilderCache.GetBuffer();
                 if (codePointStringOffet != 0)
                 {
+                    BinaryUtil.EnsureCapacity(ref builder, builderOffset, StringEncoding.UTF8.GetMaxByteCount(codePointStringOffet));
                     builderOffset += StringEncoding.UTF8.GetBytes(codePointStringBuffer, 0, codePointStringOffet, builder, builderOffset);
                     codePointStringOffet = 0;
                 }
 
                 var copyCount = offset - from - 1;
+                BinaryUtil.EnsureCapacity(ref builder, builderOffset, copyCount);
                 Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
                 builderOffset += copyCount;
 
