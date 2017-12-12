@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using Utf8Json.Internal;
 
 namespace Utf8Json.Resolvers
 {
@@ -40,7 +41,7 @@ namespace Utf8Json.Resolvers
 
                 try
                 {
-                    if (attr.FormatterType.IsGenericType && !attr.FormatterType.IsConstructedGenericType)
+                    if (attr.FormatterType.IsGenericType && !attr.FormatterType.GetTypeInfo().IsConstructedGenericType())
                     {
                         var t = attr.FormatterType.MakeGenericType(typeof(T)); // use T self
                         formatter = (IJsonFormatter<T>)Activator.CreateInstance(t, attr.Arguments);
