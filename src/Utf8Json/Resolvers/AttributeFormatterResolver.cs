@@ -40,7 +40,15 @@ namespace Utf8Json.Resolvers
 
                 try
                 {
-                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(attr.FormatterType, attr.Arguments);
+                    if (attr.FormatterType.IsGenericType && !attr.FormatterType.IsConstructedGenericType)
+                    {
+                        var t = attr.FormatterType.MakeGenericType(typeof(T)); // use T self
+                        formatter = (IJsonFormatter<T>)Activator.CreateInstance(t, attr.Arguments);
+                    }
+                    else
+                    {
+                        formatter = (IJsonFormatter<T>)Activator.CreateInstance(attr.FormatterType, attr.Arguments);
+                    }
                 }
                 catch (Exception ex)
                 {
