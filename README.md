@@ -386,6 +386,22 @@ JSON Comments is invalid JSON Format but used widely(for example, [VSCode - sett
 }
 ```
 
+Encoding
+---
+Utf8Json only supports UTF-8 but it is valid on latest JSON Spec - [RFC8259 The JavaScript Object Notation (JSON) Data Interchange Format](https://www.rfc-editor.org/info/rfc8259), DECEMBER 2017.
+
+It mentions about encoding.
+
+> 8.1. Character Encoding
+ JSON text exchanged between systems that are not part of a closed
+ ecosystem MUST be encoded using UTF-8 [RFC3629].
+ 
+> Previous specifications of JSON have not required the use of UTF-8
+ when transmitting JSON text. However, the vast majority of JSON
+based software implementations have chosen to use the UTF-8 encoding,
+ to the extent that it is the only encoding that achieves
+ interoperability.
+
 Which serializer should be used
 ---
 The performance of binary(protobuf, msgpack, avro, etc...) vs text(json, xml, yaml, etc...) depends on the implementation. However, binary has advantage basically. Utf8Json write directly to `byte[]` it is close to the binary serializer. But especialy `double` is still slower than binary write(Utf8Json uses [google/double-conversion](https://github.com/google/double-conversion/) algorithm, it is good but there are many processes, it can not be the fastest), write `string` requires escape and large payload must pay copy cost.
