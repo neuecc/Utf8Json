@@ -9,6 +9,12 @@ using Utf8Json.Resolvers;
 using System.Linq;
 using System.Text;
 
+
+public class FooException : Exception
+{
+    public int Bar { get; set; }
+}
+
 namespace ConsoleAppNetCore
 {
     public class CustomPoint
@@ -329,11 +335,9 @@ namespace ConsoleAppNetCore
         static unsafe void Main(string[] args)
         {
 
-            var origstr = new string('a', 99999);
-            var str = "\"" + origstr + "\"";
-
-            var serialized = JsonSerializer.Serialize(str);
-            var deserialized = JsonSerializer.Deserialize<string>(serialized);
+            var ex = new Exception("ABC", new FooException { Bar = 100 });
+            var json = JsonSerializer.ToJsonString(ex);
+            Console.WriteLine(JsonSerializer.PrettyPrint(json));
 
         }
 
