@@ -328,13 +328,12 @@ namespace ConsoleAppNetCore
 
         static unsafe void Main(string[] args)
         {
-            MyTest t = new MyTest();
-            t.SetId(Guid.NewGuid());
 
-            var output = JsonSerializer.ToJsonString(t, StandardResolver.AllowPrivateExcludeNull);
-            var input = JsonSerializer.Deserialize<MyTest>(output, StandardResolver.AllowPrivateExcludeNull);
+            var origstr = new string('a', 99999);
+            var str = "\"" + origstr + "\"";
 
-            Console.WriteLine(input.Id);
+            var serialized = JsonSerializer.Serialize(str);
+            var deserialized = JsonSerializer.Deserialize<string>(serialized);
 
         }
 

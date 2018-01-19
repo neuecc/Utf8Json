@@ -203,5 +203,18 @@ namespace Utf8Json.Tests
 
             aaa.Is("\u0313" + origstr);
         }
+
+
+        [Fact]
+        public void LargeString2()
+        {
+            var origstr = new string('a', 99999);
+            var str = "\"" + origstr + "\"";
+
+            var reader = new JsonReader(Encoding.UTF8.GetBytes(str), 0);
+            var aaa = reader.ReadString();
+
+            aaa.Is(origstr);
+        }
     }
 }

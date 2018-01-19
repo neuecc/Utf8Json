@@ -599,6 +599,7 @@ namespace Utf8Json
                                     if (builder == null) builder = StringBuilderCache.GetBuffer();
 
                                     var copyCount = i - from;
+                                    BinaryUtil.EnsureCapacity(ref builder, builderOffset, copyCount);
                                     Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
                                     builderOffset += copyCount;
                                 }
@@ -647,6 +648,7 @@ namespace Utf8Json
                     }
 
                     var copyCount = i - from;
+                    BinaryUtil.EnsureCapacity(ref builder, builderOffset, copyCount);
                     Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
                     builderOffset += copyCount;
                     builder[builderOffset++] = escapeCharacter;
