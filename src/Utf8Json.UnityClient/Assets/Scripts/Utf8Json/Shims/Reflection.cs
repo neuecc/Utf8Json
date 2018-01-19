@@ -11,7 +11,7 @@ namespace System.Reflection
 {
 #if !NET_4_6
 
-    public class TypeInfo
+    internal class TypeInfo
     {
         readonly Type type;
 
@@ -186,7 +186,7 @@ namespace System.Reflection
 
 #endif
 
-    public static class ReflectionExtensions
+    internal static class ReflectionExtensions
     {
 
 #if !NET_4_6
@@ -265,7 +265,7 @@ namespace System.Reflection
     }
 
 #if !NET_4_6
-    public static class CustomAttributeExtensions
+    internal static class CustomAttributeExtensions
     {
         public static T GetCustomAttribute<T>(MemberInfo memberInfo, bool inherit)
         {
