@@ -537,9 +537,13 @@ namespace Utf8Json.Resolvers.Internal
             }
 
             Type elementType;
-            if (ti.IsAnonymous() || TryGetInterfaceEnumerableElementType(typeof(T), out elementType))
+            if (typeof(Exception).GetTypeInfo().IsAssignableFrom(ti))
             {
-                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false);
+                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, true);
+            }
+            else if (ti.IsAnonymous() || TryGetInterfaceEnumerableElementType(typeof(T), out elementType))
+            {
+                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, false);
             }
 
             var formatterTypeInfo = DynamicObjectTypeBuilder.BuildType(assembly, typeof(T), nameMutator, excludeNull);
@@ -563,8 +567,14 @@ namespace Utf8Json.Resolvers.Internal
                 }
                 return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
             }
-
-            return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, allowPrivate);
+            if (typeof(Exception).GetTypeInfo().IsAssignableFrom(ti))
+            {
+                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, true);
+            }
+            else
+            {
+                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, allowPrivate, false);
+            }
         }
 
         static TypeInfo BuildType(DynamicAssembly assembly, Type type, Func<string, string> nameMutator, bool excludeNull)
@@ -630,11 +640,32 @@ namespace Utf8Json.Resolvers.Internal
             return typeBuilder.CreateTypeInfo();
         }
 
-        public static object BuildAnonymousFormatter(Type type, Func<string, string> nameMutator, bool excludeNull, bool allowPrivate)
+        public static object BuildAnonymousFormatter(Type type, Func<string, string> nameMutator, bool excludeNull, bool allowPrivate, bool isException)
         {
             if (ignoreTypes.Contains(type)) return false;
 
-            var serializationInfo = new MetaType(type, nameMutator, allowPrivate); // can be allowPrivate:true
+            MetaType serializationInfo;
+            if (isException)
+            {
+                var ignoreSet = new HashSet<string>(new[]
+                {
+                    "HelpLink", "TargetSite", "HResult", "Data", "ClassName", "InnerException"
+                }.Select(x => nameMutator(x)));
+
+                // special case for exception, modify
+                serializationInfo = new MetaType(type, nameMutator, false);
+
+                serializationInfo.BestmatchConstructor = null;
+                serializationInfo.ConstructorParameters = new MetaMember[0];
+                serializationInfo.Members = new[] { new StringConstantValueMetaMember(nameMutator("ClassName"), type.FullName) }
+                    .Concat(serializationInfo.Members.Where(x => !ignoreSet.Contains(x.Name)))
+                    .Concat(new[] { new InnerExceptionMetaMember(nameMutator("InnerException")) })
+                    .ToArray();
+            }
+            else
+            {
+                serializationInfo = new MetaType(type, nameMutator, allowPrivate); // can be allowPrivate:true
+            }
             var hasShouldSerialize = serializationInfo.Members.Any(x => x.ShouldSerializeMethodInfo != null);
 
             // build instance instead of emit constructor.
@@ -832,6 +863,15 @@ namespace Utf8Json.Resolvers.Internal
             var argValue = new ArgumentField(il, firstArgIndex + 1, type);
             var argResolver = new ArgumentField(il, firstArgIndex + 2);
 
+            // special case for serialize exception...
+            var innerExceptionMetaMember = info.Members.OfType<InnerExceptionMetaMember>().FirstOrDefault();
+            if (innerExceptionMetaMember != null)
+            {
+                innerExceptionMetaMember.argWriter = argWriter;
+                innerExceptionMetaMember.argValue = argValue;
+                innerExceptionMetaMember.argResolver = argResolver;
+            }
+
             var typeInfo = type.GetTypeInfo();
 
             // Special case for serialize IEnumerable<>.
@@ -903,7 +943,7 @@ namespace Utf8Json.Resolvers.Internal
                             il.EmitCall(EmitInfo.GetNullableHasValue(item.Type.GetGenericArguments()[0]));
                             il.Emit(OpCodes.Brfalse_S, (index < labels.Length - 1) ? labels[index + 1] : endObjectLabel); // null, next label
                         }
-                        else if (!item.Type.IsValueType)
+                        else if (!item.Type.IsValueType && !(item is StringConstantValueMetaMember))
                         {
                             argValue.EmitLoad();
                             item.EmitLoadValue(il);
@@ -983,7 +1023,11 @@ namespace Utf8Json.Resolvers.Internal
         static void EmitSerializeValue(TypeInfo type, MetaMember member, ILGenerator il, int index, Func<int, MetaMember, bool> tryEmitLoadCustomFormatter, ArgumentField writer, ArgumentField argValue, ArgumentField argResolver)
         {
             var t = member.Type;
-            if (tryEmitLoadCustomFormatter(index, member))
+            if (member is InnerExceptionMetaMember)
+            {
+                (member as InnerExceptionMetaMember).EmitSerializeDirectly(il);
+            }
+            else if (tryEmitLoadCustomFormatter(index, member))
             {
                 writer.EmitLoad();
                 argValue.EmitLoad();
