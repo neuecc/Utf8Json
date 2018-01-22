@@ -334,11 +334,17 @@ namespace ConsoleAppNetCore
 
         static unsafe void Main(string[] args)
         {
+            try
+            {
+                throw new Exception("ABC", new FooException { Bar = 100 });
+            }
+            catch (Exception ex)
+            {
+                var json = JsonSerializer.ToJsonString(ex, Utf8Json.Resolvers.StandardResolver.Default);
+                Console.WriteLine(JsonSerializer.PrettyPrint(json));
 
-            var ex = new Exception("ABC", new FooException { Bar = 100 });
-            var json = JsonSerializer.ToJsonString(ex);
-            Console.WriteLine(JsonSerializer.PrettyPrint(json));
-
+                //Console.WriteLine(json);
+            }
         }
 
         static (int, int[]) Array(int[] xs)

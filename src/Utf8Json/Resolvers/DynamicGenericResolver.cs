@@ -295,11 +295,6 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     return Activator.CreateInstance(typeof(NonGenericDictionaryFormatter<>).MakeGenericType(t));
                 }
-                // Exception
-                if (typeof(Exception).GetTypeInfo().IsAssignableFrom(ti))
-                {
-                    return Activator.CreateInstance(typeof(ExceptionFormatter<>).MakeGenericType(t));
-                }
             }
 
             return null;

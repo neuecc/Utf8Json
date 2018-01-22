@@ -135,6 +135,19 @@ namespace Utf8Json
 
 #endif
 
+            public static void Serialize(ref JsonWriter writer, object value, IJsonFormatterResolver resolver)
+            {
+                if (value == null)
+                {
+                    writer.WriteNull();
+                    return;
+                }
+                else
+                {
+                    Serialize(value.GetType(), ref writer, value, resolver);
+                }
+            }
+
             public static void Serialize(Type type, ref JsonWriter writer, object value)
             {
                 Serialize(type, ref writer, value, defaultResolver);

@@ -13,9 +13,9 @@ namespace Utf8Json.Internal.Emit
         public bool IsStruct { get { return !IsClass; } }
         public bool IsConcreteClass { get; private set; }
 
-        public ConstructorInfo BestmatchConstructor { get; private set; }
-        public MetaMember[] ConstructorParameters { get; private set; }
-        public MetaMember[] Members { get; private set; }
+        public ConstructorInfo BestmatchConstructor { get; internal set; }
+        public MetaMember[] ConstructorParameters { get; internal set; }
+        public MetaMember[] Members { get; internal set; }
 
         public MetaType(Type type, Func<string, string> nameMutetor, bool allowPrivate)
         {
