@@ -980,7 +980,16 @@ namespace Utf8Json.Resolvers.Internal
                 il.EmitLdc_I4(index);
                 il.Emit(OpCodes.Ldelem_Ref);
 #if NETSTANDARD
-                byte[] rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
+                // same as in constructor
+                byte[] rawField;
+                if (excludeNull || hasShouldSerialize)
+                {
+                    rawField = JsonWriter.GetEncodedPropertyName(item.Name);
+                }
+                else
+                {
+                    rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
+                }
                 if (rawField.Length < 32)
                 {
                     if (UnsafeMemory.Is32Bit)
