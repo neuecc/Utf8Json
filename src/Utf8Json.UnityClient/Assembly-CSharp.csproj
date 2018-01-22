@@ -63,7 +63,6 @@
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\DictionaryFormatter.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\DynamicObjectTypeFallbackFormatter.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\EnumFormatter.cs" />
-     <Compile Include="Assets\Scripts\Utf8Json\Formatters\ExceptionFormatter.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\IgnoreFormatter.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\MultiDimentionalArrayFormatter.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\NullableFormatter.cs" />
