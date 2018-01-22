@@ -228,5 +228,15 @@ namespace Utf8Json.Tests
 
             aaa.Is(origstr);
         }
+
+        [Fact]
+        public void LargeString4()
+        {
+            var origstr = new string('a', 999999);
+            var str = "\"" + origstr + "\"";
+
+            var serialized = JsonSerializer.Serialize(str);
+            var deserialized = JsonSerializer.Deserialize<string>(serialized);
+        }
     }
 }
