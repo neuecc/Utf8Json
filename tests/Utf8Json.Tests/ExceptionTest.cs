@@ -34,13 +34,13 @@ namespace Utf8Json.Tests
         public void Root2()
         {
             {
-                var ex = new FooException { Bar = 100 };
+                FooException ex = new FooException { Bar = 100 };
 
                 var json = JsonSerializer.ToJsonString(ex);
                 json.Is("{\"ClassName\":\"Utf8Json.Tests.FooException\",\"Bar\":100,\"Message\":\"BCD\",\"StackTrace\":null,\"Source\":null,\"InnerException\":null}");
             }
             {
-                var ex = new FooException { Bar = 100 };
+                Exception ex = new FooException { Bar = 100 };
 
                 var json = JsonSerializer.ToJsonString(ex, Utf8Json.Resolvers.StandardResolver.ExcludeNullSnakeCase);
                 json.Is("{\"class_name\":\"Utf8Json.Tests.FooException\",\"bar\":100,\"message\":\"BCD\"}");
