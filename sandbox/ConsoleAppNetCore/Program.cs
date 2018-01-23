@@ -331,20 +331,24 @@ namespace ConsoleAppNetCore
             }
         }
 
+        public sealed class Entry
+        {
+            public int Number { get; set; }
+            public Exception Exception { get; set; }
+        }
+
 
         static unsafe void Main(string[] args)
         {
-            try
+            var argNullEx = new ArgumentNullException("cooCoo", "parameter cannot be null");
+            var payload = new Entry
             {
-                throw new Exception("ABC", new FooException { Bar = 100 });
-            }
-            catch (Exception ex)
-            {
-                var json = JsonSerializer.ToJsonString(ex, Utf8Json.Resolvers.StandardResolver.Default);
-                Console.WriteLine(JsonSerializer.PrettyPrint(json));
+                Number = 1,
+                Exception = argNullEx
+            };
 
-                //Console.WriteLine(json);
-            }
+            var json1 = Utf8Json.JsonSerializer.ToJsonString(payload, StandardResolver.AllowPrivateCamelCase);
+            Console.WriteLine(JsonSerializer.PrettyPrint(json1));
         }
 
         static (int, int[]) Array(int[] xs)

@@ -863,6 +863,8 @@ namespace Utf8Json.Resolvers.Internal
             var argValue = new ArgumentField(il, firstArgIndex + 1, type);
             var argResolver = new ArgumentField(il, firstArgIndex + 2);
 
+            var typeInfo = type.GetTypeInfo();
+
             // special case for serialize exception...
             var innerExceptionMetaMember = info.Members.OfType<InnerExceptionMetaMember>().FirstOrDefault();
             if (innerExceptionMetaMember != null)
@@ -871,8 +873,6 @@ namespace Utf8Json.Resolvers.Internal
                 innerExceptionMetaMember.argValue = argValue;
                 innerExceptionMetaMember.argResolver = argResolver;
             }
-
-            var typeInfo = type.GetTypeInfo();
 
             // Special case for serialize IEnumerable<>.
             if (info.IsClass && info.BestmatchConstructor == null)
@@ -904,6 +904,37 @@ namespace Utf8Json.Resolvers.Internal
 
                 argWriter.EmitLoad();
                 il.EmitCall(EmitInfo.JsonWriter.WriteNull);
+                il.Emit(OpCodes.Ret); // return;
+
+                il.MarkLabel(elseBody);
+            }
+
+            // special case for exception
+            if (type == typeof(Exception))
+            {
+                //var exceptionType = value.GetType();
+                //if (exceptionType != typeof(Exception))
+                //{
+                //    JsonSerializer.NonGeneric.Serialize(exceptionType, ref writer, value, formatterResolver);
+                //    return;
+                //}
+
+                var elseBody = il.DefineLabel();
+                var exceptionType = il.DeclareLocal(typeof(Type));
+                argValue.EmitLoad();
+                il.EmitCall(EmitInfo.GetTypeMethod);
+                il.EmitStloc(exceptionType);
+                il.EmitLdloc(exceptionType);
+                il.Emit(OpCodes.Ldtoken, typeof(Exception));
+                il.EmitCall(EmitInfo.GetTypeFromHandle);
+                il.EmitCall(EmitInfo.TypeOpInequality);
+                il.Emit(OpCodes.Brfalse, elseBody);
+
+                il.EmitLdloc(exceptionType);
+                argWriter.EmitLoad();
+                argValue.EmitLoad();
+                argResolver.EmitLoad();
+                il.EmitCall(EmitInfo.NongenericSerialize);
                 il.Emit(OpCodes.Ret); // return;
 
                 il.MarkLabel(elseBody);
@@ -1466,6 +1497,10 @@ namespace Utf8Json.Resolvers.Internal
 
             public static readonly MethodInfo ActivatorCreateInstance = ExpressionUtility.GetMethodInfo(() => Activator.CreateInstance(default(Type), default(object[])));
             public static readonly MethodInfo GetUninitializedObject = ExpressionUtility.GetMethodInfo(() => System.Runtime.Serialization.FormatterServices.GetUninitializedObject(default(Type)));
+
+            public static readonly MethodInfo GetTypeMethod = ExpressionUtility.GetMethodInfo((object o) => o.GetType());
+            public static readonly MethodInfo TypeOpInequality = typeof(Type).GetTypeInfo().GetRuntimeMethods().First(x => x.Name == "op_Inequality");
+            public static readonly MethodInfo NongenericSerialize = ExpressionUtility.GetMethodInfo<Utf8Json.JsonWriter>(writer => JsonSerializer.NonGeneric.Serialize(default(Type), ref writer, default(object), default(IJsonFormatterResolver)));
 
             public static MethodInfo Serialize(Type type)
             {
