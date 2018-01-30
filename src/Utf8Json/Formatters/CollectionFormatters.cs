@@ -12,7 +12,7 @@ using System.Collections.Concurrent;
 
 namespace Utf8Json.Formatters
 {
-    public class ArrayFormatter<T> : IJsonFormatter<T[]>
+    public class ArrayFormatter<T> : IJsonFormatter<T[]>, IOverwriteJsonFormatter<T[]>
     {
         static readonly ArrayPool<T> arrayPool = new ArrayPool<T>(99);
 
@@ -60,6 +60,48 @@ namespace Utf8Json.Formatters
                 Array.Copy(array, result, count);
                 Array.Clear(workingArea, 0, Math.Min(count, workingArea.Length));
                 return result;
+            }
+            finally
+            {
+                arrayPool.Return(workingArea);
+            }
+        }
+
+        public void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull())
+            {
+                // null, do nothing(same as empty)
+                return;
+            }
+
+            var count = 0;
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+
+            var workingArea = arrayPool.Rent();
+            try
+            {
+                var array = workingArea;
+                reader.ReadIsBeginArrayWithVerify();
+                while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                {
+                    if (array.Length < count)
+                    {
+                        Array.Resize<T>(ref array, array.Length * 2);
+                    }
+
+                    array[count - 1] = formatter.Deserialize(ref reader, formatterResolver);
+                }
+
+                if (count == 0)
+                {
+                    return;
+                }
+
+                var result = new T[value.Length + count];
+                Array.Copy(value, 0, result, 0, value.Length);
+                Array.Copy(array, 0, result, value.Length, count);
+                Array.Clear(workingArea, 0, Math.Min(count, workingArea.Length));
             }
             finally
             {
@@ -129,7 +171,7 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public class ListFormatter<T> : IJsonFormatter<List<T>>
+    public class ListFormatter<T> : IJsonFormatter<List<T>>, IOverwriteJsonFormatter<List<T>>
     {
         public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolver formatterResolver)
         {
@@ -164,6 +206,25 @@ namespace Utf8Json.Formatters
             }
 
             return list;
+        }
+
+        public void DeserializeTo(ref List<T> value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull())
+            {
+                // null, do nothing
+                return;
+            }
+
+            var count = 0;
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+
+            var list = value; // use the reference
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+            {
+                list.Add(formatter.Deserialize(ref reader, formatterResolver));
+            }
         }
     }
 
