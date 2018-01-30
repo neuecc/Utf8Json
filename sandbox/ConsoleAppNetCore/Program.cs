@@ -355,7 +355,7 @@ namespace ConsoleAppNetCore
         {
 
             var huga = JsonSerializer.Serialize<Card>(new Card());
-            
+
 
         }
 
@@ -504,6 +504,75 @@ namespace ConsoleAppNetCore
         }
     }
 
+
+    // image of custom overwite json formatter...
+    public class CustomFormatterTest : IJsonFormatter<Person>, IOverwriteJsonFormatter<Person>
+    {
+        public Person Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var result = new Person();
+
+            var count = 0;
+            while (reader.ReadIsInObject(ref count))
+            {
+                var str = reader.ReadPropertyName(); // deserialize to string is slow way
+                switch (str)
+                {
+                    case "Age":
+                        result.Age = reader.ReadInt32();
+                        break;
+                    case "Name":
+                        result.Name = reader.ReadString();
+                        break;
+                    default:
+                        reader.ReadNextBlock();
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        public void DeserializeTo(ref Person value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (value == null)
+            {
+                value = Deserialize(ref reader, formatterResolver);
+                return;
+            }
+
+            var count = 0;
+            while (reader.ReadIsInObject(ref count))
+            {
+                var str = reader.ReadPropertyName(); // deserialize to string is slow way
+                switch (str)
+                {
+                    case "Age":
+                        {
+                            var age = default(int);
+                            formatterResolver.DeserializeToWithFallbackReplace<int>(ref age, ref reader);
+                            value.Age = age;
+                        }
+                        break;
+                    case "Name":
+                        {
+                            string name = default(string);
+                            formatterResolver.DeserializeToWithFallbackReplace<string>(ref name, ref reader);
+                            value.Name = name;
+                        }
+                        break;
+                    default:
+                        reader.ReadNextBlock();
+                        break;
+                }
+            }
+        }
+
+        public void Serialize(ref JsonWriter writer, Person value, IJsonFormatterResolver formatterResolver)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
 
     // create custom composite resolver per project is recommended way.

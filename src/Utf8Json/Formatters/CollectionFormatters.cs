@@ -15,6 +15,18 @@ namespace Utf8Json.Formatters
     public class ArrayFormatter<T> : IJsonFormatter<T[]>, IOverwriteJsonFormatter<T[]>
     {
         static readonly ArrayPool<T> arrayPool = new ArrayPool<T>(99);
+        readonly CollectionDeserializeToBehaviour deserializeToBehaviour;
+
+        public ArrayFormatter()
+            : this(CollectionDeserializeToBehaviour.Add)
+        {
+
+        }
+
+        public ArrayFormatter(CollectionDeserializeToBehaviour deserializeToBehaviour)
+        {
+            this.deserializeToBehaviour = deserializeToBehaviour;
+        }
 
         public void Serialize(ref JsonWriter writer, T[] value, IJsonFormatterResolver formatterResolver)
         {
@@ -67,7 +79,7 @@ namespace Utf8Json.Formatters
             }
         }
 
-        public virtual void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull())
             {
@@ -78,10 +90,41 @@ namespace Utf8Json.Formatters
             var count = 0;
             var formatter = formatterResolver.GetFormatterWithVerify<T>();
 
-            var workingArea = arrayPool.Rent();
-            try
+            if (deserializeToBehaviour == CollectionDeserializeToBehaviour.Add)
             {
-                var array = workingArea;
+                var workingArea = arrayPool.Rent();
+                try
+                {
+                    var array = workingArea;
+                    reader.ReadIsBeginArrayWithVerify();
+                    while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+                    {
+                        if (array.Length < count)
+                        {
+                            Array.Resize<T>(ref array, array.Length * 2);
+                        }
+
+                        array[count - 1] = formatter.Deserialize(ref reader, formatterResolver);
+                    }
+
+                    if (count == 0)
+                    {
+                        return;
+                    }
+
+                    var result = new T[value.Length + count];
+                    Array.Copy(value, 0, result, 0, value.Length);
+                    Array.Copy(array, 0, result, value.Length, count);
+                    Array.Clear(workingArea, 0, Math.Min(count, workingArea.Length));
+                }
+                finally
+                {
+                    arrayPool.Return(workingArea);
+                }
+            }
+            else
+            {
+                var array = value; // use same array overwrite set.
                 reader.ReadIsBeginArrayWithVerify();
                 while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
                 {
@@ -93,49 +136,8 @@ namespace Utf8Json.Formatters
                     array[count - 1] = formatter.Deserialize(ref reader, formatterResolver);
                 }
 
-                if (count == 0)
-                {
-                    return;
-                }
-
-                var result = new T[value.Length + count];
-                Array.Copy(value, 0, result, 0, value.Length);
-                Array.Copy(array, 0, result, value.Length, count);
-                Array.Clear(workingArea, 0, Math.Min(count, workingArea.Length));
+                Array.Resize<T>(ref array, count); // resize, fit length.
             }
-            finally
-            {
-                arrayPool.Return(workingArea);
-            }
-        }
-    }
-
-    public class ReplaceArrayFormatter<T> : ArrayFormatter<T>
-    {
-        public override void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
-        {
-            if (reader.ReadIsNull())
-            {
-                // null, do nothing(same as empty)
-                return;
-            }
-
-            var count = 0;
-            var formatter = formatterResolver.GetFormatterWithVerify<T>();
-
-            var array = value; // use same array overwrite set.
-            reader.ReadIsBeginArrayWithVerify();
-            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
-            {
-                if (array.Length < count)
-                {
-                    Array.Resize<T>(ref array, array.Length * 2);
-                }
-
-                array[count - 1] = formatter.Deserialize(ref reader, formatterResolver);
-            }
-
-            Array.Resize<T>(ref array, count); // resize, fit length.
         }
     }
 
@@ -202,6 +204,18 @@ namespace Utf8Json.Formatters
 
     public class ListFormatter<T> : IJsonFormatter<List<T>>, IOverwriteJsonFormatter<List<T>>
     {
+        readonly CollectionDeserializeToBehaviour deserializeToBehaviour;
+
+        public ListFormatter() : this(CollectionDeserializeToBehaviour.Add)
+        {
+
+        }
+
+        public ListFormatter(CollectionDeserializeToBehaviour deserializeToBehaviour)
+        {
+            this.deserializeToBehaviour = deserializeToBehaviour;
+        }
+
         public void Serialize(ref JsonWriter writer, List<T> value, IJsonFormatterResolver formatterResolver)
         {
             if (value == null) { writer.WriteNull(); return; }
@@ -247,8 +261,13 @@ namespace Utf8Json.Formatters
 
             var count = 0;
             var formatter = formatterResolver.GetFormatterWithVerify<T>();
-
             var list = value; // use the reference
+
+            if (deserializeToBehaviour == CollectionDeserializeToBehaviour.OverwriteReplace)
+            {
+                list.Clear(); // clear before add.
+            }
+
             reader.ReadIsBeginArrayWithVerify();
             while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
             {
@@ -257,7 +276,7 @@ namespace Utf8Json.Formatters
         }
     }
 
-    public abstract class CollectionFormatterBase<TElement, TIntermediate, TEnumerator, TCollection> : IJsonFormatter<TCollection>
+    public abstract class CollectionFormatterBase<TElement, TIntermediate, TEnumerator, TCollection> : IJsonFormatter<TCollection>, IOverwriteJsonFormatter<TCollection>
         where TCollection : class, IEnumerable<TElement>
         where TEnumerator : IEnumerator<TElement>
     {
@@ -321,6 +340,29 @@ namespace Utf8Json.Formatters
             }
         }
 
+        public void DeserializeTo(ref TCollection value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            // not supported
+            if (SupportedOverwriteBehaviour == null)
+            {
+                value = Deserialize(ref reader, formatterResolver);
+                return;
+            }
+
+            if (reader.ReadIsNull()) return; // do nothing
+
+
+            var formatter = formatterResolver.GetFormatterWithVerify<TElement>();
+            ClearOnOverwriteDeserialize(ref value);
+
+            var count = 0;
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+            {
+                AddOnOverwriteDeserialize(ref value, count - 1, formatter.Deserialize(ref reader, formatterResolver));
+            }
+        }
+
         // Some collections can use struct iterator, this is optimization path
         protected abstract TEnumerator GetSourceEnumerator(TCollection source);
 
@@ -328,6 +370,24 @@ namespace Utf8Json.Formatters
         protected abstract TIntermediate Create();
         protected abstract void Add(ref TIntermediate collection, int index, TElement value);
         protected abstract TCollection Complete(ref TIntermediate intermediateCollection);
+
+        // additional support for overwrite
+
+        protected virtual CollectionDeserializeToBehaviour? SupportedOverwriteBehaviour
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        protected virtual void ClearOnOverwriteDeserialize(ref TCollection value)
+        {
+        }
+
+        protected virtual void AddOnOverwriteDeserialize(ref TCollection collection, int index, TElement value)
+        {
+        }
     }
 
     public abstract class CollectionFormatterBase<TElement, TIntermediate, TCollection> : CollectionFormatterBase<TElement, TIntermediate, IEnumerator<TElement>, TCollection>
@@ -364,6 +424,18 @@ namespace Utf8Json.Formatters
 
     public sealed class LinkedListFormatter<T> : CollectionFormatterBase<T, LinkedList<T>, LinkedList<T>.Enumerator, LinkedList<T>>
     {
+        readonly CollectionDeserializeToBehaviour deserializeToBehaviour;
+
+        public LinkedListFormatter() : this(CollectionDeserializeToBehaviour.Add)
+        {
+
+        }
+
+        public LinkedListFormatter(CollectionDeserializeToBehaviour deserializeToBehaviour)
+        {
+            this.deserializeToBehaviour = deserializeToBehaviour;
+        }
+
         protected override void Add(ref LinkedList<T> collection, int index, T value)
         {
             collection.AddLast(value);
@@ -383,10 +455,40 @@ namespace Utf8Json.Formatters
         {
             return source.GetEnumerator();
         }
+
+        protected override CollectionDeserializeToBehaviour? SupportedOverwriteBehaviour
+        {
+            get
+            {
+                return deserializeToBehaviour;
+            }
+        }
+
+        protected override void AddOnOverwriteDeserialize(ref LinkedList<T> collection, int index, T value)
+        {
+            collection.AddLast(value);
+        }
+
+        protected override void ClearOnOverwriteDeserialize(ref LinkedList<T> value)
+        {
+            value.Clear();
+        }
     }
 
     public sealed class QeueueFormatter<T> : CollectionFormatterBase<T, Queue<T>, Queue<T>.Enumerator, Queue<T>>
     {
+        readonly CollectionDeserializeToBehaviour deserializeToBehaviour;
+
+        public QeueueFormatter() : this(CollectionDeserializeToBehaviour.Add)
+        {
+
+        }
+
+        public QeueueFormatter(CollectionDeserializeToBehaviour deserializeToBehaviour)
+        {
+            this.deserializeToBehaviour = deserializeToBehaviour;
+        }
+
         protected override void Add(ref Queue<T> collection, int index, T value)
         {
             collection.Enqueue(value);
@@ -405,6 +507,24 @@ namespace Utf8Json.Formatters
         protected override Queue<T> Complete(ref Queue<T> intermediateCollection)
         {
             return intermediateCollection;
+        }
+
+        protected override CollectionDeserializeToBehaviour? SupportedOverwriteBehaviour
+        {
+            get
+            {
+                return deserializeToBehaviour;
+            }
+        }
+
+        protected override void AddOnOverwriteDeserialize(ref Queue<T> collection, int index, T value)
+        {
+            collection.Enqueue(value);
+        }
+
+        protected override void ClearOnOverwriteDeserialize(ref Queue<T> value)
+        {
+            value.Clear();
         }
     }
 

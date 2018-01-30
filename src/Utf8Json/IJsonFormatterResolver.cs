@@ -43,6 +43,21 @@ namespace Utf8Json
             var formatter = methodInfo.MakeGenericMethod(type).Invoke(resolver, null);
             return formatter;
         }
+
+        public static void DeserializeToWithFallbackReplace<T>(this IJsonFormatterResolver formatterResolver, ref T value, ref JsonReader reader)
+        {
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+            var overwriteFormatter = formatter as IOverwriteJsonFormatter<T>;
+            if (overwriteFormatter != null)
+            {
+                overwriteFormatter.DeserializeTo(ref value, ref reader, formatterResolver);
+            }
+            else
+            {
+                // deserialize new value and replace with it.
+                value = formatter.Deserialize(ref reader, formatterResolver);
+            }
+        }
     }
 
     public class FormatterNotRegisteredException : Exception
