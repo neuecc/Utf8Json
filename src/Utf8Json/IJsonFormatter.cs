@@ -28,6 +28,21 @@ namespace Utf8Json
 
     public static class JsonFormatterExtensions
     {
+        public static void DeserializeToWithFallbackReplace<T>(ref T value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+            var overwriteFormatter = formatter as IOverwriteJsonFormatter<T>;
+            if (overwriteFormatter != null)
+            {
+                overwriteFormatter.DeserializeTo(ref value, ref reader, formatterResolver);
+            }
+            else
+            {
+                // deserialize new value and replace with it.
+                value = formatter.Deserialize(ref reader, formatterResolver);
+            }
+        }
+
         public static string ToJsonString<T>(this IJsonFormatter<T> formatter, T value, IJsonFormatterResolver formatterResolver)
         {
             var writer = new JsonWriter();
