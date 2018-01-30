@@ -67,7 +67,7 @@ namespace Utf8Json.Formatters
             }
         }
 
-        public void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        public virtual void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             if (reader.ReadIsNull())
             {
@@ -107,6 +107,35 @@ namespace Utf8Json.Formatters
             {
                 arrayPool.Return(workingArea);
             }
+        }
+    }
+
+    public class ReplaceArrayFormatter<T> : ArrayFormatter<T>
+    {
+        public override void DeserializeTo(ref T[] value, ref JsonReader reader, IJsonFormatterResolver formatterResolver)
+        {
+            if (reader.ReadIsNull())
+            {
+                // null, do nothing(same as empty)
+                return;
+            }
+
+            var count = 0;
+            var formatter = formatterResolver.GetFormatterWithVerify<T>();
+
+            var array = value; // use same array overwrite set.
+            reader.ReadIsBeginArrayWithVerify();
+            while (!reader.ReadIsEndArrayWithSkipValueSeparator(ref count))
+            {
+                if (array.Length < count)
+                {
+                    Array.Resize<T>(ref array, array.Length * 2);
+                }
+
+                array[count - 1] = formatter.Deserialize(ref reader, formatterResolver);
+            }
+
+            Array.Resize<T>(ref array, count); // resize, fit length.
         }
     }
 
