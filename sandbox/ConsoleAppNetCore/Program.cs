@@ -17,6 +17,19 @@ public class FooException : Exception
 
 namespace ConsoleAppNetCore
 {
+    public abstract class JsonDBItem
+    {
+        public int ID { get { return _id; } }
+        private int _id = -1;
+    }
+
+    public class Card : JsonDBItem
+    {
+        public string Name { get { return name; } }
+        private string name = "0";
+    }
+
+
     public class CustomPoint
     {
         public readonly int X;
@@ -340,15 +353,10 @@ namespace ConsoleAppNetCore
 
         static unsafe void Main(string[] args)
         {
-            var argNullEx = new ArgumentNullException("cooCoo", "parameter cannot be null");
-            var payload = new Entry
-            {
-                Number = 1,
-                Exception = argNullEx
-            };
 
-            var json1 = Utf8Json.JsonSerializer.ToJsonString(payload, StandardResolver.AllowPrivateCamelCase);
-            Console.WriteLine(JsonSerializer.PrettyPrint(json1));
+            var huga = JsonSerializer.Serialize<Card>(new Card());
+            
+
         }
 
         static (int, int[]) Array(int[] xs)
