@@ -191,6 +191,10 @@ namespace System.Reflection
 
 #if !NET_4_6
 
+        static readonly BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+                                           | BindingFlags.GetField | BindingFlags.GetProperty | BindingFlags.SetField | BindingFlags.SetProperty
+                                           | BindingFlags.InvokeMethod;
+
         public static TypeInfo GetTypeInfo(this Type type)
         {
             return new TypeInfo(type);
@@ -203,37 +207,37 @@ namespace System.Reflection
 
         public static MethodInfo GetRuntimeMethod(this Type type, string name, Type[] types)
         {
-            return type.GetMethod(name, types);
+            return type.GetMethod(name, types); // no use flags.
         }
 
         public static MethodInfo GetRuntimeMethod(this Type type, string name)
         {
-            return type.GetMethod(name);
+            return type.GetMethod(name); // no use flags.
         }
 
         public static MethodInfo[] GetRuntimeMethods(this Type type)
         {
-            return type.GetMethods();
+            return type.GetMethods(flags);
         }
 
         public static PropertyInfo GetRuntimeProperty(this Type type, string name)
         {
-            return type.GetProperty(name);
+            return type.GetProperty(name, flags);
         }
 
         public static PropertyInfo[] GetRuntimeProperties(this Type type)
         {
-            return type.GetProperties();
+            return type.GetProperties(flags);
         }
 
         public static FieldInfo GetRuntimeField(this Type type, string name)
         {
-            return type.GetField(name);
+            return type.GetField(name, flags);
         }
 
         public static FieldInfo[] GetRuntimeFields(this Type type)
         {
-            return type.GetFields();
+            return type.GetFields(flags);
         }
 
         public static T GetCustomAttribute<T>(this FieldInfo type, bool inherit)

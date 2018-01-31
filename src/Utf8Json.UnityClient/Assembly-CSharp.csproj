@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\RuntimeUnitTestToolkit\ChainingAssertion.Unity.cs" />
      <Compile Include="Assets\Scripts\RuntimeUnitTestToolkit\UnitTestRunner.cs" />
      <Compile Include="Assets\Scripts\Tests\_Loader.cs" />
+     <Compile Include="Assets\Scripts\Tests\PirvateTest.cs" />
      <Compile Include="Assets\Scripts\Tests\SimpleTest.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Attributes.cs" />
      <Compile Include="Assets\Scripts\Utf8Json\Formatters\AnonymousFormatter.cs" />
