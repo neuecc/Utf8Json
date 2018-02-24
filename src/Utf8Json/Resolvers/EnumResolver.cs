@@ -15,6 +15,9 @@ namespace Utf8Json.Resolvers
         public static readonly IJsonFormatterResolver Default = EnumDefaultResolver.Instance;
         /// <summary>Serialize as Value.</summary>
         public static readonly IJsonFormatterResolver UnderlyingValue = EnumUnderlyingValueResolver.Instance;
+
+        /// <summary>Serialize property value as underlying value, property name as name</summary>
+        public static readonly IJsonFormatterResolver UnderlyingValueOfPropertyValueOnly = EnumPropertyValueUnderlyingValueResolver.Instance;
     }
 }
 
@@ -60,7 +63,7 @@ namespace Utf8Json.Resolvers.Internal
                 }
                 else if (typeof(T).IsEnum)
                 {
-                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(true);
+                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(true, true);
                 }
             }
         }
@@ -106,9 +109,55 @@ namespace Utf8Json.Resolvers.Internal
                 }
                 else if (typeof(T).IsEnum)
                 {
-                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false);
+                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false, false);
                 }
             }
         }
     }
-}
+
+    internal sealed class EnumPropertyValueUnderlyingValueResolver : IJsonFormatterResolver
+    {
+        public static readonly IJsonFormatterResolver Instance = new EnumPropertyValueUnderlyingValueResolver();
+
+        EnumPropertyValueUnderlyingValueResolver()
+        {
+        }
+
+        public IJsonFormatter<T> GetFormatter<T>()
+        {
+            return FormatterCache<T>.formatter;
+        }
+
+        static class FormatterCache<T>
+        {
+            public static readonly IJsonFormatter<T> formatter;
+
+            static FormatterCache()
+            {
+                var ti = typeof(T).GetTypeInfo();
+
+                if (ti.IsNullable())
+                {
+                    // build underlying type and use wrapped formatter.
+                    ti = ti.GenericTypeArguments[0].GetTypeInfo();
+                    if (!ti.IsEnum)
+                    {
+                        return;
+                    }
+
+                    var innerFormatter = Instance.GetFormatterDynamic(ti.AsType());
+                    if (innerFormatter == null)
+                    {
+                        return;
+                    }
+                    formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
+                    return;
+                }
+                else if (typeof(T).IsEnum)
+                {
+                    formatter = (IJsonFormatter<T>)(object)new EnumFormatter<T>(false, true);
+                }
+            }
+        }}
+
+    }
