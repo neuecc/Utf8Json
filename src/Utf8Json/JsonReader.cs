@@ -1100,6 +1100,7 @@ namespace Utf8Json
         public long ReadInt64()
         {
             SkipWhiteSpace();
+            var hasQuote = SkipQuotation();
 
             int readCount;
             var v = NumberConverter.ReadInt64(bytes, offset, out readCount);
@@ -1109,10 +1110,80 @@ namespace Utf8Json
             }
 
             offset += readCount;
+
+            if (hasQuote)
+                SkipQuotation();
+
             return v;
         }
 
-        public byte ReadByte()
+        private bool SkipQuotation()
+        {
+            var hasQuote = false;
+            for (int i = offset; i < bytes.Length; i++)
+            {
+                switch (bytes[i])
+                {
+                    case (byte)'"': // Space
+                    case (byte)'\'': // Space
+                        hasQuote = true;
+                        continue;
+                    // optimize skip jumptable
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 33:
+                    case 35:
+                    case 36:
+                    case 37:
+                    case 38:
+                    case 40:
+                    case 41:
+                    case 42:
+                    case 43:
+                    case 44:
+                    case 45:
+                    case 46:
+                    default:
+                        offset = i;
+                        return hasQuote; // end
+                }
+            }
+
+            offset = bytes.Length;
+            return hasQuote;
+        }
+
+    public byte ReadByte()
         {
             return checked((byte)ReadUInt64());
         }
@@ -1130,6 +1201,7 @@ namespace Utf8Json
         public ulong ReadUInt64()
         {
             SkipWhiteSpace();
+            var hasQuote = SkipQuotation();
 
             int readCount;
             var v = NumberConverter.ReadUInt64(bytes, offset, out readCount);
@@ -1138,6 +1210,10 @@ namespace Utf8Json
                 throw CreateParsingException("Number Token");
             }
             offset += readCount;
+
+            if (hasQuote)
+                SkipQuotation();
+
             return v;
         }
 
