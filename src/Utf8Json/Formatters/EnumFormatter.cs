@@ -202,10 +202,12 @@ namespace Utf8Json.Formatters
         readonly bool serializeByName;
         readonly JsonSerializeAction<T> serializeByUnderlyingValue;
         readonly JsonDeserializeFunc<T> deserializeByUnderlyingValue;
+        private bool serializePropertyByName;
 
-        public EnumFormatter(bool serializeByName)
+        public EnumFormatter(bool serializeByName, bool serializePropertyByName)
         {
             this.serializeByName = serializeByName;
+            this.serializePropertyByName = serializePropertyByName;
             this.serializeByUnderlyingValue = defaultSerializeByUnderlyingValue;
             this.deserializeByUnderlyingValue = defaultDeserializeByUnderlyingValue;
         }
@@ -237,6 +239,22 @@ namespace Utf8Json.Formatters
             }
         }
 
+        public void SerializeByValue(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver)
+        {
+            serializeByUnderlyingValue(ref writer, value, formatterResolver);
+        }
+
+        public void SerializeByName(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver)
+        {
+            string name;
+            if (!valueNameMapping.TryGetValue(value, out name))
+            {
+                name = value.ToString(); // fallback for flags etc. But Enum.ToString is slow...
+            }
+
+            writer.WriteString(name);
+        }
+
         public T Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var token = reader.GetCurrentJsonToken();
@@ -264,21 +282,21 @@ namespace Utf8Json.Formatters
 
         public void SerializeToPropertyName(ref JsonWriter writer, T value, IJsonFormatterResolver formatterResolver)
         {
-            if (serializeByName)
+            if (serializePropertyByName)
             {
-                Serialize(ref writer, value, formatterResolver);
+                SerializeByName(ref writer, value, formatterResolver);
             }
             else
             {
                 writer.WriteQuotation();
-                Serialize(ref writer, value, formatterResolver);
+                SerializeByValue(ref writer, value, formatterResolver);
                 writer.WriteQuotation();
             }
         }
 
         public T DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            if (serializeByName)
+            if (serializePropertyByName)
             {
                 return Deserialize(ref reader, formatterResolver);
             }

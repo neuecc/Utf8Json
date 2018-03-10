@@ -315,7 +315,11 @@ namespace Utf8Json
 
         public void WriteUInt64(ulong value)
         {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 2);
+            buffer[offset++] = (byte)'\"';
             offset += NumberConverter.WriteUInt64(ref buffer, offset, value);
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)'\"';
         }
 
 #if NETSTANDARD
@@ -344,7 +348,11 @@ namespace Utf8Json
 
         public void WriteInt64(long value)
         {
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 2);
+            buffer[offset++] = (byte)'\"';
             offset += NumberConverter.WriteInt64(ref buffer, offset, value);
+            BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
+            buffer[offset++] = (byte)'\"';
         }
 
         public void WriteString(string value)
