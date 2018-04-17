@@ -166,6 +166,10 @@ namespace Utf8Json.Formatters
             for (int i = 0; i < names.Count; i++)
             {
                 nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i]), (T)values[i]);
+                if (!string.Equals(names[i], names[i].ToLower()))
+                {
+                    nameValueMapping.Add(JsonWriter.GetEncodedPropertyNameWithoutQuotation(names[i].ToLower()), (T)values[i]);
+                }
                 valueNameMapping[(T)values[i]] = names[i];
             }
 

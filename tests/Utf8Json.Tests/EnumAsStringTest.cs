@@ -96,6 +96,25 @@ namespace Utf8Json.Tests
             JsonSerializer.Deserialize<T?>(bin2).Is(y);
         }
 
+        public static object enumLowerCaseData = new object[]
+        {
+            new object[] { AsString.Foo, "foo" },
+            new object[] { AsString.Bar, "bar" },
+            new object[] { AsString.Baz, "baz" },
+            new object[] { AsString.FooBar, "foobar" },
+            new object[] { AsString.FooBaz, "foobaz" },
+            new object[] { AsString.BarBaz, "barbaz" },
+            new object[] { AsString.FooBarBaz, "foobarbaz" }
+        };
+
+        [Theory]
+        [MemberData(nameof(enumLowerCaseData))]
+        public void EnumLowerCaseTest<T>(T x, string name)
+            where T : struct
+        {
+            JsonSerializer.Deserialize<T>($"\"{name}\"").Is(x);
+        }
+
         [Fact]
         public void DataMemberTest()
         {
