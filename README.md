@@ -928,7 +928,7 @@ Utf8Json.Resolvers.CompositeResolver.RegisterAndSetAsDefault(
     Utf8Json.Resolvers.GeneratedResolver.Instance,
 
     // set StandardResolver or your use resolver chain
-    Utf8Json.StandardResolver.Default,
+    Utf8Json.Resolvers.StandardResolver.Default,
 );
 ```
 
