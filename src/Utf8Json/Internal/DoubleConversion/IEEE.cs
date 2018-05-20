@@ -47,6 +47,11 @@ namespace Utf8Json.Internal.DoubleConversion
             d64_ = new UnionDoubleULong { d = d }.u64;
         }
 
+        public Double(ulong d64)
+        {
+            d64_ = d64;
+        }
+
         public Double(DiyFp d)
         {
             d64_ = DiyFpToUint64(d);
