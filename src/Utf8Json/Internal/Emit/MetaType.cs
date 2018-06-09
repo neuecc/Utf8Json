@@ -13,9 +13,9 @@ namespace Utf8Json.Internal.Emit
         public bool IsStruct { get { return !IsClass; } }
         public bool IsConcreteClass { get; private set; }
 
-        public ConstructorInfo BestmatchConstructor { get; private set; }
-        public MetaMember[] ConstructorParameters { get; private set; }
-        public MetaMember[] Members { get; private set; }
+        public ConstructorInfo BestmatchConstructor { get; internal set; }
+        public MetaMember[] ConstructorParameters { get; internal set; }
+        public MetaMember[] Members { get; internal set; }
 
         public MetaType(Type type, Func<string, string> nameMutetor, bool allowPrivate)
         {
@@ -26,8 +26,7 @@ namespace Utf8Json.Internal.Emit
             var stringMembers = new Dictionary<string, MetaMember>();
 
             {
-                // All public members are serialize target except [Ignore] member.
-                foreach (var item in type.GetRuntimeProperties())
+                foreach (var item in type.GetAllProperties())
                 {
                     if (item.GetIndexParameters().Length > 0) continue; // skip indexer
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
@@ -44,7 +43,7 @@ namespace Utf8Json.Internal.Emit
                     }
                     stringMembers.Add(member.Name, member);
                 }
-                foreach (var item in type.GetRuntimeFields())
+                foreach (var item in type.GetAllFields())
                 {
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
                     if (item.GetCustomAttribute<System.Runtime.CompilerServices.CompilerGeneratedAttribute>(true) != null) continue;

@@ -17,6 +17,19 @@ public class FooException : Exception
 
 namespace ConsoleAppNetCore
 {
+    public abstract class JsonDBItem
+    {
+        public int ID { get { return _id; } }
+        private int _id = -1;
+    }
+
+    public class Card : JsonDBItem
+    {
+        public string Name { get { return name; } }
+        private string name = "0";
+    }
+
+
     public class CustomPoint
     {
         public readonly int X;
@@ -331,13 +344,18 @@ namespace ConsoleAppNetCore
             }
         }
 
+        public sealed class Entry
+        {
+            public int Number { get; set; }
+            public Exception Exception { get; set; }
+        }
+
 
         static unsafe void Main(string[] args)
         {
 
-            var ex = new Exception("ABC", new FooException { Bar = 100 });
-            var json = JsonSerializer.ToJsonString(ex);
-            Console.WriteLine(JsonSerializer.PrettyPrint(json));
+            var huga = JsonSerializer.Serialize<Card>(new Card());
+            
 
         }
 

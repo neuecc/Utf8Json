@@ -13,6 +13,7 @@ namespace Utf8Json.UnityClient.Tests
         public static void Register()
         {
             UnitTest.RegisterAllMethods<SimpleTest>();
+            UnitTest.RegisterAllMethods<PrivateTest>();
 
             //#if !UNITY_METRO
 
