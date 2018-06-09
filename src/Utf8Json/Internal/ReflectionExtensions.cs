@@ -26,6 +26,52 @@ namespace Utf8Json.Internal
                 && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
 
+        public static IEnumerable<PropertyInfo> GetAllProperties(this Type type)
+        {
+            return GetAllPropertiesCore(type, new HashSet<string>());
+        }
+
+        static IEnumerable<PropertyInfo> GetAllPropertiesCore(Type type, HashSet<string> nameCheck)
+        {
+            foreach (var item in type.GetRuntimeProperties())
+            {
+                if (nameCheck.Add(item.Name))
+                {
+                    yield return item;
+                }
+            }
+            if (type.BaseType != null)
+            {
+                foreach (var item in GetAllPropertiesCore(type.BaseType, nameCheck))
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        public static IEnumerable<FieldInfo> GetAllFields(this Type type)
+        {
+            return GetAllFieldsCore(type, new HashSet<string>());
+        }
+
+        static IEnumerable<FieldInfo> GetAllFieldsCore(Type type, HashSet<string> nameCheck)
+        {
+            foreach (var item in type.GetRuntimeFields())
+            {
+                if (nameCheck.Add(item.Name))
+                {
+                    yield return item;
+                }
+            }
+            if (type.BaseType != null)
+            {
+                foreach (var item in GetAllFieldsCore(type.BaseType, nameCheck))
+                {
+                    yield return item;
+                }
+            }
+        }
+
 #if NETSTANDARD
 
         public static bool IsConstructedGenericType(this System.Reflection.TypeInfo type)
