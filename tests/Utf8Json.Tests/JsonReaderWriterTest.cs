@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -215,6 +216,32 @@ namespace Utf8Json.Tests
             var aaa = reader.ReadString();
 
             aaa.Is(origstr);
+        }
+
+        [Fact]
+        public void LargeArray()
+        {
+            var array = Enumerable.Range(1, 100000).ToArray();
+            var bin = JsonSerializer.Serialize(array);
+
+            var reader = new JsonReader(bin);
+            reader.ReadNextBlock();
+
+            // ok, can read.
+            reader.GetCurrentOffsetUnsafe().Is(bin.Length);
+        }
+
+        [Fact]
+        public void LargeNestedArraySkip()
+        {
+            var array = Enumerable.Range(1, 100000).Select(x => new int[0]).ToArray();
+            var bin = JsonSerializer.Serialize(array);
+
+            var reader = new JsonReader(bin);
+            reader.ReadNextBlock();
+
+            // ok, can read.
+            reader.GetCurrentOffsetUnsafe().Is(bin.Length);
         }
     }
 }
