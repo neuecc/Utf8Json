@@ -1030,25 +1030,24 @@ namespace Utf8Json
 
         public void ReadNextBlock()
         {
-            ReadNextBlockCore(0);
-        }
+            var stack = 0;
 
-        void ReadNextBlockCore(int stack)
-        {
+            AGAIN:
             var token = GetCurrentJsonToken();
             switch (token)
             {
                 case JsonToken.BeginObject:
                 case JsonToken.BeginArray:
                     offset++;
-                    ReadNextBlockCore(stack + 1);
-                    break;
+                    stack++;
+                    goto AGAIN;
                 case JsonToken.EndObject:
                 case JsonToken.EndArray:
                     offset++;
-                    if ((stack - 1) != 0)
+                    stack--;
+                    if (stack != 0)
                     {
-                        ReadNextBlockCore(stack - 1);
+                        goto AGAIN;
                     }
                     break;
                 case JsonToken.True:
@@ -1066,7 +1065,7 @@ namespace Utf8Json
 
                     if (stack != 0)
                     {
-                        ReadNextBlockCore(stack);
+                        goto AGAIN;
                     }
                     break;
                 case JsonToken.None:
