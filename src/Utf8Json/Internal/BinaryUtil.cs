@@ -30,37 +30,50 @@ namespace Utf8Json.Internal
             var current = bytes.Length;
             if (newLength > current)
             {
-                int num = newLength;
-                if (num < 256)
-                {
-                    num = 256;
-                    FastResize(ref bytes, num);
-                    return;
-                }
-
-                if (current == ArrayMaxSize)
-                {
-                    throw new InvalidOperationException("byte[] size reached maximum size of array(0x7FFFFFC7), can not write to single byte[]. Details: https://msdn.microsoft.com/en-us/library/system.array");
-                }
-
-                var newSize = unchecked((current * 2));
-                if (newSize < 0) // overflow
-                {
-                    num = ArrayMaxSize;
-                }
-                else
-                {
-                    if (num < newSize)
-                    {
-                        num = newSize;
-                    }
-                }
-
-                FastResize(ref bytes, num);
+                EnsureCapacitySlow(ref bytes, offset, appendLength);
             }
         }
 
-        // Buffer.BlockCopy version of Array.Resize
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void EnsureCapacitySlow(ref byte[] bytes, int offset, int appendLength)
+        {
+            var newLength = offset + appendLength;
+            var current = bytes.Length;
+            int num = newLength;
+            if (num < 256)
+            {
+                num = 256;
+                FastResize(ref bytes, num);
+                return;
+            }
+
+            if (current == ArrayMaxSize)
+            {
+                ThrowMaxCapacity();
+            }
+
+            var newSize = unchecked((current * 2));
+            if (newSize < 0) // overflow
+            {
+                num = ArrayMaxSize;
+            }
+            else
+            {
+                if (num < newSize)
+                {
+                    num = newSize;
+                }
+            }
+
+            FastResize(ref bytes, num);
+        }
+
+        private static void ThrowMaxCapacity()
+        {
+            throw new InvalidOperationException("byte[] size reached maximum size of array(0x7FFFFFC7), can not write to single byte[]. Details: https://msdn.microsoft.com/en-us/library/system.array");
+
+        }
+
 #if NETSTANDARD
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -78,7 +91,7 @@ namespace Utf8Json.Internal
             if (array2.Length != newSize)
             {
                 byte[] array3 = new byte[newSize];
-                Buffer.BlockCopy(array2, 0, array3, 0, (array2.Length > newSize) ? newSize : array2.Length);
+                Unsafe.CopyBlockUnaligned(ref array3[0], ref array2[0], (uint)((array2.Length > newSize) ? newSize : array2.Length));
                 array = array3;
             }
         }
@@ -97,17 +110,14 @@ namespace Utf8Json.Internal
 
             if (src == null) return new byte[newSize];
 
+            if (newSize == 0)
+            {
+                return Array.Empty<byte>();
+            }
+
             byte[] dst = new byte[newSize];
 
-#if NETSTANDARD && !NET45
-            fixed (byte* pSrc = &src[0])
-            fixed (byte* pDst = &dst[0])
-            {
-                Buffer.MemoryCopy(pSrc, pDst, dst.Length, newSize);
-            }
-#else
-            Buffer.BlockCopy(src, 0, dst, 0, newSize);
-#endif
+            Unsafe.CopyBlockUnaligned(ref dst[0], ref src[0], (uint)newSize);
 
             return dst;
         }

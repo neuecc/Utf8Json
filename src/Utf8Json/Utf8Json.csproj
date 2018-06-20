@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;NET45;NET47</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <Configurations>Debug;Release;</Configurations>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>opensource.snk</AssemblyOriginatorKeyFile>
@@ -15,7 +15,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' AND '$(TargetFramework)'!='NET45'">
-        <LangVersion>5</LangVersion>
+        <LangVersion>7.2</LangVersion>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;NETSTANDARD2_0;</DefineConstants>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,7 +29,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' AND '$(TargetFramework)'!='NET45'">
-        <LangVersion>5</LangVersion>
+        <LangVersion>7.2</LangVersion>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <DefineConstants>RELEASE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -57,10 +57,19 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Remove="Internal\UnsafeMemory.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Internal\UnsafeMemory.tt" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
         <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
         <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.1" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
@@ -79,10 +88,6 @@
         <None Update="Formatters\TupleFormatter.tt">
             <Generator>TextTemplatingFileGenerator</Generator>
             <LastGenOutput>TupleFormatter.cs</LastGenOutput>
-        </None>
-        <None Update="Internal\UnsafeMemory.tt">
-            <Generator>TextTemplatingFileGenerator</Generator>
-            <LastGenOutput>UnsafeMemory.cs</LastGenOutput>
         </None>
     </ItemGroup>
 
@@ -105,11 +110,6 @@
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>ValueTupleFormatter.tt</DependentUpon>
-        </Compile>
-        <Compile Update="Internal\UnsafeMemory.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>UnsafeMemory.tt</DependentUpon>
         </Compile>
     </ItemGroup>
 

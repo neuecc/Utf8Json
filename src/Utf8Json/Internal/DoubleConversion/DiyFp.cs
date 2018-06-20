@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Runtime.CompilerServices;
 
 namespace Utf8Json.Internal.DoubleConversion
 {
@@ -21,8 +19,10 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // public field, not safe...
         public ulong f;
+
         public int e;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DiyFp(ulong significand, int exponent)
         {
             this.f = significand;
@@ -33,6 +33,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // The exponents of both numbers must be the same and the significand of this
         // must be bigger than the significand of other.
         // The result will not be normalized.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Subtract(ref DiyFp other)
         {
             f -= other.f;
@@ -41,6 +42,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // Returns a - b.
         // The exponents of both numbers must be the same and this must be bigger
         // than other. The result will not be normalized.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DiyFp Minus(ref DiyFp a, ref DiyFp b)
         {
             DiyFp result = a;
@@ -48,12 +50,14 @@ namespace Utf8Json.Internal.DoubleConversion
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DiyFp operator -(DiyFp lhs, DiyFp rhs)
         {
             return Minus(ref lhs, ref rhs);
         }
 
         // this = this * other.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Multiply(ref DiyFp other)
         {
             // Simply "emulates" a 128 bit multiplication.
@@ -79,6 +83,7 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         // returns a * b;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DiyFp Times(ref DiyFp a, ref DiyFp b)
         {
             DiyFp result = a;
@@ -86,11 +91,13 @@ namespace Utf8Json.Internal.DoubleConversion
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DiyFp operator *(DiyFp lhs, DiyFp rhs)
         {
             return Times(ref lhs, ref rhs);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Normalize()
         {
             ulong significand = f;
@@ -98,7 +105,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
             // This method is mainly called for normalizing boundaries. In general
             // boundaries need to be shifted by 10 bits. We thus optimize for this case.
-            const ulong k10MSBits = 0xFFC0000000000000; // UINT64_2PART_C(0xFFC00000, 00000000); 
+            const ulong k10MSBits = 0xFFC0000000000000; // UINT64_2PART_C(0xFFC00000, 00000000);
             while ((significand & k10MSBits) == 0)
             {
                 significand <<= 10;
@@ -113,6 +120,7 @@ namespace Utf8Json.Internal.DoubleConversion
             e = exponent;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DiyFp Normalize(ref DiyFp a)
         {
             DiyFp result = a;

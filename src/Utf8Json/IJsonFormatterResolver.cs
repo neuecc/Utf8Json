@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Utf8Json
 {
@@ -10,6 +11,7 @@ namespace Utf8Json
 
     public static class JsonFormatterResolverExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IJsonFormatter<T> GetFormatterWithVerify<T>(this IJsonFormatterResolver resolver)
         {
             IJsonFormatter<T> formatter;
@@ -30,10 +32,17 @@ namespace Utf8Json
 
             if (formatter == null)
             {
-                throw new FormatterNotRegisteredException(typeof(T).FullName + " is not registered in this resolver. resolver:" + resolver.GetType().Name);
+                ThrowFormatterIsNull(typeof(T).FullName, resolver);
             }
 
             return formatter;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowFormatterIsNull(string name, IJsonFormatterResolver resolver)
+        {
+            throw new FormatterNotRegisteredException(name + " is not registered in this resolver. resolver:" + resolver.GetType().Name);
+
         }
 
         public static object GetFormatterDynamic(this IJsonFormatterResolver resolver, Type type)

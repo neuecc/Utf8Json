@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
@@ -15,7 +16,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public readonly uint64_t significand;
         public readonly int16_t binary_exponent;
         public readonly int16_t decimal_exponent;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public CachedPower(ulong significand, short binary_exponent, short decimal_exponent)
         {
             this.significand = significand;
@@ -123,7 +124,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public const int kDecimalExponentDistance = 8;
         public const int kMinDecimalExponent = -348;
         public const int kMaxDecimalExponent = 340;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetCachedPowerForBinaryExponentRange(
             int min_exponent,
             int max_exponent,
@@ -140,7 +141,7 @@ namespace Utf8Json.Internal.DoubleConversion
             decimal_exponent = cached_power.decimal_exponent;
             power = new DiyFp(cached_power.significand, cached_power.binary_exponent);
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetCachedPowerForDecimalExponent(int requested_exponent,
                                                         out DiyFp power,
                                                         out int found_exponent)

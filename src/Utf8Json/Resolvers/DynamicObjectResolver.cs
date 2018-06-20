@@ -1021,21 +1021,22 @@ namespace Utf8Json.Resolvers.Internal
                 {
                     rawField = (index == 0) ? JsonWriter.GetEncodedPropertyNameWithBeginObject(item.Name) : JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(item.Name);
                 }
-                if (rawField.Length < 32)
-                {
-                    if (UnsafeMemory.Is32Bit)
-                    {
-                        il.EmitCall(typeof(UnsafeMemory32).GetRuntimeMethod("WriteRaw" + rawField.Length, new[] { typeof(JsonWriter).MakeByRefType(), typeof(byte[]) }));
-                    }
-                    else
-                    {
-                        il.EmitCall(typeof(UnsafeMemory64).GetRuntimeMethod("WriteRaw" + rawField.Length, new[] { typeof(JsonWriter).MakeByRefType(), typeof(byte[]) }));
-                    }
-                }
-                else
-                {
-                    il.EmitCall(EmitInfo.UnsafeMemory_MemoryCopy);
-                }
+                //if (rawField.Length < 32)
+                //{
+                //    if (UnsafeMemory.Is32Bit)
+                //    {
+                //        il.EmitCall(typeof(UnsafeMemory32).GetRuntimeMethod("WriteRaw" + rawField.Length, new[] { typeof(JsonWriter).MakeByRefType(), typeof(byte[]) }));
+                //    }
+                //    else
+                //    {
+                //        il.EmitCall(typeof(UnsafeMemory64).GetRuntimeMethod("WriteRaw" + rawField.Length, new[] { typeof(JsonWriter).MakeByRefType(), typeof(byte[]) }));
+                //    }
+                //}
+                //else
+                //{
+                //    il.EmitCall(EmitInfo.UnsafeMemory_MemoryCopy);
+                //}
+                il.EmitCall(EmitInfo.UnsafeMemory_MemoryCopy);
 #else
                 il.EmitCall(EmitInfo.JsonWriter.WriteRaw);
 #endif
@@ -1485,7 +1486,7 @@ namespace Utf8Json.Resolvers.Internal
 
             public static readonly MethodInfo GetFormatterWithVerify = typeof(JsonFormatterResolverExtensions).GetRuntimeMethod("GetFormatterWithVerify", new[] { typeof(IJsonFormatterResolver) });
 #if NETSTANDARD
-            public static readonly MethodInfo UnsafeMemory_MemoryCopy = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer, byte[] src) => UnsafeMemory.MemoryCopy(ref writer, src));
+            public static readonly MethodInfo UnsafeMemory_MemoryCopy = ExpressionUtility.GetMethodInfo((Utf8Json.JsonWriter writer, byte[] src) => UnsafeMemory.WriteRaw(ref writer, src));
 #endif
             public static readonly ConstructorInfo InvalidOperationExceptionConstructor = typeof(System.InvalidOperationException).GetTypeInfo().DeclaredConstructors.First(x => { var p = x.GetParameters(); return p.Length == 1 && p[0].ParameterType == typeof(string); });
             public static readonly MethodInfo GetTypeFromHandle = ExpressionUtility.GetMethodInfo(() => Type.GetTypeFromHandle(default(RuntimeTypeHandle)));

@@ -2,15 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Utf8Json.Formatters.Internal;
 using Utf8Json.Internal;
 using System.Text.RegularExpressions;
 
 #if NETSTANDARD
+
 using System.Dynamic;
 using System.Numerics;
 using System.Threading.Tasks;
+
 #endif
 
 namespace Utf8Json.Formatters
@@ -274,23 +277,26 @@ namespace Utf8Json.Formatters
     {
         public static readonly IJsonFormatter<decimal> Default = new DecimalFormatter();
 
-        readonly bool serializeAsString;
+        private readonly bool serializeAsString;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DecimalFormatter()
             : this(false)
         {
-
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DecimalFormatter(bool serializeAsString)
         {
             this.serializeAsString = serializeAsString;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Serialize(ref JsonWriter writer, decimal value, IJsonFormatterResolver formatterResolver)
         {
             if (serializeAsString)
             {
+                
                 writer.WriteString(value.ToString(CultureInfo.InvariantCulture));
             }
             else
@@ -300,6 +306,7 @@ namespace Utf8Json.Formatters
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public decimal Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
             var token = reader.GetCurrentJsonToken();
@@ -314,8 +321,15 @@ namespace Utf8Json.Formatters
             }
             else
             {
-                throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
+                ThrowInvalidToken(token);
+                return default(Decimal);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowInvalidToken(JsonToken token)
+        {
+            throw new InvalidOperationException("Invalid Json Token for DecimalFormatter:" + token);
         }
     }
 
@@ -414,9 +428,11 @@ namespace Utf8Json.Formatters
                     case 0:
                         resultKey = formatterResolver.GetFormatterWithVerify<TKey>().Deserialize(ref reader, formatterResolver);
                         break;
+
                     case 1:
                         resultValue = formatterResolver.GetFormatterWithVerify<TValue>().Deserialize(ref reader, formatterResolver);
                         break;
+
                     default:
                         reader.ReadNextBlock();
                         break;
@@ -481,19 +497,18 @@ namespace Utf8Json.Formatters
         public static readonly TypeFormatter Default = new TypeFormatter();
 
 #if NETSTANDARD
-        static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+", RegexOptions.Compiled);
+        private static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+", RegexOptions.Compiled);
 #else
         static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+");
 #endif
 
-        bool serializeAssemblyQualifiedName;
-        bool deserializeSubtractAssemblyQualifiedName;
-        bool throwOnError;
+        private bool serializeAssemblyQualifiedName;
+        private bool deserializeSubtractAssemblyQualifiedName;
+        private bool throwOnError;
 
         public TypeFormatter()
             : this(true, true, true)
         {
-
         }
 
         public TypeFormatter(bool serializeAssemblyQualifiedName, bool deserializeSubtractAssemblyQualifiedName, bool throwOnError)
@@ -529,7 +544,6 @@ namespace Utf8Json.Formatters
             return Type.GetType(s, throwOnError);
         }
     }
-
 
 #if NETSTANDARD
 
@@ -628,7 +642,7 @@ namespace Utf8Json.Formatters
     public sealed class TaskUnitFormatter : IJsonFormatter<Task>
     {
         public static readonly IJsonFormatter<Task> Default = new TaskUnitFormatter();
-        static readonly Task CompletedTask = Task.FromResult<object>(null);
+        private static readonly Task CompletedTask = Task.FromResult<object>(null);
 
         public void Serialize(ref JsonWriter writer, Task value, IJsonFormatterResolver formatterResolver)
         {
