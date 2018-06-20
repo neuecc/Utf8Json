@@ -20,12 +20,14 @@ namespace Utf8Json
         readonly byte[] bytes;
         int offset;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JsonReader(byte[] bytes)
             : this(bytes, 0)
         {
 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JsonReader(byte[] bytes, int offset)
         {
             this.bytes = bytes;
@@ -41,7 +43,8 @@ namespace Utf8Json
             }
         }
 
-        JsonParsingException CreateParsingException(string expected)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        void CreateParsingException(string expected)
         {
             var actual = ((char)bytes[offset]).ToString();
             var pos = offset;
@@ -73,175 +76,133 @@ namespace Utf8Json
             }
             catch { }
 
-            return new JsonParsingException("expected:'" + expected + "', actual:'" + actual + "', at offset:" + pos, bytes, pos, offset, actual);
+            throw new JsonParsingException("expected:'" + expected + "', actual:'" + actual + "', at offset:" + pos, bytes, pos, offset, actual);
         }
 
-        JsonParsingException CreateParsingExceptionMessage(string message)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        void CreateParsingExceptionMessage(string message)
         {
             var actual = ((char)bytes[offset]).ToString();
             var pos = offset;
 
-            return new JsonParsingException(message, bytes, pos, pos, actual);
+            throw new JsonParsingException(message, bytes, pos, pos, actual);
         }
 
         bool IsInRange
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return offset < bytes.Length;
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AdvanceOffset(int offset)
         {
             this.offset += offset;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] GetBufferUnsafe()
         {
             return bytes;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetCurrentOffsetUnsafe()
         {
             return offset;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public JsonToken GetCurrentJsonToken()
         {
             SkipWhiteSpace();
             if (offset < bytes.Length)
             {
                 var c = bytes[offset];
-                switch (c)
+                if (c == (byte) '{')
+                    return JsonToken.BeginObject;
+                else if (c == (byte) '}')
                 {
-                    case (byte)'{': return JsonToken.BeginObject;
-                    case (byte)'}': return JsonToken.EndObject;
-                    case (byte)'[': return JsonToken.BeginArray;
-                    case (byte)']': return JsonToken.EndArray;
-                    case (byte)'t': return JsonToken.True;
-                    case (byte)'f': return JsonToken.False;
-                    case (byte)'n': return JsonToken.Null;
-                    case (byte)',': return JsonToken.ValueSeparator;
-                    case (byte)':': return JsonToken.NameSeparator;
-                    case (byte)'-': return JsonToken.Number;
-                    case (byte)'0': return JsonToken.Number;
-                    case (byte)'1': return JsonToken.Number;
-                    case (byte)'2': return JsonToken.Number;
-                    case (byte)'3': return JsonToken.Number;
-                    case (byte)'4': return JsonToken.Number;
-                    case (byte)'5': return JsonToken.Number;
-                    case (byte)'6': return JsonToken.Number;
-                    case (byte)'7': return JsonToken.Number;
-                    case (byte)'8': return JsonToken.Number;
-                    case (byte)'9': return JsonToken.Number;
-                    case (byte)'\"': return JsonToken.String;
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    case 35:
-                    case 36:
-                    case 37:
-                    case 38:
-                    case 39:
-                    case 40:
-                    case 41:
-                    case 42:
-                    case 43:
-                    case 46:
-                    case 47:
-                    case 59:
-                    case 60:
-                    case 61:
-                    case 62:
-                    case 63:
-                    case 64:
-                    case 65:
-                    case 66:
-                    case 67:
-                    case 68:
-                    case 69:
-                    case 70:
-                    case 71:
-                    case 72:
-                    case 73:
-                    case 74:
-                    case 75:
-                    case 76:
-                    case 77:
-                    case 78:
-                    case 79:
-                    case 80:
-                    case 81:
-                    case 82:
-                    case 83:
-                    case 84:
-                    case 85:
-                    case 86:
-                    case 87:
-                    case 88:
-                    case 89:
-                    case 90:
-                    case 92:
-                    case 94:
-                    case 95:
-                    case 96:
-                    case 97:
-                    case 98:
-                    case 99:
-                    case 100:
-                    case 101:
-                    case 103:
-                    case 104:
-                    case 105:
-                    case 106:
-                    case 107:
-                    case 108:
-                    case 109:
-                    case 111:
-                    case 112:
-                    case 113:
-                    case 114:
-                    case 115:
-                    case 117:
-                    case 118:
-                    case 119:
-                    case 120:
-                    case 121:
-                    case 122:
-                    default:
-                        return JsonToken.None;
+                    return JsonToken.EndObject;
+                }
+                else if (c == (byte) '[')
+                {
+                    return JsonToken.BeginArray;
+                }
+                else if (c == (byte) ']')
+                {
+                    return JsonToken.EndArray;
+                }
+                else if (c == (byte) 't')
+                {
+                    return JsonToken.True;
+                }
+                else if (c == (byte) 'f')
+                {
+                    return JsonToken.False;
+                }
+                else if (c == (byte) 'n')
+                {
+                    return JsonToken.Null;
+                }
+                else if (c == (byte) ',')
+                {
+                    return JsonToken.ValueSeparator;
+                }
+                else if (c == (byte) ':')
+                {
+                    return JsonToken.NameSeparator;
+                }
+                else if (c == (byte) '-')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '0')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '1')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '2')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '3')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '4')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '5')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '6')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '7')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '8')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '9')
+                {
+                    return JsonToken.Number;
+                }
+                else if (c == (byte) '\"')
+                {
+                    return JsonToken.String;
+                }
+                else
+                {
+                    return JsonToken.None;
                 }
             }
             else
@@ -258,69 +219,24 @@ namespace Utf8Json
             // eliminate array bound check
             for (int i = offset; i < bytes.Length; i++)
             {
-                switch (bytes[i])
+                if (bytes[i] == 0x20 || bytes[i] == 0x09 || bytes[i] == 0x0A || bytes[i] == 0x0D)
                 {
-                    case 0x20: // Space
-                    case 0x09: // Horizontal tab
-                    case 0x0A: // Line feed or New line
-                    case 0x0D: // Carriage return
-                        continue;
-                    case (byte)'/': // BeginComment
-                        i = ReadComment(bytes, i);
-                        continue;
-                    // optimize skip jumptable
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 11:
-                    case 12:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 33:
-                    case 34:
-                    case 35:
-                    case 36:
-                    case 37:
-                    case 38:
-                    case 39:
-                    case 40:
-                    case 41:
-                    case 42:
-                    case 43:
-                    case 44:
-                    case 45:
-                    case 46:
-                    default:
-                        offset = i;
-                        return; // end
+                    continue;
                 }
+                if (bytes[i] == (byte) '/')
+                {
+                    i = ReadComment(bytes, i);
+                    continue;
+                }
+                
+                    offset = i;
+                    return; // end
+                
             }
 
             offset = bytes.Length;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsNull()
         {
             SkipWhiteSpace();
@@ -338,9 +254,10 @@ namespace Utf8Json
             }
 
             ERROR:
-            throw CreateParsingException("null");
+            CreateParsingException("null");
+            return default;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsBeginArray()
         {
             SkipWhiteSpace();
@@ -354,12 +271,12 @@ namespace Utf8Json
                 return false;
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadIsBeginArrayWithVerify()
         {
-            if (!ReadIsBeginArray()) throw CreateParsingException("[");
+            if (!ReadIsBeginArray()) CreateParsingException("[");
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsEndArray()
         {
             SkipWhiteSpace();
@@ -373,12 +290,12 @@ namespace Utf8Json
                 return false;
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadIsEndArrayWithVerify()
         {
-            if (!ReadIsEndArray()) throw CreateParsingException("]");
+            if (!ReadIsEndArray()) CreateParsingException("]");
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsEndArrayWithSkipValueSeparator(ref int count)
         {
             SkipWhiteSpace();
@@ -400,6 +317,7 @@ namespace Utf8Json
         /// <summary>
         /// Convinient pattern of ReadIsBeginArrayWithVerify + while(!ReadIsEndArrayWithSkipValueSeparator)
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsInArray(ref int count)
         {
             if (count == 0)
@@ -425,7 +343,7 @@ namespace Utf8Json
             count++;
             return true;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsBeginObject()
         {
             SkipWhiteSpace();
@@ -440,11 +358,13 @@ namespace Utf8Json
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadIsBeginObjectWithVerify()
         {
-            if (!ReadIsBeginObject()) throw CreateParsingException("{");
+            if (!ReadIsBeginObject()) CreateParsingException("{");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsEndObject()
         {
             SkipWhiteSpace();
@@ -458,11 +378,14 @@ namespace Utf8Json
                 return false;
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadIsEndObjectWithVerify()
         {
-            if (!ReadIsEndObject()) throw CreateParsingException("}");
+            if (!ReadIsEndObject()) CreateParsingException("}");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsEndObjectWithSkipValueSeparator(ref int count)
         {
             SkipWhiteSpace();
@@ -484,6 +407,7 @@ namespace Utf8Json
         /// <summary>
         /// Convinient pattern of ReadIsBeginObjectWithVerify + while(!ReadIsEndObjectWithSkipValueSeparator)
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsInObject(ref int count)
         {
             if (count == 0)
@@ -509,7 +433,7 @@ namespace Utf8Json
             count++;
             return true;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsValueSeparator()
         {
             SkipWhiteSpace();
@@ -524,11 +448,13 @@ namespace Utf8Json
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadIsValueSeparatorWithVerify()
         {
-            if (!ReadIsValueSeparator()) throw CreateParsingException(",");
+            if (!ReadIsValueSeparator()) CreateParsingException(",");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadIsNameSeparator()
         {
             SkipWhiteSpace();
@@ -542,12 +468,12 @@ namespace Utf8Json
                 return false;
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadIsNameSeparatorWithVerify()
         {
-            if (!ReadIsNameSeparator()) throw CreateParsingException(":");
+            if (!ReadIsNameSeparator()) CreateParsingException(":");
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void ReadStringSegmentCore(out byte[] resultBytes, out int resultOffset, out int resultLength)
         {
             // SkipWhiteSpace is already called from IsNull
@@ -557,7 +483,7 @@ namespace Utf8Json
             char[] codePointStringBuffer = null;
             var codePointStringOffet = 0;
 
-            if (bytes[offset] != '\"') throw CreateParsingException("String Begin Token");
+            if (bytes[offset] != '\"') CreateParsingException("String Begin Token");
             offset++;
 
             var from = offset;
@@ -600,7 +526,7 @@ namespace Utf8Json
 
                                     var copyCount = i - from;
                                     BinaryUtil.EnsureCapacity(ref builder, builderOffset, copyCount + 1); // require + 1
-                                    Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                                    if(copyCount > 0) { Unsafe.CopyBlockUnaligned(ref builder[builderOffset], ref bytes[from], (uint)copyCount);}
                                     builderOffset += copyCount;
                                 }
 
@@ -620,7 +546,11 @@ namespace Utf8Json
                                 from = offset;
                                 continue;
                             default:
-                                throw CreateParsingExceptionMessage("Bad JSON escape.");
+                                CreateParsingExceptionMessage("Bad JSON escape.");
+                                resultBytes = new byte[] { };
+                                resultOffset = 0;
+                                resultLength = 0;
+                                return;
                         }
                     case (byte)'"': // endtoken
                         offset++;
@@ -649,7 +579,7 @@ namespace Utf8Json
 
                     var copyCount = i - from;
                     BinaryUtil.EnsureCapacity(ref builder, builderOffset, copyCount + 1); // require + 1!
-                    Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                    if(copyCount > 0) { Unsafe.CopyBlockUnaligned(ref builder[builderOffset], ref bytes[from], (uint)copyCount);}
                     builderOffset += copyCount;
                     builder[builderOffset++] = escapeCharacter;
                     i += 1;
@@ -661,7 +591,7 @@ namespace Utf8Json
             resultLength = 0;
             resultBytes = null;
             resultOffset = 0;
-            throw CreateParsingException("String End Token");
+            CreateParsingException("String End Token");
 
             END:
             if (builderOffset == 0 && codePointStringOffet == 0) // no escape
@@ -682,7 +612,7 @@ namespace Utf8Json
 
                 var copyCount = offset - from - 1;
                 BinaryUtil.EnsureCapacity(ref builder, builderOffset, copyCount);
-                Buffer.BlockCopy(bytes, from, builder, builderOffset, copyCount);
+                if(copyCount > 0) { Unsafe.CopyBlockUnaligned(ref builder[builderOffset], ref bytes[from], (uint)copyCount);}
                 builderOffset += copyCount;
 
                 resultBytes = builder;
@@ -729,7 +659,7 @@ namespace Utf8Json
             ReadStringSegmentCore(out bytes, out offset, out length);
             return new ArraySegment<byte>(bytes, offset, length);
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ReadString()
         {
             if (ReadIsNull()) return null;
@@ -743,6 +673,7 @@ namespace Utf8Json
         }
 
         /// <summary>ReadString + ReadIsNameSeparatorWithVerify</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string ReadPropertyName()
         {
             var key = ReadString();
@@ -751,6 +682,7 @@ namespace Utf8Json
         }
 
         /// <summary>Get raw string-span(do not unescape)</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ArraySegment<byte> ReadStringSegmentRaw()
         {
             ArraySegment<byte> key = default(ArraySegment<byte>);
@@ -761,7 +693,7 @@ namespace Utf8Json
             else
             {
                 // SkipWhiteSpace is already called from IsNull
-                if (bytes[offset++] != '\"') throw CreateParsingException("\"");
+                if (bytes[offset++] != '\"') CreateParsingException("\"");
 
                 var from = offset;
 
@@ -781,7 +713,7 @@ namespace Utf8Json
                         }
                     }
                 }
-                throw CreateParsingExceptionMessage("not found end string.");
+                CreateParsingExceptionMessage("not found end string.");
 
                 OK:
                 key = new ArraySegment<byte>(bytes, from, offset - from - 1); // remove \"
@@ -791,6 +723,7 @@ namespace Utf8Json
         }
 
         /// <summary>Get raw string-span(do not unescape) + ReadIsNameSeparatorWithVerify</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ArraySegment<byte> ReadPropertyNameSegmentRaw()
         {
             var key = ReadStringSegmentRaw();
@@ -798,6 +731,7 @@ namespace Utf8Json
             return key;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ReadBoolean()
         {
             SkipWhiteSpace();
@@ -820,150 +754,25 @@ namespace Utf8Json
             }
             else
             {
-                throw CreateParsingException("true | false");
+                CreateParsingException("true | false");
             }
 
             ERROR_TRUE:
-            throw CreateParsingException("true");
+            CreateParsingException("true");
             ERROR_FALSE:
-            throw CreateParsingException("false");
+            CreateParsingException("false");
+            return default;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool IsWordBreak(byte c)
         {
-            switch (c)
-            {
-                case (byte)' ':
-                case (byte)'{':
-                case (byte)'}':
-                case (byte)'[':
-                case (byte)']':
-                case (byte)',':
-                case (byte)':':
-                case (byte)'\"':
-                    return true;
-                case 0:
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                case 16:
-                case 17:
-                case 18:
-                case 19:
-                case 20:
-                case 21:
-                case 22:
-                case 23:
-                case 24:
-                case 25:
-                case 26:
-                case 27:
-                case 28:
-                case 29:
-                case 30:
-                case 31:
-                case 33:
-                case 35:
-                case 36:
-                case 37:
-                case 38:
-                case 39:
-                case 40:
-                case 41:
-                case 42:
-                case 43:
-                case 45:
-                case 46:
-                case 47:
-                case 48:
-                case 49:
-                case 50:
-                case 51:
-                case 52:
-                case 53:
-                case 54:
-                case 55:
-                case 56:
-                case 57:
-                case 59:
-                case 60:
-                case 61:
-                case 62:
-                case 63:
-                case 64:
-                case 65:
-                case 66:
-                case 67:
-                case 68:
-                case 69:
-                case 70:
-                case 71:
-                case 72:
-                case 73:
-                case 74:
-                case 75:
-                case 76:
-                case 77:
-                case 78:
-                case 79:
-                case 80:
-                case 81:
-                case 82:
-                case 83:
-                case 84:
-                case 85:
-                case 86:
-                case 87:
-                case 88:
-                case 89:
-                case 90:
-                case 92:
-                case 94:
-                case 95:
-                case 96:
-                case 97:
-                case 98:
-                case 99:
-                case 100:
-                case 101:
-                case 102:
-                case 103:
-                case 104:
-                case 105:
-                case 106:
-                case 107:
-                case 108:
-                case 109:
-                case 110:
-                case 111:
-                case 112:
-                case 113:
-                case 114:
-                case 115:
-                case 116:
-                case 117:
-                case 118:
-                case 119:
-                case 120:
-                case 121:
-                case 122:
-                default:
-                    return false;
-            }
+            if (c == (byte) ' ' || c == (byte) '{' || c == (byte) '}' || c == (byte) '[' || c == (byte) ']' ||
+                c == (byte) ',' || c == (byte) ':' || c == (byte) '\"')
+                return true;
+            else
+                return false;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadNext()
         {
             var token = GetCurrentJsonToken();
@@ -1010,7 +819,8 @@ namespace Utf8Json
                             }
                         }
                     }
-                    throw CreateParsingExceptionMessage("not found end string.");
+                    CreateParsingExceptionMessage("not found end string.");
+                    break;
                 case JsonToken.Number:
                     for (int i = offset; i < bytes.Length; i++)
                     {
@@ -1027,7 +837,7 @@ namespace Utf8Json
                     break;
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReadNextBlock()
         {
             var stack = 0;
@@ -1073,29 +883,29 @@ namespace Utf8Json
                     break;
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ArraySegment<byte> ReadNextBlockSegment()
         {
             var startOffset = offset;
             ReadNextBlock();
             return new ArraySegment<byte>(bytes, startOffset, offset - startOffset);
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public sbyte ReadSByte()
         {
             return checked((sbyte)ReadInt64());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short ReadInt16()
         {
             return checked((short)ReadInt64());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ReadInt32()
         {
             return checked((int)ReadInt64());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public long ReadInt64()
         {
             SkipWhiteSpace();
@@ -1104,28 +914,28 @@ namespace Utf8Json
             var v = NumberConverter.ReadInt64(bytes, offset, out readCount);
             if (readCount == 0)
             {
-                throw CreateParsingException("Number Token");
+                CreateParsingException("Number Token");
             }
 
             offset += readCount;
             return v;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte ReadByte()
         {
             return checked((byte)ReadUInt64());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ushort ReadUInt16()
         {
             return checked((ushort)ReadUInt64());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public uint ReadUInt32()
         {
             return checked((uint)ReadUInt64());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ulong ReadUInt64()
         {
             SkipWhiteSpace();
@@ -1134,12 +944,12 @@ namespace Utf8Json
             var v = NumberConverter.ReadUInt64(bytes, offset, out readCount);
             if (readCount == 0)
             {
-                throw CreateParsingException("Number Token");
+                CreateParsingException("Number Token");
             }
             offset += readCount;
             return v;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Single ReadSingle()
         {
             SkipWhiteSpace();
@@ -1147,12 +957,12 @@ namespace Utf8Json
             var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToSingle(bytes, offset, out readCount);
             if (readCount == 0)
             {
-                throw CreateParsingException("Number Token");
+                CreateParsingException("Number Token");
             }
             offset += readCount;
             return v;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Double ReadDouble()
         {
             SkipWhiteSpace();
@@ -1160,12 +970,12 @@ namespace Utf8Json
             var v = Utf8Json.Internal.DoubleConversion.StringToDoubleConverter.ToDouble(bytes, offset, out readCount);
             if (readCount == 0)
             {
-                throw CreateParsingException("Number Token");
+                CreateParsingException("Number Token");
             }
             offset += readCount;
             return v;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ArraySegment<byte> ReadNumberSegment()
         {
             SkipWhiteSpace();
@@ -1185,6 +995,7 @@ namespace Utf8Json
         }
 
         // return last offset.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int ReadComment(byte[] bytes, int offset)
         {
             // current token is '/'
@@ -1226,7 +1037,7 @@ namespace Utf8Json
 
             [ThreadStatic]
             static char[] codePointStringBuffer;
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static byte[] GetBuffer()
             {
                 if (buffer == null)
@@ -1235,7 +1046,7 @@ namespace Utf8Json
                 }
                 return buffer;
             }
-
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static char[] GetCodePointStringBuffer()
             {
                 if (codePointStringBuffer == null)

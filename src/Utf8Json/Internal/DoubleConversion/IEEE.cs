@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Utf8Json.Internal.DoubleConversion
@@ -10,6 +11,7 @@ namespace Utf8Json.Internal.DoubleConversion
     {
         [FieldOffset(0)]
         public double d;
+
         [FieldOffset(0)]
         public ulong u64;
     }
@@ -19,6 +21,7 @@ namespace Utf8Json.Internal.DoubleConversion
     {
         [FieldOffset(0)]
         public float f;
+
         [FieldOffset(0)]
         public uint u32;
     }
@@ -34,19 +37,21 @@ namespace Utf8Json.Internal.DoubleConversion
         public const int kPhysicalSignificandSize = 52;  // Excludes the hidden bit.
         public const int kSignificandSize = 53;
 
-        const int kExponentBias = 0x3FF + kPhysicalSignificandSize;
-        const int kDenormalExponent = -kExponentBias + 1;
-        const int kMaxExponent = 0x7FF - kExponentBias;
-        const ulong kInfinity = (0x7FF0000000000000);
-        const ulong kNaN = (0x7FF8000000000000);
+        private const int kExponentBias = 0x3FF + kPhysicalSignificandSize;
+        private const int kDenormalExponent = -kExponentBias + 1;
+        private const int kMaxExponent = 0x7FF - kExponentBias;
+        private const ulong kInfinity = (0x7FF0000000000000);
+        private const ulong kNaN = (0x7FF8000000000000);
 
-        ulong d64_;
+        private ulong d64_;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Double(double d)
         {
             d64_ = new UnionDoubleULong { d = d }.u64;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Double(DiyFp d)
         {
             d64_ = DiyFpToUint64(d);
@@ -54,12 +59,14 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // The value encoded by this Double must be greater or equal to +0.0.
         // It must not be special (infinity, or NaN).
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DiyFp AsDiyFp()
         {
             return new DiyFp(Significand(), Exponent());
         }
 
         // The value encoded by this Double must be strictly greater than 0.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DiyFp AsNormalizedDiyFp()
         {
             ulong f = Significand();
@@ -78,12 +85,14 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         // Returns the double's bit as uint64.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ulong AsUint64()
         {
             return d64_;
         }
 
         // Returns the next greater double. Returns +infinity on input +infinity.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double NextDouble()
         {
             if (d64_ == kInfinity) return new Double(kInfinity).value();
@@ -102,6 +111,7 @@ namespace Utf8Json.Internal.DoubleConversion
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double PreviousDouble()
         {
             if (d64_ == (kInfinity | kSignMask)) return -Infinity();
@@ -116,6 +126,7 @@ namespace Utf8Json.Internal.DoubleConversion
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Exponent()
         {
             if (IsDenormal()) return kDenormalExponent;
@@ -126,6 +137,7 @@ namespace Utf8Json.Internal.DoubleConversion
             return biased_e - kExponentBias;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ulong Significand()
         {
             ulong d64 = AsUint64();
@@ -141,6 +153,7 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         // Returns true if the double is a denormal.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDenormal()
         {
             ulong d64 = AsUint64();
@@ -149,12 +162,14 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // We consider denormals not to be special.
         // Hence only Infinity and NaN are special.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsSpecial()
         {
             ulong d64 = AsUint64();
             return (d64 & kExponentMask) == kExponentMask;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNan()
         {
             ulong d64 = AsUint64();
@@ -162,6 +177,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 ((d64 & kSignificandMask) != 0);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsInfinite()
         {
             ulong d64 = AsUint64();
@@ -169,6 +185,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 ((d64 & kSignificandMask) == 0);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Sign()
         {
             ulong d64 = AsUint64();
@@ -177,6 +194,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // Precondition: the value encoded by this Double must be greater or equal
         // than +0.0.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DiyFp UpperBoundary()
         {
             return new DiyFp(Significand() * 2 + 1, Exponent() - 1);
@@ -186,6 +204,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // The bigger boundary (m_plus) is normalized. The lower boundary has the same
         // exponent as m_plus.
         // Precondition: the value encoded by this Double must be greater than 0.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void NormalizedBoundaries(out DiyFp out_m_minus, out DiyFp out_m_plus)
         {
             DiyFp v = this.AsDiyFp();
@@ -207,6 +226,7 @@ namespace Utf8Json.Internal.DoubleConversion
             out_m_minus = m_minus;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool LowerBoundaryIsCloser()
         {
             // The boundary is closer if the significand is of the form f == 2^p-1 then
@@ -221,6 +241,7 @@ namespace Utf8Json.Internal.DoubleConversion
             return physical_significand_is_zero && (Exponent() != kDenormalExponent);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double value()
         {
             return new UnionDoubleULong { u64 = d64_ }.d;
@@ -232,6 +253,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // once it's encoded into a double. In almost all cases this is equal to
         // kSignificandSize. The only exceptions are denormals. They start with
         // leading zeroes and their effective significand-size is hence smaller.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SignificandSizeForOrderOfMagnitude(int order)
         {
             if (order >= (kDenormalExponent + kSignificandSize))
@@ -242,16 +264,19 @@ namespace Utf8Json.Internal.DoubleConversion
             return order - kDenormalExponent;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Infinity()
         {
             return new Double(kInfinity).value();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double NaN()
         {
             return new Double(kNaN).value();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ulong DiyFpToUint64(DiyFp diy_fp)
         {
             ulong significand = diy_fp.f;
@@ -290,11 +315,11 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal struct Single
     {
-        const int kExponentBias = 0x7F + kPhysicalSignificandSize;
-        const int kDenormalExponent = -kExponentBias + 1;
-        const int kMaxExponent = 0xFF - kExponentBias;
-        const uint32_t kInfinity = 0x7F800000;
-        const uint32_t kNaN = 0x7FC00000;
+        private const int kExponentBias = 0x7F + kPhysicalSignificandSize;
+        private const int kDenormalExponent = -kExponentBias + 1;
+        private const int kMaxExponent = 0xFF - kExponentBias;
+        private const uint32_t kInfinity = 0x7F800000;
+        private const uint32_t kNaN = 0x7FC00000;
 
         public const uint32_t kSignMask = 0x80000000;
         public const uint32_t kExponentMask = 0x7F800000;
@@ -303,7 +328,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public const int kPhysicalSignificandSize = 23;  // Excludes the hidden bit.
         public const int kSignificandSize = 24;
 
-        uint32_t d32_;
+        private uint32_t d32_;
 
         public Single(float f)
         {
@@ -426,7 +451,10 @@ namespace Utf8Json.Internal.DoubleConversion
             return physical_significand_is_zero && (Exponent() != kDenormalExponent);
         }
 
-        public float value() { return new UnionFloatUInt { u32 = d32_ }.f; }
+        public float value()
+        {
+            return new UnionFloatUInt { u32 = d32_ }.f;
+        }
 
         public static float Infinity()
         {

@@ -3,7 +3,9 @@ using System.Text;
 using Utf8Json.Internal;
 
 #if NETSTANDARD
+
 using System.Runtime.CompilerServices;
+
 #endif
 
 namespace Utf8Json
@@ -12,14 +14,17 @@ namespace Utf8Json
 
     public struct JsonWriter
     {
-        static readonly byte[] emptyBytes = new byte[0];
+        private static readonly byte[] emptyBytes = new byte[0];
 
         // write direct from UnsafeMemory
 #if NETSTANDARD
+
         internal
 #endif
         byte[] buffer;
+
 #if NETSTANDARD
+
         internal
 #endif
         int offset;
@@ -65,8 +70,12 @@ namespace Utf8Json
             var writer = new JsonWriter();
             writer.WriteString(propertyName); // "propname"
             var buf = writer.GetBuffer();
+            if (buf.Count == 2)
+            {
+                return emptyBytes;
+            }
             var result = new byte[buf.Count - 2];
-            Buffer.BlockCopy(buf.Array, buf.Offset + 1, result, 0, result.Length); // without quotation
+            Unsafe.CopyBlockUnaligned(ref result[0], ref buf.Array[buf.Offset + 1], (uint)result.Length); // without quotation
             return result;
         }
 
@@ -95,6 +104,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void EnsureCapacity(int appendLength)
@@ -103,6 +113,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteRaw(byte rawValue)
@@ -112,20 +123,16 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteRaw(byte[] rawValue)
         {
-#if NETSTANDARD
             UnsafeMemory.WriteRaw(ref this, rawValue);
-#else
-            BinaryUtil.EnsureCapacity(ref buffer, offset, rawValue.Length);
-            Buffer.BlockCopy(rawValue, 0, buffer, offset, rawValue.Length);
-            offset += rawValue.Length;
-#endif
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteRawUnsafe(byte rawValue)
@@ -134,6 +141,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteBeginArray()
@@ -143,6 +151,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteEndArray()
@@ -152,6 +161,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteBeginObject()
@@ -161,6 +171,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteEndObject()
@@ -170,6 +181,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteValueSeparator()
@@ -180,6 +192,7 @@ namespace Utf8Json
 
         /// <summary>:</summary>
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteNameSeparator()
@@ -190,6 +203,7 @@ namespace Utf8Json
 
         /// <summary>WriteString + WriteNameSeparator</summary>
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WritePropertyName(string propertyName)
@@ -199,6 +213,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteQuotation()
@@ -208,6 +223,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteNull()
@@ -221,6 +237,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteBoolean(bool value)
@@ -247,6 +264,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteTrue()
@@ -260,6 +278,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteFalse()
@@ -274,6 +293,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteSingle(Single value)
@@ -282,6 +302,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteDouble(double value)
@@ -290,6 +311,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteByte(byte value)
@@ -298,6 +320,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteUInt16(ushort value)
@@ -306,6 +329,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteUInt32(uint value)
@@ -319,6 +343,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteSByte(sbyte value)
@@ -327,6 +352,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteInt16(short value)
@@ -335,6 +361,7 @@ namespace Utf8Json
         }
 
 #if NETSTANDARD
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
         public void WriteInt32(int value)
@@ -342,11 +369,13 @@ namespace Utf8Json
             WriteInt64((long)value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteInt64(long value)
         {
             offset += NumberConverter.WriteInt64(ref buffer, offset, value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteString(string value)
         {
             if (value == null)
@@ -376,21 +405,27 @@ namespace Utf8Json
                     case '"':
                         escapeChar = (byte)'"';
                         break;
+
                     case '\\':
                         escapeChar = (byte)'\\';
                         break;
+
                     case '\b':
                         escapeChar = (byte)'b';
                         break;
+
                     case '\f':
                         escapeChar = (byte)'f';
                         break;
+
                     case '\n':
                         escapeChar = (byte)'n';
                         break;
+
                     case '\r':
                         escapeChar = (byte)'r';
                         break;
+
                     case '\t':
                         escapeChar = (byte)'t';
                         break;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
@@ -11,7 +12,7 @@ namespace Utf8Json.Internal.DoubleConversion
         public readonly byte[] bytes;
         public readonly int start;
         public readonly int _length;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector(byte[] bytes, int start, int length)
         {
             this.bytes = bytes;
@@ -19,38 +20,40 @@ namespace Utf8Json.Internal.DoubleConversion
             this._length = length;
         }
 
-        public byte this[int i]
+        public ref byte this[int i]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return bytes[start + i];
+                return ref bytes[start + i];
             }
-            set
-            {
-                bytes[start + i] = value;
-            }
+            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+            //set
+            //{
+            //    bytes[start + i] = value;
+            //}
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int length()
         {
             return _length;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte first()
         {
             return bytes[start];
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte last()
         {
             return bytes[_length - 1];
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool is_empty()
         {
             return _length == 0;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector SubVector(int from, int to)
         {
             return new Vector(this.bytes, start + from, to - from);
@@ -61,7 +64,7 @@ namespace Utf8Json.Internal.DoubleConversion
     {
         [ThreadStatic]
         static byte[] copyBuffer;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static byte[] GetCopyBuffer()
         {
             if (copyBuffer == null)
@@ -122,7 +125,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // In fact the value is 772 (see conversions.cc), but to give us some margin
         // we round up to 780.
         const int kMaxSignificantDecimalDigits = 780;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Vector TrimLeadingZeros(Vector buffer)
         {
             for (int i = 0; i < buffer.length(); i++)
@@ -134,7 +137,7 @@ namespace Utf8Json.Internal.DoubleConversion
             }
             return new Vector(buffer.bytes, buffer.start, 0);
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Vector TrimTrailingZeros(Vector buffer)
         {
             for (int i = buffer.length() - 1; i >= 0; --i)
@@ -147,7 +150,7 @@ namespace Utf8Json.Internal.DoubleConversion
             return new Vector(buffer.bytes, buffer.start, 0);
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void CutToMaxSignificantDigits(Vector buffer,
                                        int exponent,
                                        byte[] significant_buffer,
@@ -170,6 +173,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // If possible the input-buffer is reused, but if the buffer needs to be
         // modified (due to cutting), then the input needs to be copied into the
         // buffer_copy_space.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void TrimAndCut(Vector buffer, int exponent,
                        byte[] buffer_copy_space, int space_size,
                        out Vector trimmed, out int updated_exponent)
@@ -197,6 +201,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // When the string starts with "1844674407370955161" no further digit is read.
         // Since 2^64 = 18446744073709551616 it would still be possible read another
         // digit if it was less or equal than 6, but this would complicate the code.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static uint64_t ReadUint64(Vector buffer,
                            out int number_of_read_digits)
         {
@@ -215,6 +220,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // The returned DiyFp is not necessarily normalized.
         // If remaining_decimals is zero then the returned DiyFp is accurate.
         // Otherwise it has been rounded and has error of at most 1/2 ulp.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void ReadDiyFp(Vector buffer,
                       out DiyFp result,
                       out int remaining_decimals)
@@ -241,6 +247,7 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool DoubleStrtod(Vector trimmed,
                          int exponent,
                          out double result)
@@ -287,29 +294,30 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
 
+        static DiyFp[] AdjustmentPowerOfTenValues = new DiyFp[]
+        {
+            default,
+            new DiyFp(0xa000000000000000, -60), // 1
+            new DiyFp(0xc800000000000000, -57),
+            new DiyFp(0xfa00000000000000, -54),
+            new DiyFp(0x9c40000000000000, -50),
+            new DiyFp(0xc350000000000000, -47),
+            new DiyFp(0xf424000000000000, -44),
+            new DiyFp(0x9896800000000000, -40)
+        };
+
         // Returns 10^exponent as an exact DiyFp.
         // The given exponent must be in the range [1; kDecimalExponentDistance[.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static DiyFp AdjustmentPowerOfTen(int exponent)
         {
-            // Simply hardcode the remaining powers for the given decimal exponent
-            // distance.
-            switch (exponent)
-            {
-                case 1: return new DiyFp(0xa000000000000000, -60);
-                case 2: return new DiyFp(0xc800000000000000, -57);
-                case 3: return new DiyFp(0xfa00000000000000, -54);
-                case 4: return new DiyFp(0x9c40000000000000, -50);
-                case 5: return new DiyFp(0xc350000000000000, -47);
-                case 6: return new DiyFp(0xf424000000000000, -44);
-                case 7: return new DiyFp(0x9896800000000000, -40);
-                default:
-                    throw new Exception("unreached code.");
-            }
+            return AdjustmentPowerOfTenValues[exponent];
         }
 
         // If the function returns true then the result is the correct double.
         // Otherwise it is either the correct double or the double that is just below
         // the correct double.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool DiyFpStrtod(Vector buffer,
                         int exponent,
                         out double result)
@@ -425,6 +433,7 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // Returns true if the guess is the correct double.
         // Returns false, when guess is either correct or the next-lower double.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool ComputeGuess(Vector trimmed, int exponent,
                                  out double guess)
         {
@@ -456,6 +465,7 @@ namespace Utf8Json.Internal.DoubleConversion
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double? Strtod(Vector buffer, int exponent)
         {
             byte[] copy_buffer = GetCopyBuffer();
@@ -471,6 +481,7 @@ namespace Utf8Json.Internal.DoubleConversion
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float? Strtof(Vector buffer, int exponent)
         {
             byte[] copy_buffer = GetCopyBuffer();

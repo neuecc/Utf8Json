@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Utf8Json.Internal.DoubleConversion
@@ -9,9 +9,10 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal struct Iterator
     {
-        byte[] buffer;
-        int offset;
+        private byte[] buffer;
+        private int offset;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Iterator(byte[] buffer, int offset)
         {
             this.buffer = buffer;
@@ -20,74 +21,88 @@ namespace Utf8Json.Internal.DoubleConversion
 
         public byte Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 return buffer[offset];
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Iterator operator ++(Iterator self)
         {
             self.offset++;
             return self;
         }
 
-        public static Iterator operator +(Iterator self, int length)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Iterator operator +(in Iterator self, int length)
         {
             return new Iterator { buffer = self.buffer, offset = self.offset + length };
         }
 
-        public static int operator -(Iterator lhs, Iterator rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int operator -(in Iterator lhs, in Iterator rhs)
         {
             return lhs.offset - rhs.offset;
         }
 
-        public static bool operator ==(Iterator lhs, Iterator rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(in Iterator lhs, in Iterator rhs)
         {
             return lhs.offset == rhs.offset;
         }
 
-        public static bool operator !=(Iterator lhs, Iterator rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(in Iterator lhs, in Iterator rhs)
         {
             return lhs.offset != rhs.offset;
         }
 
-        public static bool operator ==(Iterator lhs, char rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(in Iterator lhs, char rhs)
         {
             return lhs.buffer[lhs.offset] == (byte)rhs;
         }
 
-        public static bool operator !=(Iterator lhs, char rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(in Iterator lhs, char rhs)
         {
             return lhs.buffer[lhs.offset] != (byte)rhs;
         }
 
-        public static bool operator ==(Iterator lhs, byte rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(in Iterator lhs, byte rhs)
         {
             return lhs.buffer[lhs.offset] == (byte)rhs;
         }
 
-        public static bool operator !=(Iterator lhs, byte rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(in Iterator lhs, byte rhs)
         {
             return lhs.buffer[lhs.offset] != (byte)rhs;
         }
 
-        public static bool operator >=(Iterator lhs, char rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator >=(in Iterator lhs, char rhs)
         {
             return lhs.buffer[lhs.offset] >= (byte)rhs;
         }
 
-        public static bool operator <=(Iterator lhs, char rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator <=(in Iterator lhs, char rhs)
         {
             return lhs.buffer[lhs.offset] <= (byte)rhs;
         }
 
-        public static bool operator >(Iterator lhs, char rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator >(in Iterator lhs, char rhs)
         {
             return lhs.buffer[lhs.offset] > (byte)rhs;
         }
 
-        public static bool operator <(Iterator lhs, char rhs)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator <(in Iterator lhs, char rhs)
         {
             return lhs.buffer[lhs.offset] < (byte)rhs;
         }
@@ -100,9 +115,10 @@ namespace Utf8Json.Internal.DoubleConversion
     internal static partial class StringToDoubleConverter
     {
         [ThreadStatic]
-        static byte[] kBuffer;
+        private static byte[] kBuffer;
 
-        static byte[] GetBuffer()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte[] GetBuffer()
         {
             if (kBuffer == null)
             {
@@ -112,9 +128,10 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         [ThreadStatic]
-        static byte[] fallbackBuffer;
+        private static byte[] fallbackBuffer;
 
-        static byte[] GetFallbackBuffer()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte[] GetFallbackBuffer()
         {
             if (fallbackBuffer == null)
             {
@@ -123,11 +140,13 @@ namespace Utf8Json.Internal.DoubleConversion
             return fallbackBuffer;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ToDouble(byte[] buffer, int offset, out int readCount)
         {
             return StringToIeee(new Iterator(buffer, offset), buffer.Length - offset, true, out readCount);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ToSingle(byte[] buffer, int offset, out int readCount)
         {
             return unchecked((float)StringToIeee(new Iterator(buffer, offset), buffer.Length - offset, false, out readCount));
@@ -137,7 +156,7 @@ namespace Utf8Json.Internal.DoubleConversion
     // port
     internal static partial class StringToDoubleConverter
     {
-        enum Flags
+        private enum Flags
         {
             NO_FLAGS = 0,
             ALLOW_HEX = 1, // defined but always disallow
@@ -149,24 +168,26 @@ namespace Utf8Json.Internal.DoubleConversion
             ALLOW_CASE_INSENSIBILITY = 64, // not supported
         };
 
-        const Flags flags_ = Flags.ALLOW_TRAILING_JUNK | Flags.ALLOW_TRAILING_SPACES | Flags.ALLOW_SPACES_AFTER_SIGN;
-        const double empty_string_value_ = 0.0;
-        const double junk_string_value_ = double.NaN;
-        const int kMaxSignificantDigits = 772;
-        const int kBufferSize = kMaxSignificantDigits + 10;
-        static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString());
-        static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString());
+        private const Flags flags_ = Flags.ALLOW_TRAILING_JUNK | Flags.ALLOW_TRAILING_SPACES | Flags.ALLOW_SPACES_AFTER_SIGN;
+        private const double empty_string_value_ = 0.0;
+        private const double junk_string_value_ = double.NaN;
+        private const int kMaxSignificantDigits = 772;
+        private const int kBufferSize = kMaxSignificantDigits + 10;
+        private static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString());
+        private static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString());
 
-        static readonly byte[] kWhitespaceTable7 = new byte[] { 32, 13, 10, 9, 11, 12 };
-        static readonly int kWhitespaceTable7Length = kWhitespaceTable7.Length;
+        private static readonly byte[] kWhitespaceTable7 = new byte[] { 32, 13, 10, 9, 11, 12 };
+        private static readonly int kWhitespaceTable7Length = kWhitespaceTable7.Length;
 
-        static readonly UInt16[] kWhitespaceTable16 = new UInt16[]{
+        private static readonly UInt16[] kWhitespaceTable16 = new UInt16[]{
               160, 8232, 8233, 5760, 6158, 8192, 8193, 8194, 8195,
               8196, 8197, 8198, 8199, 8200, 8201, 8202, 8239, 8287, 12288, 65279
         };
-        static readonly int kWhitespaceTable16Length = kWhitespaceTable16.Length;
 
-        static bool isWhitespace(int x)
+        private static readonly int kWhitespaceTable16Length = kWhitespaceTable16.Length;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool isWhitespace(int x)
         {
             if (x < 128)
             {
@@ -185,7 +206,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return false;
         }
 
-        static bool AdvanceToNonspace(ref Iterator current, Iterator end)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool AdvanceToNonspace(ref Iterator current, Iterator end)
         {
             while (current != end)
             {
@@ -195,7 +217,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return false;
         }
 
-        static bool ConsumeSubString(ref Iterator current,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool ConsumeSubString(ref Iterator current,
                                         Iterator end,
                                         byte[] substring)
         {
@@ -211,21 +234,23 @@ namespace Utf8Json.Internal.DoubleConversion
             return true;
         }
 
-
         // Consumes first character of the str is equal to ch
-        static bool ConsumeFirstCharacter(ref Iterator iter,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool ConsumeFirstCharacter(ref Iterator iter,
                                          byte[] str,
                                          int offset)
         {
             return iter.Value == str[offset];
         }
 
-        static double SignedZero(bool sign)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double SignedZero(bool sign)
         {
             return sign ? -0.0 : 0.0;
         }
 
-        static double StringToIeee(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double StringToIeee(
                     Iterator input,
                     int length,
                     bool read_as_double,

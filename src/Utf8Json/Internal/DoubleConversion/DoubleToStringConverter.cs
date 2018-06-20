@@ -1,29 +1,32 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Utf8Json.Internal.DoubleConversion
 {
-    using uint64_t = System.UInt64;
     using uint32_t = System.UInt32;
-    using System.Collections.Generic;
+    using uint64_t = System.UInt64;
 
     internal struct StringBuilder
     {
         public byte[] buffer;
         public int offset;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public StringBuilder(byte[] buffer, int position)
         {
             this.buffer = buffer;
             this.offset = position;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddCharacter(byte str)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, 1);
             buffer[offset++] = str;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddString(byte[] str)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, str.Length);
@@ -34,6 +37,7 @@ namespace Utf8Json.Internal.DoubleConversion
             offset += str.Length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddSubstring(byte[] str, int length)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, length);
@@ -44,6 +48,7 @@ namespace Utf8Json.Internal.DoubleConversion
             offset += length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddSubstring(byte[] str, int start, int length)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, length);
@@ -54,6 +59,7 @@ namespace Utf8Json.Internal.DoubleConversion
             offset += length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddPadding(byte c, int count)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, count);
@@ -64,6 +70,7 @@ namespace Utf8Json.Internal.DoubleConversion
             offset += count;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddStringSlow(string str)
         {
             BinaryUtil.EnsureCapacity(ref buffer, offset, StringEncoding.UTF8.GetMaxByteCount(str.Length));
@@ -75,15 +82,16 @@ namespace Utf8Json.Internal.DoubleConversion
     internal static partial class DoubleToStringConverter
     {
         [ThreadStatic]
-        static byte[] decimalRepBuffer;
+        private static byte[] decimalRepBuffer;
 
         [ThreadStatic]
-        static byte[] exponentialRepBuffer;
+        private static byte[] exponentialRepBuffer;
 
         [ThreadStatic]
-        static byte[] toStringBuffer;
+        private static byte[] toStringBuffer;
 
-        static byte[] GetDecimalRepBuffer(int size)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte[] GetDecimalRepBuffer(int size)
         {
             if (decimalRepBuffer == null)
             {
@@ -92,7 +100,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return decimalRepBuffer;
         }
 
-        static byte[] GetExponentialRepBuffer(int size)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte[] GetExponentialRepBuffer(int size)
         {
             if (exponentialRepBuffer == null)
             {
@@ -101,7 +110,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return exponentialRepBuffer;
         }
 
-        static byte[] GetToStringBuffer()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static byte[] GetToStringBuffer()
         {
             if (toStringBuffer == null)
             {
@@ -110,28 +120,42 @@ namespace Utf8Json.Internal.DoubleConversion
             return toStringBuffer;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetBytes(ref byte[] buffer, int offset, float value)
         {
             var sb = new StringBuilder(buffer, offset);
             if (!ToShortestIeeeNumber(value, ref sb, DtoaMode.SHORTEST_SINGLE))
             {
-                throw new InvalidOperationException("not support float value:" + value);
+                ThrowNotSupportedFloatValue(value);
             }
 
             buffer = sb.buffer;
             return sb.offset - offset;
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowNotSupportedFloatValue(float value)
+        {
+            throw new InvalidOperationException("not support float value:" + value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetBytes(ref byte[] buffer, int offset, double value)
         {
             var sb = new StringBuilder(buffer, offset);
             if (!ToShortestIeeeNumber(value, ref sb, DtoaMode.SHORTEST))
             {
-                throw new InvalidOperationException("not support double value:" + value);
+                ThrowNotSupportedDoubleValue(value);
             }
 
             buffer = sb.buffer;
             return sb.offset - offset;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowNotSupportedDoubleValue(double value)
+        {
+            throw new InvalidOperationException("not support double value:" + value);
         }
     }
 
@@ -141,20 +165,22 @@ namespace Utf8Json.Internal.DoubleConversion
 
     internal static partial class DoubleToStringConverter
     {
-        enum FastDtoaMode
+        private enum FastDtoaMode
         {
             // Computes the shortest representation of the given input. The returned
             // result will be the most accurate number of this length. Longer
             // representations might be more accurate.
             FAST_DTOA_SHORTEST,
+
             // Same as FAST_DTOA_SHORTEST but for single-precision floats.
             FAST_DTOA_SHORTEST_SINGLE,
+
             // Computes a representation where the precision (number of digits) is
             // given as input. The precision is independent of the decimal point.
             // FAST_DTOA_PRECISION
         };
 
-        enum DtoaMode
+        private enum DtoaMode
         {
             SHORTEST,
             SHORTEST_SINGLE,
@@ -162,7 +188,7 @@ namespace Utf8Json.Internal.DoubleConversion
             // PRECISION
         }
 
-        enum Flags
+        private enum Flags
         {
             NO_FLAGS = 0,
             EMIT_POSITIVE_EXPONENT_SIGN = 1,
@@ -172,8 +198,9 @@ namespace Utf8Json.Internal.DoubleConversion
         };
 
         // C# constants
-        static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString());
-        static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString());
+        private static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString());
+
+        private static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString());
 
         // constructor parameter, same as EcmaScriptConverter
         //DoubleToStringConverter(int flags,
@@ -191,16 +218,17 @@ namespace Utf8Json.Internal.DoubleConversion
         //const int max_leading_padding_zeroes_in_precision_mode_;
         //const int max_trailing_padding_zeroes_in_precision_mode_;
 
-        static readonly Flags flags_ = Flags.UNIQUE_ZERO | Flags.EMIT_POSITIVE_EXPONENT_SIGN;
-        static readonly char exponent_character_ = 'E';
-        static readonly int decimal_in_shortest_low_ = -4; // C# ToString("G")
-        static readonly int decimal_in_shortest_high_ = 15;// C# ToString("G")
+        private static readonly Flags flags_ = Flags.UNIQUE_ZERO | Flags.EMIT_POSITIVE_EXPONENT_SIGN;
+        private static readonly char exponent_character_ = 'E';
+        private static readonly int decimal_in_shortest_low_ = -4; // C# ToString("G")
+        private static readonly int decimal_in_shortest_high_ = 15;// C# ToString("G")
 
-        const int kBase10MaximalLength = 17;
+        private const int kBase10MaximalLength = 17;
 
-        const int kFastDtoaMaximalLength = 17;
+        private const int kFastDtoaMaximalLength = 17;
+
         // Same for single-precision numbers.
-        const int kFastDtoaMaximalSingleLength = 9;
+        private const int kFastDtoaMaximalSingleLength = 9;
 
         // The minimal and maximal target exponent define the range of w's binary
         // exponent, where 'w' is the result of multiplying the input by a cached power
@@ -208,8 +236,9 @@ namespace Utf8Json.Internal.DoubleConversion
         //
         // A different range might be chosen on a different platform, to optimize digit
         // generation, but a smaller range requires more powers of ten to be cached.
-        const int kMinimalTargetExponent = -60;
-        const int kMaximalTargetExponent = -32;
+        private const int kMinimalTargetExponent = -60;
+
+        private const int kMaximalTargetExponent = -32;
 
         // Adjusts the last digit of the generated number, and screens out generated
         // solutions that may be inaccurate. A solution may be inaccurate if it is
@@ -226,7 +255,8 @@ namespace Utf8Json.Internal.DoubleConversion
         // Output: returns true if the buffer is guaranteed to contain the closest
         //    representable number to the input.
         //  Modifies the generated digits in the buffer to approach (round towards) w.
-        static bool RoundWeed(byte[] buffer,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool RoundWeed(byte[] buffer,
                               int length,
                               uint64_t distance_too_high_w,
                               uint64_t unsafe_interval,
@@ -346,9 +376,10 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // Inspired by the method for finding an integer log base 10 from here:
         // http://graphics.stanford.edu/~seander/bithacks.html#IntegerLog10
-        static readonly uint[] kSmallPowersOfTen = new uint[] { 0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
+        private static readonly uint[] kSmallPowersOfTen = new uint[] { 0, 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
-        static void BiggestPowerTen(uint32_t number,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void BiggestPowerTen(uint32_t number,
                                     int number_bits,
                                     out uint32_t power,
                                     out int exponent_plus_one)
@@ -409,7 +440,8 @@ namespace Utf8Json.Internal.DoubleConversion
         // represent 'w' we can stop. Everything inside the interval low - high
         // represents w. However we have to pay attention to low, high and w's
         // imprecision.
-        static bool DigitGen(DiyFp low,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool DigitGen(DiyFp low,
                              DiyFp w,
                              DiyFp high,
                              byte[] buffer,
@@ -515,7 +547,8 @@ namespace Utf8Json.Internal.DoubleConversion
         // The last digit will be closest to the actual v. That is, even if several
         // digits might correctly yield 'v' when read again, the closest will be
         // computed.
-        static bool Grisu3(double v,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool Grisu3(double v,
                            FastDtoaMode mode,
                            byte[] buffer,
                            out int length,
@@ -584,7 +617,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return result;
         }
 
-        static bool FastDtoa(double v,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool FastDtoa(double v,
               FastDtoaMode mode,
               // int requested_digits,
               byte[] buffer,
@@ -617,7 +651,8 @@ namespace Utf8Json.Internal.DoubleConversion
 
         // https://github.com/google/double-conversion/blob/master/double-conversion/double-conversion.cc
 
-        static bool HandleSpecialValues(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool HandleSpecialValues(
             double value,
             ref StringBuilder result_builder)
         {
@@ -641,7 +676,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return false;
         }
 
-        static bool ToShortestIeeeNumber(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool ToShortestIeeeNumber(
             double value,
             ref StringBuilder result_builder,
             DtoaMode mode)
@@ -692,7 +728,8 @@ namespace Utf8Json.Internal.DoubleConversion
             return true;
         }
 
-        static void CreateDecimalRepresentation(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CreateDecimalRepresentation(
             byte[] decimal_digits,
             int length,
             int decimal_point,
@@ -746,7 +783,8 @@ namespace Utf8Json.Internal.DoubleConversion
             }
         }
 
-        static void CreateExponentialRepresentation(
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CreateExponentialRepresentation(
             byte[] decimal_digits,
             int length,
             int exponent,
@@ -789,7 +827,8 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
         // modified, return fast_worked.
-        static bool DoubleToAscii(double v,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool DoubleToAscii(double v,
             DtoaMode mode,
             int requested_digits,
             //byte[] buffer,
@@ -831,6 +870,7 @@ namespace Utf8Json.Internal.DoubleConversion
                 case DtoaMode.SHORTEST:
                     fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST, vector, out length, out point);
                     break;
+
                 case DtoaMode.SHORTEST_SINGLE:
                     fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, vector, out length, out point);
                     break;
