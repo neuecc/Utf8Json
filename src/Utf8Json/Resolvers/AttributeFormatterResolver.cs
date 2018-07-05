@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using Utf8Json.Formatters;
 using Utf8Json.Internal;
 
 namespace Utf8Json.Resolvers
@@ -29,10 +30,15 @@ namespace Utf8Json.Resolvers
 
             static FormatterCache()
             {
+                var ti = typeof(T).GetTypeInfo();
+                var genericTypeInfo = ti.GetTypeInfo();
+                var isNullable = genericTypeInfo.IsNullable();
+                var elementType = isNullable ? ti.GenericTypeArguments[0] : typeof(T);
+
 #if (UNITY_METRO || UNITY_WSA) && !NETFX_CORE
-                var attr = (JsonFormatterAttribute)typeof(T).GetCustomAttributes(typeof(JsonFormatterAttribute), true).FirstOrDefault();
+                var attr = (JsonFormatterAttribute)elementType.GetCustomAttributes(typeof(JsonFormatterAttribute), true).FirstOrDefault();
 #else
-                var attr = typeof(T).GetTypeInfo().GetCustomAttribute<JsonFormatterAttribute>();
+                var attr = elementType.GetTypeInfo().GetCustomAttribute<JsonFormatterAttribute>();
 #endif
                 if (attr == null)
                 {
@@ -41,14 +47,24 @@ namespace Utf8Json.Resolvers
 
                 try
                 {
+                    object fmt;
                     if (attr.FormatterType.IsGenericType && !attr.FormatterType.GetTypeInfo().IsConstructedGenericType())
                     {
                         var t = attr.FormatterType.MakeGenericType(typeof(T)); // use T self
-                        formatter = (IJsonFormatter<T>)Activator.CreateInstance(t, attr.Arguments);
+                        fmt = Activator.CreateInstance(t, attr.Arguments);
                     }
                     else
                     {
-                        formatter = (IJsonFormatter<T>)Activator.CreateInstance(attr.FormatterType, attr.Arguments);
+                        fmt = Activator.CreateInstance(attr.FormatterType, attr.Arguments);
+                    }
+
+                    if (isNullable)
+                    {
+                        formatter = (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(elementType), fmt);
+                    }
+                    else
+                    {
+                        formatter = (IJsonFormatter<T>)fmt;
                     }
                 }
                 catch (Exception ex)
