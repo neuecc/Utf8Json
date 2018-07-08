@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Xunit;
 
 namespace Utf8Json.Tests
@@ -6,11 +7,11 @@ namespace Utf8Json.Tests
     public class DeserializeWithStringEscapeTest
     {
         [Theory]
-        [InlineData(@"{""Name"":""\\"", ""Test"":""Something""}", "\\","Something")]
-        [InlineData(@"{""Name"":"""", ""Test"":""Something""}", "","Something")]
-        [InlineData(@"{""Name"":""\"""", ""Test"":""Something""}", "\"","Something")]
-        [InlineData(@"{""Name"":""\""\"""", ""Test"":""Something""}", "\"\"","Something")]
-        public void ShouldNotEscapeDoublequoteWithEscapedBackslash(string json, string expectedValueWithBackSlash, string expectedValue)
+        [InlineData(@"{""Name"":""\\"", ""Test"":""Something""}", "Something")]
+        [InlineData(@"{""Name"":"""", ""Test"":""Something""}", "Something")]
+        [InlineData(@"{""Name"":""\"""", ""Test"":""Something""}", "Something")]
+        [InlineData(@"{""Name"":""\""\"""", ""Test"":""Something""}", "Something")]
+        public void ShouldNotEscapeDoublequoteWithEscapedBackslash(string json, string expectedValue)
         {
             // Arrage
             var reader = new JsonReader(Encoding.UTF8.GetBytes(json));
@@ -21,16 +22,14 @@ namespace Utf8Json.Tests
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref count))
             {
                 var name = reader.ReadPropertyName();
-                switch (name)
+                if (name == "Test")
+                    reader.ReadString().Is(expectedValue);
+                else
                 {
-                    case "Test":
-                        reader.ReadString().Is(expectedValue);
-                        break;
-                    case "Name":
-                        reader.ReadString().Is(expectedValueWithBackSlash);
-                        break;
+                    reader.ReadNextBlock();
                 }
             }
+
             reader.ReadIsValueSeparator();
         }
     }
