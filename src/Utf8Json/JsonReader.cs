@@ -999,7 +999,8 @@ namespace Utf8Json
                         if (bytes[i] == (char)'\"')
                         {
                             // is escape?
-                            if (bytes[i - 1] == (char)'\\')
+                            // ... and that escape is not escaped?
+                            if (bytes[i - 1] == (char)'\\' && bytes[i - 2] != (char)'\\')
                             {
                                 continue;
                             }
