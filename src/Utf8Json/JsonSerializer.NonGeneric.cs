@@ -243,7 +243,7 @@ namespace Utf8Json
 
             public static object Deserialize(Type type, byte[] bytes, IJsonFormatterResolver resolver)
             {
-                return Deserialize(type, bytes, 0, defaultResolver);
+                return Deserialize(type, bytes, 0, resolver);
             }
 
             public static object Deserialize(Type type, byte[] bytes, int offset)
