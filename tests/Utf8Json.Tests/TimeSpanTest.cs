@@ -28,5 +28,16 @@ namespace Utf8Json.Tests
             JsonSerializer.Deserialize<TimeSpan>("\"00:00:00.0000002\"").Is(TimeSpan.FromTicks(2));
             JsonSerializer.Deserialize<TimeSpan>("\"00:00:00.0000001\"").Is(TimeSpan.FromTicks(1));
         }
+        [Fact]
+        public void TimeSpan_Field_Deserialize()
+        {
+            JsonSerializer.Deserialize<TimeSpanWrapper>("{\"Value\": \"8.12:00:00\"}").Value.Is(TimeSpan.FromDays(8.5));
+            JsonSerializer.Deserialize<TimeSpanWrapper>("{\"Value\": \"7.00:00:00\"}").Value.Is(TimeSpan.FromDays(7));
+        }
+
+        public class TimeSpanWrapper
+        {
+            public TimeSpan Value;
+        }
     }
 }
