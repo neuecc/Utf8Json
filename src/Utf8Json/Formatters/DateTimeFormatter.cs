@@ -843,6 +843,31 @@ namespace Utf8Json.Formatters
             if (nanosecond != 0)
             {
                 writer.WriteRawUnsafe((byte)'.');
+                if (nanosecond < 1000000)
+                {
+                    writer.WriteRawUnsafe((byte) '0');
+                    if (nanosecond < 100000)
+                    {
+                        writer.WriteRawUnsafe((byte) '0');
+                        if (nanosecond < 10000)
+                        {
+                            writer.WriteRawUnsafe((byte) '0');
+                            if (nanosecond < 1000)
+                            {
+                                writer.WriteRawUnsafe((byte) '0');
+                                if (nanosecond < 100)
+                                {
+                                    writer.WriteRawUnsafe((byte) '0');
+                                    if (nanosecond < 10)
+                                    {
+                                        writer.WriteRawUnsafe((byte) '0');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 writer.WriteInt64(nanosecond);
             }
 
