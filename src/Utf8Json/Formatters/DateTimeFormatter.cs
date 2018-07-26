@@ -992,7 +992,7 @@ namespace Utf8Json.Formatters
                 : ts.Add(tk);
 
             ERROR:
-            throw new InvalidOperationException("invalid datetime format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));
+            throw new InvalidOperationException("invalid timespan format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));
         }
     }
 }
