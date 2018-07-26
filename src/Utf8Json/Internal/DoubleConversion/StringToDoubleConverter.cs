@@ -154,8 +154,8 @@ namespace Utf8Json.Internal.DoubleConversion
         const double junk_string_value_ = double.NaN;
         const int kMaxSignificantDigits = 772;
         const int kBufferSize = kMaxSignificantDigits + 10;
-        static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(double.PositiveInfinity.ToString(CultureInfo.InvariantCulture));
-        static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(double.NaN.ToString(CultureInfo.InvariantCulture));
+        static readonly byte[] infinity_symbol_ = StringEncoding.UTF8.GetBytes(NumberFormatInfo.InvariantInfo.PositiveInfinitySymbol);
+        static readonly byte[] nan_symbol_ = StringEncoding.UTF8.GetBytes(NumberFormatInfo.InvariantInfo.NaNSymbol);
 
         static readonly byte[] kWhitespaceTable7 = new byte[] { 32, 13, 10, 9, 11, 12 };
         static readonly int kWhitespaceTable7Length = kWhitespaceTable7.Length;
