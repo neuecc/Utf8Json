@@ -41,7 +41,7 @@ namespace Utf8Json
             }
         }
 
-        JsonParsingException CreateParsingException(string expected)
+        public JsonParsingException CreateParsingException(string expected)
         {
             var actual = ((char)bytes[offset]).ToString();
             var pos = offset;
@@ -76,7 +76,7 @@ namespace Utf8Json
             return new JsonParsingException("expected:'" + expected + "', actual:'" + actual + "', at offset:" + pos, bytes, pos, offset, actual);
         }
 
-        JsonParsingException CreateParsingExceptionMessage(string message)
+        public JsonParsingException CreateParsingExceptionMessage(string message)
         {
             var actual = ((char)bytes[offset]).ToString();
             var pos = offset;
