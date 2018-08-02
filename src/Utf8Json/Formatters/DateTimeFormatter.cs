@@ -901,8 +901,8 @@ namespace Utf8Json.Formatters
                     {
                         poolArray[day++] = array[i];
                     }
+                    poolArray[day] = array[i++]; // skip '.' and fix #105
                     day = new JsonReader(poolArray).ReadInt32();
-                    i++; // skip '.'
                 }
                 finally
                 {
