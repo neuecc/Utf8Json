@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
+﻿using System.Text;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Threading.Tasks;
 
 namespace Utf8Json.AspNetCoreMvcFormatter
 {
-    public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadataProvider
+    public class JsonOutputFormatter : TextOutputFormatter
     {
-        const string ContentType = "application/json";
-        static readonly string[] SupportedContentTypes = new[] { ContentType };
-
         readonly IJsonFormatterResolver resolver;
 
         public JsonOutputFormatter()
@@ -15,42 +13,31 @@ namespace Utf8Json.AspNetCoreMvcFormatter
         {
 
         }
+
         public JsonOutputFormatter(IJsonFormatterResolver resolver)
         {
             this.resolver = resolver ?? JsonSerializer.DefaultResolver;
+            SupportedEncodings.Add(Encoding.UTF8);
+            SupportedMediaTypes.Add(MediaTypeHeaderValues.ApplicationJson);
+            SupportedMediaTypes.Add(MediaTypeHeaderValues.TextJson);
+            SupportedMediaTypes.Add(MediaTypeHeaderValues.ApplicationAnyJsonSyntax);
         }
 
-        //public IReadOnlyList<string> GetSupportedContentTypes(string contentType, Type objectType)
-        //{
-        //    return SupportedContentTypes;
-        //}
-
-        public bool CanWriteResult(OutputFormatterCanWriteContext context)
+        public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
-            return true;
-        }
-
-        public Task WriteAsync(OutputFormatterWriteContext context)
-        {
-            context.HttpContext.Response.ContentType = ContentType;
-
-            // when 'object' use the concrete type(object.GetType())
-            if (context.ObjectType == typeof(object))
-            {
-                return JsonSerializer.NonGeneric.SerializeAsync(context.HttpContext.Response.Body, context.Object, resolver);
-            }
-            else
-            {
-                return JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
-            }
+            return context.ObjectType == typeof(object)
+                ? JsonSerializer.NonGeneric.SerializeAsync(context.HttpContext.Response.Body,
+                    context.Object,
+                    resolver)
+                : JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType,
+                    context.HttpContext.Response.Body,
+                    context.Object,
+                    resolver);
         }
     }
 
-    public class JsonInputFormatter : IInputFormatter // , IApiRequestFormatMetadataProvider
+    public class JsonInputFormatter : TextInputFormatter
     {
-        const string ContentType = "application/json";
-        static readonly string[] SupportedContentTypes = new[] { ContentType };
-
         readonly IJsonFormatterResolver resolver;
 
         public JsonInputFormatter()
@@ -62,23 +49,19 @@ namespace Utf8Json.AspNetCoreMvcFormatter
         public JsonInputFormatter(IJsonFormatterResolver resolver)
         {
             this.resolver = resolver ?? JsonSerializer.DefaultResolver;
+            SupportedEncodings.Add(UTF8EncodingWithoutBOM);
+            SupportedMediaTypes.Add(MediaTypeHeaderValues.ApplicationJson);
+            SupportedMediaTypes.Add(MediaTypeHeaderValues.TextJson);
+            SupportedMediaTypes.Add(MediaTypeHeaderValues.ApplicationAnyJsonSyntax);
         }
 
-        //public IReadOnlyList<string> GetSupportedContentTypes(string contentType, Type objectType)
-        //{
-        //    return SupportedContentTypes;
-        //}
-
-        public bool CanRead(InputFormatterContext context)
-        {
-            return true;
-        }
-
-        public Task<InputFormatterResult> ReadAsync(InputFormatterContext context)
+        public override async Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context, Encoding encoding)
         {
             var request = context.HttpContext.Request;
-            var result = JsonSerializer.NonGeneric.Deserialize(context.ModelType, request.Body, resolver);
-            return InputFormatterResult.SuccessAsync(result);
+            var result = await JsonSerializer.NonGeneric.DeserializeAsync(context.ModelType,
+                request.Body,
+                resolver).ConfigureAwait(false);
+            return InputFormatterResult.Success(result);
         }
     }
 }

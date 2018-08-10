@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Utf8Json.AspNetCoreMvcFormatter\Utf8Json.AspNetCoreMvcFormatter.csproj" />
     <ProjectReference Include="..\..\src\Utf8Json\Utf8Json.csproj" />
   </ItemGroup>
 
