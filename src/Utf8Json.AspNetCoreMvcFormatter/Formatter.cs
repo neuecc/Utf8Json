@@ -5,8 +5,7 @@ namespace Utf8Json.AspNetCoreMvcFormatter
 {
     public class JsonOutputFormatter : IOutputFormatter //, IApiResponseTypeMetadataProvider
     {
-        const string ContentType = "application/json";
-        static readonly string[] SupportedContentTypes = new[] { ContentType };
+		static readonly string[] SupportedContentTypes = new[] { ContentType.ApplicationJson, ContentType.TextPlain };
 
         readonly IJsonFormatterResolver resolver;
 
@@ -32,10 +31,17 @@ namespace Utf8Json.AspNetCoreMvcFormatter
 
         public Task WriteAsync(OutputFormatterWriteContext context)
         {
-            context.HttpContext.Response.ContentType = ContentType;
+	        // when 'object' is string
+	        if (context.ObjectType == typeof(string))
+	        {
+		        context.HttpContext.Response.ContentType = ContentType.TextPlain;
+		        return JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
+	        }
 
-            // when 'object' use the concrete type(object.GetType())
-            if (context.ObjectType == typeof(object))
+	        context.HttpContext.Response.ContentType = ContentType.ApplicationJson;
+
+			// when 'object' use the concrete type(object.GetType())
+			if (context.ObjectType == typeof(object))
             {
                 return JsonSerializer.NonGeneric.SerializeAsync(context.HttpContext.Response.Body, context.Object, resolver);
             }
@@ -48,8 +54,7 @@ namespace Utf8Json.AspNetCoreMvcFormatter
 
     public class JsonInputFormatter : IInputFormatter // , IApiRequestFormatMetadataProvider
     {
-        const string ContentType = "application/json";
-        static readonly string[] SupportedContentTypes = new[] { ContentType };
+		static readonly string[] SupportedContentTypes = new[] { ContentType.ApplicationJson };
 
         readonly IJsonFormatterResolver resolver;
 
@@ -81,4 +86,10 @@ namespace Utf8Json.AspNetCoreMvcFormatter
             return InputFormatterResult.SuccessAsync(result);
         }
     }
+
+	internal static class ContentType
+	{
+		public const string ApplicationJson = "application/json";
+		public const string TextPlain = "text/plain";
+	}
 }
