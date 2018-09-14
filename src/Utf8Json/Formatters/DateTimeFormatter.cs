@@ -335,7 +335,7 @@ namespace Utf8Json.Formatters
             {
                 kind = DateTimeKind.Utc;
             }
-            else if (i < to && array[i] == '-' || array[i] == '+')
+            else if (i < to && (array[i] == '-' || array[i] == '+'))
             {
                 if (!(i + 5 < to)) goto ERROR;
 
@@ -681,7 +681,7 @@ namespace Utf8Json.Formatters
 
             END_TICKS:
 
-            if (i < to && array[i] == '-' || array[i] == '+')
+            if (i < to && (array[i] == '-' || array[i] == '+'))
             {
                 if (!(i + 5 < to)) goto ERROR;
 
