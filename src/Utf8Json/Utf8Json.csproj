@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;NET45;NET47</TargetFrameworks>
         <Configurations>Debug;Release;</Configurations>
@@ -57,13 +57,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-        <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
-        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
         <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     </ItemGroup>
 
