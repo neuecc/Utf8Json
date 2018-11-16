@@ -478,6 +478,7 @@ namespace Utf8Json.Resolvers.Internal
         static readonly Regex SubtractFullNameRegex = new Regex(@", Version=\d+.\d+.\d+.\d+, Culture=\w+, PublicKeyToken=\w+");
 #endif
 
+        static readonly object gate = new object();
 
         static int nameSequence = 0;
 
@@ -522,34 +523,37 @@ namespace Utf8Json.Resolvers.Internal
 
         public static object BuildFormatterToAssembly<T>(DynamicAssembly assembly, IJsonFormatterResolver selfResolver, Func<string, string> nameMutator, bool excludeNull)
         {
-            var ti = typeof(T).GetTypeInfo();
-
-            if (ti.IsNullable())
+            lock (gate)
             {
-                ti = ti.GenericTypeArguments[0].GetTypeInfo();
+                var ti = typeof(T).GetTypeInfo();
 
-                var innerFormatter = selfResolver.GetFormatterDynamic(ti.AsType());
-                if (innerFormatter == null)
+                if (ti.IsNullable())
                 {
-                    return null;
+                    ti = ti.GenericTypeArguments[0].GetTypeInfo();
+
+                    var innerFormatter = selfResolver.GetFormatterDynamic(ti.AsType());
+                    if (innerFormatter == null)
+                    {
+                        return null;
+                    }
+                    return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
                 }
-                return (IJsonFormatter<T>)Activator.CreateInstance(typeof(StaticNullableFormatter<>).MakeGenericType(ti.AsType()), new object[] { innerFormatter });
-            }
 
-            Type elementType;
-            if (typeof(Exception).GetTypeInfo().IsAssignableFrom(ti))
-            {
-                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, true);
-            }
-            else if (ti.IsAnonymous() || TryGetInterfaceEnumerableElementType(typeof(T), out elementType))
-            {
-                return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, false);
-            }
+                Type elementType;
+                if (typeof(Exception).GetTypeInfo().IsAssignableFrom(ti))
+                {
+                    return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, true);
+                }
+                else if (ti.IsAnonymous() || TryGetInterfaceEnumerableElementType(typeof(T), out elementType))
+                {
+                    return DynamicObjectTypeBuilder.BuildAnonymousFormatter(typeof(T), nameMutator, excludeNull, false, false);
+                }
 
-            var formatterTypeInfo = DynamicObjectTypeBuilder.BuildType(assembly, typeof(T), nameMutator, excludeNull);
-            if (formatterTypeInfo == null) return null;
+                var formatterTypeInfo = DynamicObjectTypeBuilder.BuildType(assembly, typeof(T), nameMutator, excludeNull);
+                if (formatterTypeInfo == null) return null;
 
-            return (IJsonFormatter<T>)Activator.CreateInstance(formatterTypeInfo.AsType());
+                return (IJsonFormatter<T>)Activator.CreateInstance(formatterTypeInfo.AsType());
+            }
         }
 
         public static object BuildFormatterToDynamicMethod<T>(IJsonFormatterResolver selfResolver, Func<string, string> nameMutator, bool excludeNull, bool allowPrivate)
