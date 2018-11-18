@@ -145,7 +145,7 @@ namespace Utf8Json.Formatters
             foreach (var item in type.GetFields().Where(fi => fi.FieldType == type))
             {
                 var value = item.GetValue(null);
-                var name = Enum.GetName(type, value);
+                var name = item.Name;
                 var dataMember = item.GetCustomAttributes(typeof(DataMemberAttribute), true)
                   .OfType<DataMemberAttribute>()
                   .FirstOrDefault();
