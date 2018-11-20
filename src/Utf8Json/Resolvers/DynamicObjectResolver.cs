@@ -697,8 +697,17 @@ namespace Utf8Json.Resolvers.Internal
             {
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
                 if (attr != null)
-                {
-                    var formatter = Activator.CreateInstance(attr.FormatterType, attr.Arguments);
+				{
+					var formatterType = attr.FormatterType;
+
+					if (attr.FormatterType.IsGenericType &&
+						!attr.FormatterType.IsConstructedGenericType &&
+						attr.FormatterType.GetTypeInfo().GenericTypeParameters.Length == 1)
+					{
+						formatterType = attr.FormatterType.MakeGenericType(item.PropertyInfo.PropertyType);
+					}
+
+                    var formatter = Activator.CreateInstance(formatterType, attr.Arguments);
                     serializeCustomFormatters.Add(formatter);
                 }
                 else
@@ -711,7 +720,16 @@ namespace Utf8Json.Resolvers.Internal
                 var attr = item.GetCustomAttribute<JsonFormatterAttribute>(true);
                 if (attr != null)
                 {
-                    var formatter = Activator.CreateInstance(attr.FormatterType, attr.Arguments);
+					var formatterType = attr.FormatterType;
+
+					if (attr.FormatterType.IsGenericType &&
+						!attr.FormatterType.IsConstructedGenericType &&
+						attr.FormatterType.GetTypeInfo().GenericTypeParameters.Length == 1)
+					{
+						formatterType = attr.FormatterType.MakeGenericType(item.PropertyInfo.PropertyType);
+					}
+
+                    var formatter = Activator.CreateInstance(formatterType, attr.Arguments);
                     deserializeCustomFormatters.Add(formatter);
                 }
                 else
