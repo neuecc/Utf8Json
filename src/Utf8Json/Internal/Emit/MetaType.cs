@@ -23,6 +23,8 @@ namespace Utf8Json.Internal.Emit
             var isClass = ti.IsClass || ti.IsInterface || ti.IsAbstract;
 
             this.Type = type;
+
+			var dataContractPresent = type.GetCustomAttribute<DataContractAttribute>(true) != null;
             var stringMembers = new Dictionary<string, MetaMember>();
 
             {
@@ -32,6 +34,7 @@ namespace Utf8Json.Internal.Emit
                     if (item.GetCustomAttribute<IgnoreDataMemberAttribute>(true) != null) continue;
 
                     var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
+					if (dataContractPresent && dm == null) continue;
                     var name = (dm != null && dm.Name != null) ? dm.Name : nameMutetor(item.Name);
 
                     var member = new MetaMember(item, name, allowPrivate);
@@ -51,6 +54,7 @@ namespace Utf8Json.Internal.Emit
                     if (item.Name.StartsWith("<")) continue; // compiler generated field(anonymous type, etc...)
 
                     var dm = item.GetCustomAttribute<DataMemberAttribute>(true);
+					if (dataContractPresent && dm == null) continue;
                     var name = (dm != null && dm.Name != null) ? dm.Name : nameMutetor(item.Name);
 
                     var member = new MetaMember(item, name, allowPrivate);
