@@ -21,10 +21,11 @@ namespace Utf8Json.Internal.Emit
         {
             var ti = type.GetTypeInfo();
             var isClass = ti.IsClass || ti.IsInterface || ti.IsAbstract;
+            var dataContractPresent = type.GetCustomAttribute<DataContractAttribute>(true) != null ||
+                                      type.GetCustomAttribute<InterfaceDataContractAttribute>(true) != null;
 
             this.Type = type;
 
-			var dataContractPresent = type.GetCustomAttribute<DataContractAttribute>(true) != null;
             var stringMembers = new Dictionary<string, MetaMember>();
 
             {
