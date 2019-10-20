@@ -26,6 +26,8 @@ namespace Utf8Json.AspNetCoreMvcFormatter
 
         public Task WriteAsync(OutputFormatterWriteContext context)
         {
+            context.HttpContext.Response.ContentType = ContentType;
+            
             var objectType = context.ObjectType;
             var obj = context.Object;
 
