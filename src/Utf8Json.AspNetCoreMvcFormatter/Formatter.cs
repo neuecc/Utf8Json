@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Threading.Tasks;
 
 namespace Utf8Json.AspNetCoreMvcFormatter
