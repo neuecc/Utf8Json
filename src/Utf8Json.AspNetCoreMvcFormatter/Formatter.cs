@@ -66,12 +66,18 @@ namespace Utf8Json.AspNetCoreMvcFormatter
         public async Task<InputFormatterResult> ReadAsync(
             InputFormatterContext context)
         {
+            var body = context.HttpContext.Request.Body;
+            if (body.CanSeek && body.Length == 0)
+            {
+                return InputFormatterResult.NoValue();
+            }
+
             try
             {
                 var model = await JsonSerializer.NonGeneric
                     .DeserializeAsync(
                         context.ModelType,
-                        context.HttpContext.Request.Body,
+                        body,
                         _jsonFormatterResolver)
                     .ConfigureAwait(false);
                 return InputFormatterResult.Success(model);
