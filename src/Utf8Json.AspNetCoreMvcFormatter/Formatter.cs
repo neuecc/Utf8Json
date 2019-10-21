@@ -27,8 +27,9 @@ namespace Utf8Json.AspNetCoreMvcFormatter
 
         public Task WriteAsync(OutputFormatterWriteContext context)
         {
-            context.HttpContext.Response.ContentType = ContentType;
-            
+            var response = context.HttpContext.Response;
+            response.ContentType = ContentType;
+
             var objectType = context.ObjectType;
             var obj = context.Object;
 
@@ -38,7 +39,7 @@ namespace Utf8Json.AspNetCoreMvcFormatter
 
             return JsonSerializer.NonGeneric.SerializeAsync(
                 serializeType,
-                context.HttpContext.Response.Body,
+                response.Body,
                 obj,
                 _jsonFormatterResolver);
         }
