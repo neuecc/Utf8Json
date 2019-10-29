@@ -1194,7 +1194,7 @@ namespace Utf8Json
                 offset += 2;
                 for (int i = offset; i < bytes.Length; i++)
                 {
-                    if (bytes[i] == '\r' || bytes[i] == '\n')
+                    if (bytes[i] == '\r' || bytes[i] == '\n' || bytes[i] == '\0')
                     {
                         return i;
                     }
