@@ -21,7 +21,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.10.9" />
     <PackageReference Include="Jil" Version="2.15.4" />
-    <PackageReference Include="MessagePack" Version="1.6.1.2" />
+    <PackageReference Include="MessagePack" Version="1.9.3" />
     <PackageReference Include="NetJSON" Version="1.2.1.10" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="protobuf-net" Version="2.3.2" />
