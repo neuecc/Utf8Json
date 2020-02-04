@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Utf8Json.Internal;
 using Utf8Json.Resolvers;
 
@@ -101,7 +100,7 @@ namespace Utf8Json
             if (resolver == null) resolver = DefaultResolver;
 
             var buffer = SerializeUnsafe(value, resolver);
-            stream.Write(buffer.Array, buffer.Offset, buffer.Count);
+            stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count).GetAwaiter().GetResult();
         }
 
 #if NETSTANDARD
