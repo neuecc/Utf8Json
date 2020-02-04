@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Utf8Json.Internal;
 using Utf8Json.Resolvers;
 
@@ -437,9 +438,9 @@ namespace Utf8Json
 
         static int FillFromStream(Stream input, ref byte[] buffer)
         {
-            int length = 0;
+            var length = 0;
             int read;
-            while ((read = input.Read(buffer, length, buffer.Length - length)) > 0)
+            while ((read = input.ReadAsync(buffer, length, buffer.Length - length).GetAwaiter().GetResult()) > 0)
             {
                 length += read;
                 if (length == buffer.Length)
