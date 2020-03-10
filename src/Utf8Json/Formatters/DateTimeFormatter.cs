@@ -1073,7 +1073,7 @@ namespace Utf8Json.Formatters
                 throw new InvalidOperationException("Invalid ISO8601 format");
             }
 
-            var bufferPool = BufferPool.Default.Rent();
+            var rentedBuffer = BufferPool.Default.Rent();
             try
             {
                 var day = 0;
@@ -1087,31 +1087,31 @@ namespace Utf8Json.Formatters
                 // We cannot blindly assume a year always contains 365 days
                 // A month can contain 28/29/30/31 days
                 // Weeks are not standardized to contain 7 24-hour days
-                var year = ReadInt32Until(array, bufferPool, ref i, 'Y');
-                var month = ReadInt32Until(array, bufferPool, ref i, 'M');
-                var week = ReadInt32Until(array, bufferPool, ref i, 'W');
-                day = ReadInt32Until(array, bufferPool, ref i, 'D');
+                var year = ReadInt32Until(array, rentedBuffer, ref i, 'Y');
+                var month = ReadInt32Until(array, rentedBuffer, ref i, 'M');
+                var week = ReadInt32Until(array, rentedBuffer, ref i, 'W');
+                day = ReadInt32Until(array, rentedBuffer, ref i, 'D');
 
                 TIME_ONLY:
                 // Skip T designator
                 i++;
 
-                var hour = ReadInt32Until(array, bufferPool, ref i, 'H');
-                var minute = ReadInt32Until(array, bufferPool, ref i, 'M');
-                var second = ReadInt32Until(array, bufferPool, ref i, 'S');
+                var hour = ReadInt32Until(array, rentedBuffer, ref i, 'H');
+                var minute = ReadInt32Until(array, rentedBuffer, ref i, 'M');
+                var second = ReadInt32Until(array, rentedBuffer, ref i, 'S');
 
                 return new TimeSpan(day, hour, minute, second);
             }
             finally
             {
-                Array.Clear(bufferPool, 0, bufferPool.Length);
-                BufferPool.Default.Return(bufferPool);
+                Array.Clear(rentedBuffer, 0, rentedBuffer.Length);
+                BufferPool.Default.Return(rentedBuffer);
             }
         }
 
         private static int ReadInt32Until(
             byte[] array,
-            byte[] bufferPool,
+            byte[] rentedBuffer,
             ref int i,
             char stop)
         {
@@ -1119,7 +1119,7 @@ namespace Utf8Json.Formatters
                 NumberConverter.IsNumber(array[i]) && array[i] != stop;
                 i++)
             {
-                bufferPool[unit++] = array[i];
+                rentedBuffer[unit++] = array[i];
             }
 
             // Account for missing components
@@ -1129,10 +1129,10 @@ namespace Utf8Json.Formatters
             }
 
             i++;
-            var result = new JsonReader(bufferPool).ReadInt32();
+            var result = new JsonReader(rentedBuffer).ReadInt32();
 
             // Remove extra elements that are read from previous units
-            Array.Clear(bufferPool, 0, bufferPool.Length);
+            Array.Clear(rentedBuffer, 0, rentedBuffer.Length);
             return result;
         }
     }
