@@ -1067,7 +1067,7 @@ namespace Utf8Json.Formatters
             var len = str.Count;
             var to = str.Offset + str.Count;
 
-            // The minimum ISO8601 duration is "PT0S"
+            // The minimum ISO8601 duration is "T0S"
             if (len < 3 || !_designators.Contains((char)array[i]))
             {
                 throw new InvalidOperationException("Invalid ISO8601 format");
@@ -1085,7 +1085,8 @@ namespace Utf8Json.Formatters
 
                 // Year, month, week are not supported in TimeSpans
                 // We cannot blindly assume a year always contains 365 days
-                // We cannot blindly assume a month always contains 28/29/30/31 days
+                // A month can contain 28/29/30/31 days
+                // Weeks are not standardized to contain 7 24-hour days
                 var year = ReadInt32Until(array, bufferPool, ref i, 'Y');
                 var month = ReadInt32Until(array, bufferPool, ref i, 'M');
                 var week = ReadInt32Until(array, bufferPool, ref i, 'W');
@@ -1130,7 +1131,7 @@ namespace Utf8Json.Formatters
             i++;
             var result = new JsonReader(bufferPool).ReadInt32();
 
-            // Remove extra elements that's read from previous units
+            // Remove extra elements that are read from previous units
             Array.Clear(bufferPool, 0, bufferPool.Length);
             return result;
         }
