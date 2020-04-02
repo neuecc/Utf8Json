@@ -57,6 +57,33 @@ namespace Utf8Json.Tests
         }
 
         [Theory]
+        [InlineData(10, 2, 23, 40, 40)]
+        [InlineData(200, 200, 200, 200, 200)]
+        [InlineData(200, 0, 200, 0, 200)]
+        [InlineData(200, 200, 200, 0, 0)]
+        public void
+            Deserialize_ReturnsExpectedTimeSpan_WhenStringIsValidIso8601DurationAndContainsWeek(
+                int weeks,
+                int days,
+                int hours,
+                int minutes,
+                int seconds)
+        {
+            // Arrange
+            var duration = $"{{ \"Test\": \"P{weeks}W{days}DT{hours}H{minutes}M{seconds}S\" }}";
+            var totalDays = weeks * 7 + days;
+
+            var expected = new TimeSpan(totalDays, hours, minutes, seconds);
+
+            // Act
+            var wrapper = JsonSerializer.Deserialize<TestWrapper>(duration);
+            var actual = wrapper.Test;
+
+            // Assert
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
         [InlineData(21, 30, 10)]
         public void
             Deserialize_ReturnsExpectedTimeSpan_WhenStringOnlyContainsTime(
@@ -65,10 +92,6 @@ namespace Utf8Json.Tests
                 int seconds)
         {
             // Arrange
-            hours %= 24;
-            minutes %= 60;
-            seconds %= 60;
-
             var duration = $"{{ \"Test\": \"T{hours}H{minutes}M{seconds}S\" }}";
 
             var expected = new TimeSpan(hours, minutes, seconds);
@@ -101,6 +124,37 @@ namespace Utf8Json.Tests
         }
 
         [Theory]
+        [InlineData(10, 6, 21, 42, 42)]
+        public void
+            Serialize_ReturnsExpectedString_WhenDaysIsMoreThanNumberOfDaysInAWeek(
+                int weeks,
+                int days,
+                int hours,
+                int minutes,
+                int seconds)
+        {
+            // Arrange
+            var expected = $"{{\"Test\":\"P{weeks}W{days}DT{hours}H{minutes}M{seconds}S\"}}";
+            var timespan = new TimeSpan(weeks * 7 + days, hours, minutes, seconds);
+            var wrapper = new TestWrapper { Test = timespan };
+
+            // Act
+            using (var ms = new MemoryStream())
+            {
+                JsonSerializer.Serialize(ms, wrapper);
+
+                ms.Seek(0, SeekOrigin.Begin);
+                using (var sr = new StreamReader(ms))
+                {
+                    var actual = sr.ReadToEnd();
+
+                    // Assert
+                    Assert.Equal(expected, actual);
+                }
+            }
+        }
+
+        [Theory]
         [InlineData(42, 42, 42, 42)]
         public void SerializeDeserialize_RoundTrips(
             int days,
@@ -123,15 +177,16 @@ namespace Utf8Json.Tests
         }
 
         [Theory]
-        [InlineData(42, 23, 42, 42)]
+        [InlineData(42, 6, 23, 42, 42)]
         public void DeserializeSerialize_RoundTrips(
+            int weeks,
             int days,
             int hours,
             int minutes,
             int seconds)
         {
             // Arrange
-            var expected = $"\"P{days}DT{hours}H{minutes}M{seconds}S\"";
+            var expected = $"\"P{weeks}W{days}DT{hours}H{minutes}M{seconds}S\"";
             var wrappedString = $"{{ \"Test\": {expected} }}";
 
             // Act

@@ -981,6 +981,8 @@ namespace Utf8Json.Formatters
         private static readonly ISet<char> _designators = new HashSet<char>
             { 'P', 'T' };
 
+        private static readonly int NumberOfDaysInOneIsoWeek = 7;
+
         private Iso8601TimeSpanFormatter()
         {
         }
@@ -1024,8 +1026,21 @@ namespace Utf8Json.Formatters
 
             if (days > 0)
             {
-                writer.WriteInt32(days);
-                writer.WriteRawUnsafe((byte)'D');
+                if (days >= NumberOfDaysInOneIsoWeek)
+                {
+                    var weeks = days / NumberOfDaysInOneIsoWeek;
+                    
+                    writer.WriteInt32(weeks);
+                    writer.WriteRawUnsafe((byte)'W');
+                    
+                    days %= NumberOfDaysInOneIsoWeek;
+                }
+
+                if (days > 0)
+                {
+                    writer.WriteInt32(days);
+                    writer.WriteRawUnsafe((byte) 'D');
+                }
             }
 
             if (hours == 0 && minutes == 0 && seconds == 0)
@@ -1065,10 +1080,9 @@ namespace Utf8Json.Formatters
             var array = str.Array;
             var i = str.Offset;
             var len = str.Count;
-            var to = str.Offset + str.Count;
 
             // The minimum ISO8601 duration is "T0S"
-            if (len < 3 || !_designators.Contains((char)array[i]))
+            if (len < 3 || array == null || !_designators.Contains((char)array[i]))
             {
                 throw new InvalidOperationException("Invalid ISO8601 format");
             }
@@ -1076,7 +1090,7 @@ namespace Utf8Json.Formatters
             var rentedBuffer = BufferPool.Default.Rent();
             try
             {
-                var day = 0;
+                var days = 0;
                 if ((char) array[i] != 'P')
                     goto TIME_ONLY;
 
@@ -1086,21 +1100,25 @@ namespace Utf8Json.Formatters
                 // Year, month, week are not supported in TimeSpans
                 // We cannot blindly assume a year always contains 365 days
                 // A month can contain 28/29/30/31 days
-                // Weeks are not standardized to contain 7 24-hour days
-                var year = ReadInt32Until(array, rentedBuffer, ref i, 'Y');
-                var month = ReadInt32Until(array, rentedBuffer, ref i, 'M');
-                var week = ReadInt32Until(array, rentedBuffer, ref i, 'W');
-                day = ReadInt32Until(array, rentedBuffer, ref i, 'D');
+                var years = ReadInt32Until(array, rentedBuffer, ref i, 'Y');
+                var months = ReadInt32Until(array, rentedBuffer, ref i, 'M');
+
+                var weeks = ReadInt32Until(array, rentedBuffer, ref i, 'W');
+                days = weeks * NumberOfDaysInOneIsoWeek + ReadInt32Until(
+                    array,
+                    rentedBuffer,
+                    ref i,
+                    'D');
 
                 TIME_ONLY:
                 // Skip T designator
                 i++;
 
-                var hour = ReadInt32Until(array, rentedBuffer, ref i, 'H');
-                var minute = ReadInt32Until(array, rentedBuffer, ref i, 'M');
-                var second = ReadInt32Until(array, rentedBuffer, ref i, 'S');
+                var hours = ReadInt32Until(array, rentedBuffer, ref i, 'H');
+                var minutes = ReadInt32Until(array, rentedBuffer, ref i, 'M');
+                var seconds = ReadInt32Until(array, rentedBuffer, ref i, 'S');
 
-                return new TimeSpan(day, hour, minute, second);
+                return new TimeSpan(days, hours, minutes, seconds);
             }
             finally
             {
