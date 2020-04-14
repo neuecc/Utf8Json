@@ -51,14 +51,14 @@ namespace DynamicCodeDumper
             {
 
 #if NET45
-                var a1 = (DynamicObjectResolver.Default as ISave).Save();
-                var a2 = (DynamicObjectResolver.ExcludeNull as ISave).Save();
+                // var a1 = (DynamicObjectResolver.Default as ISave).Save();
+                // var a2 = (DynamicObjectResolver.ExcludeNull as ISave).Save();
                 //var a2 = DynamicUnionResolver.Instance.Save();
                 //var a3 = DynamicEnumResolver.Instance.Save();
                 //var a4 = DynamicContractlessObjectResolver.Instance.Save();
-                var a3 = DynamicCompositeResolver.Save();
+                // var a3 = DynamicCompositeResolver.Save();
 
-                Verify(a2);
+                // Verify(a2);
 #endif
             }
         }
