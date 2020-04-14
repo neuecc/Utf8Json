@@ -116,7 +116,7 @@ namespace Utf8Json.Tests
 
             public int MyProperty { get; set; }
 
-            MyInterfaceNonConstructor()
+            private MyInterfaceNonConstructor()
             {
                 this.CalledConstructor = true;
             }
@@ -360,10 +360,8 @@ namespace Utf8Json.Tests
                 var bin = JsonSerializer.Serialize(obj, StandardResolver.AllowPrivate);
 
                 var d = JsonSerializer.Deserialize<MyAbstructNonConstructor>(bin, StandardResolver.AllowPrivate);
-                d.CalledConstructor.IsFalse();
+                d.CalledConstructor.IsTrue();
                 d.MyProperty = 999;
-
-                Assert.Throws<InvalidOperationException>(() => JsonSerializer.Deserialize<MyAbstract>(bin, StandardResolver.AllowPrivate));
             }
             {
                 var obj = MyInterfaceNonConstructor.Create();
@@ -373,10 +371,8 @@ namespace Utf8Json.Tests
                 var bin = JsonSerializer.Serialize(obj, StandardResolver.AllowPrivate);
 
                 var d = JsonSerializer.Deserialize<MyInterfaceNonConstructor>(bin, StandardResolver.AllowPrivate);
-                d.CalledConstructor.IsFalse();
+                d.CalledConstructor.IsTrue();
                 d.MyProperty = 999;
-
-                Assert.Throws<InvalidOperationException>(() => JsonSerializer.Deserialize<IMyInterface>(bin, StandardResolver.AllowPrivate));
             }
         }
 
