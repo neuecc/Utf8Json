@@ -60,8 +60,19 @@ namespace Utf8Json.Formatters
 
     public sealed class NullableStringFormatter : IJsonFormatter<string>, IObjectPropertyNameFormatter<string>
     {
-        public static readonly IJsonFormatter<string> Default = new NullableStringFormatter();
-
+        public static readonly IJsonFormatter<string> Default = new NullableStringFormatter(StringMutator.Original);
+        private static Func<string, string> _nameMutator;
+        
+        public NullableStringFormatter()
+        {
+            _nameMutator = StringMutator.Original;
+        }
+        
+        public NullableStringFormatter(Func<string, string> valueNameMutator)
+        {
+            _nameMutator = valueNameMutator;
+        }
+        
         public void Serialize(ref JsonWriter writer, string value, IJsonFormatterResolver formatterResolver)
         {
             writer.WriteString(value);
@@ -74,12 +85,12 @@ namespace Utf8Json.Formatters
 
         public void SerializeToPropertyName(ref JsonWriter writer, string value, IJsonFormatterResolver formatterResolver)
         {
-            writer.WriteString(value);
+            writer.WriteString(_nameMutator.Invoke(value));
         }
 
         public string DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
         {
-            return reader.ReadString();
+            return _nameMutator.Invoke(reader.ReadString());
         }
     }
 

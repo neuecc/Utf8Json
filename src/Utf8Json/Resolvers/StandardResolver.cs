@@ -87,7 +87,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.Default }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.Original,
+                DynamicObjectResolver.Default
+            }).ToArray();
 
             InnerResolver()
             {
@@ -155,7 +159,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.CamelCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.CamelCase,
+                DynamicObjectResolver.CamelCase
+            }).ToArray();
 
             InnerResolver()
             {
@@ -223,7 +231,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.SnakeCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.SnakeCase,
+                DynamicObjectResolver.SnakeCase
+            }).ToArray();
 
             InnerResolver()
             {
@@ -291,7 +303,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.ExcludeNull }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.Original,
+                DynamicObjectResolver.ExcludeNull
+            }).ToArray();
 
             InnerResolver()
             {
@@ -359,7 +375,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.ExcludeNullCamelCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.CamelCase,
+                DynamicObjectResolver.ExcludeNullCamelCase
+            }).ToArray();
 
             InnerResolver()
             {
@@ -497,7 +517,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivate }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.Original,
+                DynamicObjectResolver.AllowPrivate
+            }).ToArray();
 
             InnerResolver()
             {
@@ -566,7 +590,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivateCamelCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.CamelCase,
+                DynamicObjectResolver.AllowPrivateCamelCase,
+            }).ToArray();
 
             InnerResolver()
             {
@@ -635,7 +663,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivateSnakeCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.SnakeCase,
+                DynamicObjectResolver.AllowPrivateSnakeCase
+            }).ToArray();
 
             InnerResolver()
             {
@@ -704,7 +736,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivateExcludeNull }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.Original,
+                DynamicObjectResolver.AllowPrivateExcludeNull
+            }).ToArray();
 
             InnerResolver()
             {
@@ -773,7 +809,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivateExcludeNullCamelCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.CamelCase,
+                DynamicObjectResolver.AllowPrivateExcludeNullCamelCase
+            }).ToArray();
 
             InnerResolver()
             {
@@ -842,7 +882,11 @@ namespace Utf8Json.Resolvers.Internal
         {
             public static readonly IJsonFormatterResolver Instance = new InnerResolver();
 
-            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[] { DynamicObjectResolver.AllowPrivateExcludeNullSnakeCase }).ToArray();
+            static readonly IJsonFormatterResolver[] resolvers = StandardResolverHelper.CompositeResolverBase.Concat(new[]
+            {
+                StandardStringResolver.SnakeCase,
+                DynamicObjectResolver.AllowPrivateExcludeNullSnakeCase
+            }).ToArray();
 
             InnerResolver()
             {

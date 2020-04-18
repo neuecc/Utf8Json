@@ -73,7 +73,6 @@ namespace Utf8Json.Resolvers
                 {typeof(TimeSpan?), new StaticNullableFormatter<TimeSpan>(ISO8601TimeSpanFormatter.Default)},
                 {typeof(DateTimeOffset?),new StaticNullableFormatter<DateTimeOffset>(ISO8601DateTimeOffsetFormatter.Default)},
 
-                {typeof(string), NullableStringFormatter.Default},
                 {typeof(char), CharFormatter.Default},
                 {typeof(Nullable<char>), NullableCharFormatter.Default},
                 {typeof(decimal), DecimalFormatter.Default},
