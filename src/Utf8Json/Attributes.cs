@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Utf8Json.Formatters;
 
 namespace Utf8Json
 {
@@ -20,6 +21,11 @@ namespace Utf8Json
             this.FormatterType = formatterType;
             this.Arguments = arguments;
         }
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = false)]
+    public class PolymorphicFormatterAttribute : Attribute
+    {
     }
 
     [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = true)]

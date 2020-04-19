@@ -46,7 +46,8 @@ namespace Utf8Json.Resolvers.Internal
 #endif
             EnumResolver.Default,     // Enum(default => string)
             DynamicGenericResolver.Instance, // T[], List<T>, etc...
-            AttributeFormatterResolver.Instance // [JsonFormatter]
+            AttributeFormatterResolver.Instance, // [JsonFormatter]
+            PolymorphicFormatterResolver.Instance // [PolymorphicFormatter]
         };
     }
 
