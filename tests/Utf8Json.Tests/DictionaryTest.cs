@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Utf8Json.Resolvers;
 using Xunit;
 
 
@@ -65,6 +66,61 @@ namespace Utf8Json.Tests
 
             cd = null;
             Convert(cd).IsNull();
+        }
+
+        public class ObjectTestFormatter
+        {
+            public string MyProperty { get; set; }
+            public Dictionary<string, string> Dictionary { get; set; }
+        }
+
+        public static object dictionaryFormatterTestData = 
+            new object[]
+            {
+                new object[] 
+                {
+                    new ObjectTestFormatter
+                    {
+                        MyProperty = "Value",
+                        Dictionary = new Dictionary<string, string> {{"Key", "Value"}}
+                    },
+                    StandardResolver.CamelCase,
+                    new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+                },
+                new object[]
+                {
+                    new ObjectTestFormatter
+                    {
+                        MyProperty = "Value",
+                        Dictionary = new Dictionary<string, string> {{"Key", "Value"}},
+                    },
+                    StandardResolver.Default,
+                    new JsonSerializerSettings()
+                },
+                new object[] 
+                {
+                    new ObjectTestFormatter
+                    {
+                        MyProperty = "Value",
+                        Dictionary = new Dictionary<string, string> {{"Key", "Value"}},
+                    },
+                    StandardResolver.SnakeCase,
+                    new JsonSerializerSettings
+                    {
+                        ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy { ProcessDictionaryKeys = true } },
+                    }
+                }
+            };
+        
+        [Theory]
+        [MemberData(nameof(dictionaryFormatterTestData))]
+        public void DictionaryFormatterTest(ObjectTestFormatter input, IJsonFormatterResolver resolver, JsonSerializerSettings newtonsoftResolver)
+        {
+            var data = JsonSerializer.Serialize(input, resolver);
+            var actualJson = Encoding.UTF8.GetString(data);
+            var expectedJson = JsonConvert.SerializeObject(input, newtonsoftResolver);
+
+            actualJson.Is(expectedJson);
         }
     }
 }
