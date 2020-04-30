@@ -29,6 +29,7 @@ namespace Utf8Json.Tests
             ddd.More.Is("mmmm");
 
             JsonSerializer.Deserialize<Foo>("{\"Bar\":1.23}").Bar.Is(1.23m);
+            JsonSerializer.Deserialize<Foo>("{\"Bar\":-2.3E-4}").Bar.Is(-2.3E-4m);
         }
     }
 }
