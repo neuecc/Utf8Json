@@ -347,34 +347,6 @@ namespace Utf8Json
             offset += NumberConverter.WriteInt64(ref buffer, offset, value);
         }
 
-        private static readonly byte[] ControlCharacter00 = new[] { (byte)'0', (byte)'0' };
-        private static readonly byte[] ControlCharacter01 = new[] { (byte)'0', (byte)'1' };
-        private static readonly byte[] ControlCharacter02 = new[] { (byte)'0', (byte)'2' };
-        private static readonly byte[] ControlCharacter03 = new[] { (byte)'0', (byte)'3' };
-        private static readonly byte[] ControlCharacter04 = new[] { (byte)'0', (byte)'4' };
-        private static readonly byte[] ControlCharacter05 = new[] { (byte)'0', (byte)'5' };
-        private static readonly byte[] ControlCharacter06 = new[] { (byte)'0', (byte)'6' };
-        private static readonly byte[] ControlCharacter07 = new[] { (byte)'0', (byte)'7' };
-        private static readonly byte[] ControlCharacter0b = new[] { (byte)'0', (byte)'b' };
-        private static readonly byte[] ControlCharacter0e = new[] { (byte)'0', (byte)'e' };
-        private static readonly byte[] ControlCharacter0f = new[] { (byte)'0', (byte)'f' };
-        private static readonly byte[] ControlCharacter10 = new[] { (byte)'1', (byte)'0' };
-        private static readonly byte[] ControlCharacter11 = new[] { (byte)'1', (byte)'1' };
-        private static readonly byte[] ControlCharacter12 = new[] { (byte)'1', (byte)'2' };
-        private static readonly byte[] ControlCharacter13 = new[] { (byte)'1', (byte)'3' };
-        private static readonly byte[] ControlCharacter14 = new[] { (byte)'1', (byte)'4' };
-        private static readonly byte[] ControlCharacter15 = new[] { (byte)'1', (byte)'5' };
-        private static readonly byte[] ControlCharacter16 = new[] { (byte)'1', (byte)'6' };
-        private static readonly byte[] ControlCharacter17 = new[] { (byte)'1', (byte)'7' };
-        private static readonly byte[] ControlCharacter18 = new[] { (byte)'1', (byte)'8' };
-        private static readonly byte[] ControlCharacter19 = new[] { (byte)'1', (byte)'9' };
-        private static readonly byte[] ControlCharacter1a = new[] { (byte)'1', (byte)'a' };
-        private static readonly byte[] ControlCharacter1b = new[] { (byte)'1', (byte)'b' };
-        private static readonly byte[] ControlCharacter1c = new[] { (byte)'1', (byte)'c' };
-        private static readonly byte[] ControlCharacter1d = new[] { (byte)'1', (byte)'d' };
-        private static readonly byte[] ControlCharacter1e = new[] { (byte)'1', (byte)'e' };
-        private static readonly byte[] ControlCharacter1f = new[] { (byte)'1', (byte)'f' };
-
         public void WriteString(string value)
         {
             if (value == null)
