@@ -8,6 +8,24 @@ namespace Utf8Json.Tests
     public class StringEscapeTest
     {
         [Fact]
+        public void BasicEncodedChars()
+        {
+            JsonSerializer.ToJsonString("\"").Is("\"\\\"\"");
+            JsonSerializer.ToJsonString("\\").Is("\"\\\\\"");
+            JsonSerializer.ToJsonString("\b").Is("\"\\b\"");
+            JsonSerializer.ToJsonString("\f").Is("\"\\f\"");
+            JsonSerializer.ToJsonString("\n").Is("\"\\n\"");
+            JsonSerializer.ToJsonString("\r").Is("\"\\r\"");
+            JsonSerializer.ToJsonString("\t").Is("\"\\t\"");
+
+            // Check round-trip
+            var str = "\" \\ \b \f \n \r \t";
+            var encoded = JsonSerializer.ToJsonString(str);
+            encoded.Is("\"\\\" \\\\ \\b \\f \\n \\r \\t\"");
+            JsonSerializer.Deserialize<string>(encoded).Is(str);
+        }
+
+        [Fact]
         public void Mixed()
         {
             var str = @"""\u0428\u0440\u0438-\u041b\u0430\u043d\u043a\u0430""";
@@ -109,6 +127,21 @@ namespace Utf8Json.Tests
             JsonSerializer.ToJsonString(ByteAsStr(0x1d)).Is(@"""\u001d""");
             JsonSerializer.ToJsonString(ByteAsStr(0x1e)).Is(@"""\u001e""");
             JsonSerializer.ToJsonString(ByteAsStr(0x1f)).Is(@"""\u001f""");
+        }
+
+        [Fact]
+        public void MixedControlCharactersShouldRoundTrip()
+        {
+            var str = "\"" +
+                      "TextAtTheBeginning" +
+                      "\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f" +
+                      "𝄞TextInTheMiddle𝄞" +
+                      "\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f" +
+                      "TextAtTheEnd" +
+                      "\"";
+            var bytes = JsonSerializer.Deserialize<string>(str);
+            var convertedStr = JsonSerializer.ToJsonString(bytes);
+            convertedStr.Is(str);
         }
     }
 }

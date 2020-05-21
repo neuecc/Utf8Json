@@ -347,6 +347,34 @@ namespace Utf8Json
             offset += NumberConverter.WriteInt64(ref buffer, offset, value);
         }
 
+        private static readonly byte[] ControlCharacter00 = new[] { (byte)'0', (byte)'0' };
+        private static readonly byte[] ControlCharacter01 = new[] { (byte)'0', (byte)'1' };
+        private static readonly byte[] ControlCharacter02 = new[] { (byte)'0', (byte)'2' };
+        private static readonly byte[] ControlCharacter03 = new[] { (byte)'0', (byte)'3' };
+        private static readonly byte[] ControlCharacter04 = new[] { (byte)'0', (byte)'4' };
+        private static readonly byte[] ControlCharacter05 = new[] { (byte)'0', (byte)'5' };
+        private static readonly byte[] ControlCharacter06 = new[] { (byte)'0', (byte)'6' };
+        private static readonly byte[] ControlCharacter07 = new[] { (byte)'0', (byte)'7' };
+        private static readonly byte[] ControlCharacter0b = new[] { (byte)'0', (byte)'b' };
+        private static readonly byte[] ControlCharacter0e = new[] { (byte)'0', (byte)'e' };
+        private static readonly byte[] ControlCharacter0f = new[] { (byte)'0', (byte)'f' };
+        private static readonly byte[] ControlCharacter10 = new[] { (byte)'1', (byte)'0' };
+        private static readonly byte[] ControlCharacter11 = new[] { (byte)'1', (byte)'1' };
+        private static readonly byte[] ControlCharacter12 = new[] { (byte)'1', (byte)'2' };
+        private static readonly byte[] ControlCharacter13 = new[] { (byte)'1', (byte)'3' };
+        private static readonly byte[] ControlCharacter14 = new[] { (byte)'1', (byte)'4' };
+        private static readonly byte[] ControlCharacter15 = new[] { (byte)'1', (byte)'5' };
+        private static readonly byte[] ControlCharacter16 = new[] { (byte)'1', (byte)'6' };
+        private static readonly byte[] ControlCharacter17 = new[] { (byte)'1', (byte)'7' };
+        private static readonly byte[] ControlCharacter18 = new[] { (byte)'1', (byte)'8' };
+        private static readonly byte[] ControlCharacter19 = new[] { (byte)'1', (byte)'9' };
+        private static readonly byte[] ControlCharacter1a = new[] { (byte)'1', (byte)'a' };
+        private static readonly byte[] ControlCharacter1b = new[] { (byte)'1', (byte)'b' };
+        private static readonly byte[] ControlCharacter1c = new[] { (byte)'1', (byte)'c' };
+        private static readonly byte[] ControlCharacter1d = new[] { (byte)'1', (byte)'d' };
+        private static readonly byte[] ControlCharacter1e = new[] { (byte)'1', (byte)'e' };
+        private static readonly byte[] ControlCharacter1f = new[] { (byte)'1', (byte)'f' };
+
         public void WriteString(string value)
         {
             if (value == null)
@@ -370,128 +398,75 @@ namespace Utf8Json
             // for JIT Optimization, for-loop i < str.Length
             for (int i = 0; i < value.Length; i++)
             {
-                byte escapeChar = default(byte);
+                bool outputEncodedChar = false;
+                byte extendedChar1 = default(byte);
+                byte extendedChar2 = default(byte);
+
                 switch (value[i])
                 {
-                    case '"':
-                        escapeChar = (byte)'"';
-                        break;
-                    case '\\':
-                        escapeChar = (byte)'\\';
-                        break;
-                    case '\b':
-                        escapeChar = (byte)'b';
-                        break;
-                    case '\f':
-                        escapeChar = (byte)'f';
-                        break;
-                    case '\n':
-                        escapeChar = (byte)'n';
-                        break;
-                    case '\r':
-                        escapeChar = (byte)'r';
-                        break;
-                    case '\t':
-                        escapeChar = (byte)'t';
-                        break;
-                    // use switch jumptable
-                    case (char)0:
-                    case (char)1:
-                    case (char)2:
-                    case (char)3:
-                    case (char)4:
-                    case (char)5:
-                    case (char)6:
-                    case (char)7:
-                    case (char)11:
-                    case (char)14:
-                    case (char)15:
-                    case (char)16:
-                    case (char)17:
-                    case (char)18:
-                    case (char)19:
-                    case (char)20:
-                    case (char)21:
-                    case (char)22:
-                    case (char)23:
-                    case (char)24:
-                    case (char)25:
-                    case (char)26:
-                    case (char)27:
-                    case (char)28:
-                    case (char)29:
-                    case (char)30:
-                    case (char)31:
-                    case (char)32:
-                    case (char)33:
-                    case (char)35:
-                    case (char)36:
-                    case (char)37:
-                    case (char)38:
-                    case (char)39:
-                    case (char)40:
-                    case (char)41:
-                    case (char)42:
-                    case (char)43:
-                    case (char)44:
-                    case (char)45:
-                    case (char)46:
-                    case (char)47:
-                    case (char)48:
-                    case (char)49:
-                    case (char)50:
-                    case (char)51:
-                    case (char)52:
-                    case (char)53:
-                    case (char)54:
-                    case (char)55:
-                    case (char)56:
-                    case (char)57:
-                    case (char)58:
-                    case (char)59:
-                    case (char)60:
-                    case (char)61:
-                    case (char)62:
-                    case (char)63:
-                    case (char)64:
-                    case (char)65:
-                    case (char)66:
-                    case (char)67:
-                    case (char)68:
-                    case (char)69:
-                    case (char)70:
-                    case (char)71:
-                    case (char)72:
-                    case (char)73:
-                    case (char)74:
-                    case (char)75:
-                    case (char)76:
-                    case (char)77:
-                    case (char)78:
-                    case (char)79:
-                    case (char)80:
-                    case (char)81:
-                    case (char)82:
-                    case (char)83:
-                    case (char)84:
-                    case (char)85:
-                    case (char)86:
-                    case (char)87:
-                    case (char)88:
-                    case (char)89:
-                    case (char)90:
-                    case (char)91:
+                    case '"': extendedChar1 = (byte)'"'; break;
+                    case '\\': extendedChar1 = (byte)'\\'; break;
+                    case '\b': extendedChar1 = (byte)'b'; break;
+                    case '\f': extendedChar1 = (byte)'f'; break;
+                    case '\n': extendedChar1 = (byte)'n'; break;
+                    case '\r': extendedChar1 = (byte)'r'; break;
+                    case '\t': extendedChar1 = (byte)'t'; break;
+                    case (char)0x00: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'0'; break;
+                    case (char)0x01: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'1'; break;
+                    case (char)0x02: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'2'; break;
+                    case (char)0x03: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'3'; break;
+                    case (char)0x04: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'4'; break;
+                    case (char)0x05: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'5'; break;
+                    case (char)0x06: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'6'; break;
+                    case (char)0x07: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'7'; break;
+                    case (char)0x0b: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'b'; break;
+                    case (char)0x0e: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'e'; break;
+                    case (char)0x0f: outputEncodedChar = true; extendedChar1 = (byte)'0'; extendedChar2 = (byte)'f'; break;
+                    case (char)0x10: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'0'; break;
+                    case (char)0x11: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'1'; break;
+                    case (char)0x12: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'2'; break;
+                    case (char)0x13: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'3'; break;
+                    case (char)0x14: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'4'; break;
+                    case (char)0x15: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'5'; break;
+                    case (char)0x16: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'6'; break;
+                    case (char)0x17: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'7'; break;
+                    case (char)0x18: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'8'; break;
+                    case (char)0x19: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'9'; break;
+                    case (char)0x1a: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'a'; break;
+                    case (char)0x1b: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'b'; break;
+                    case (char)0x1c: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'c'; break;
+                    case (char)0x1d: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'d'; break;
+                    case (char)0x1e: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'e'; break;
+                    case (char)0x1f: outputEncodedChar = true; extendedChar1 = (byte)'1'; extendedChar2 = (byte)'f'; break;
                     default:
                         continue;
                 }
 
-                max += 2;
-                BinaryUtil.EnsureCapacity(ref buffer, startoffset, max); // check +escape capacity
+                if (outputEncodedChar)
+                {
+                    max += 6;
+                    BinaryUtil.EnsureCapacity(ref buffer, startoffset, max); // check +escape capacity
 
-                offset += StringEncoding.UTF8.GetBytes(value, from, i - from, buffer, offset);
-                from = i + 1;
-                buffer[offset++] = (byte)'\\';
-                buffer[offset++] = escapeChar;
+                    offset += StringEncoding.UTF8.GetBytes(value, from, i - from, buffer, offset);
+                    from = i + 1;
+
+                    buffer[offset++] = (byte)'\\';
+                    buffer[offset++] = (byte)'u';
+                    buffer[offset++] = (byte)'0';
+                    buffer[offset++] = (byte)'0';
+                    buffer[offset++] = extendedChar1;
+                    buffer[offset++] = extendedChar2;
+                }
+                else
+                {
+                    max += 2;
+                    BinaryUtil.EnsureCapacity(ref buffer, startoffset, max); // check +escape capacity
+
+                    offset += StringEncoding.UTF8.GetBytes(value, from, i - from, buffer, offset);
+                    from = i + 1;
+                    buffer[offset++] = (byte) '\\';
+                    buffer[offset++] = extendedChar1;
+                }
             }
 
             if (from != value.Length)
