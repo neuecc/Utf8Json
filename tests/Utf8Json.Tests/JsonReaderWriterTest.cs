@@ -68,14 +68,14 @@ namespace Utf8Json.Tests
         }
                 
         [Property]
-        public void FloatTest<T>(T value)
+        public void FloatTest(float value)
         {
             var bin = JsonSerializer.Serialize(value);
             JsonSerializer.Deserialize<float>(bin).Is(Convert.ToSingle(value));
         }
         
         [Property]
-        public void DoubleTest<T>(T value)
+        public void DoubleTest(double value)
         {
             var bin = JsonSerializer.Serialize(value);
             JsonSerializer.Deserialize<double>(bin).Is(Convert.ToDouble(value));
