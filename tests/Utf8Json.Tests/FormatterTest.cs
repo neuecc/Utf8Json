@@ -178,7 +178,26 @@ namespace Utf8Json.Tests
 
             ValueTask<int>? nullValueTask2 = null;
             Convert(nullValueTask2).IsNull();
+
+            
         }
+
+#if NETCOREAPP3_1
+        [Fact]
+        public async Task ValueTaskSourceTest()
+        {
+            ValueTask<bool> asyncValueTask = ValueTaskSourceProvider().MoveNextAsync();
+            (await Convert(asyncValueTask)).IsFalse();
+            
+        }
+
+        public async IAsyncEnumerator<object> ValueTaskSourceProvider()
+        {
+            await Task.Delay(100);
+            yield break;
+        }
+
+#endif
 
         [Fact]
         public void DecimalLang()
