@@ -1,54 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;NET45;NET47</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0; netstandard2.1</TargetFrameworks>
         <Configurations>Debug;Release;</Configurations>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>opensource.snk</AssemblyOriginatorKeyFile>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' AND '$(TargetFramework)'=='NET45'">
-        <LangVersion>5</LangVersion>
-        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;NETSTANDARD2_0;NET45</DefineConstants>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' AND '$(TargetFramework)'!='NET45'">
-        <LangVersion>5</LangVersion>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <LangVersion>8</LangVersion>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;NETSTANDARD2_0;</DefineConstants>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' AND '$(TargetFramework)'=='NET45'">
-        <LangVersion>5</LangVersion>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <LangVersion>8</LangVersion>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-        <DefineConstants>RELEASE;NETSTANDARD;NETSTANDARD2_0;NET45</DefineConstants>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' AND '$(TargetFramework)'!='NET45'">
-        <LangVersion>5</LangVersion>
-        <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+        <NoWarn>1701;1702;1705;1591</NoWarn>
+        <DocumentationFile>bin\Release\$(TargetFramework)\Utf8Json.xml</DocumentationFile>
         <DefineConstants>RELEASE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET45|AnyCPU'">
-        <DocumentationFile>bin\Release\NET45\Utf8Json.xml</DocumentationFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|NET47|AnyCPU'">
-        <DocumentationFile>bin\Release\NET47\Utf8Json.xml</DocumentationFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-      <DocumentationFile>bin\Release\netstandard2.0\Utf8Json.xml</DocumentationFile>
-      <NoWarn>1701;1702;1705;1591</NoWarn>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-      <NoWarn>1701;1702;1705;1591</NoWarn>
-    </PropertyGroup>
-
+    
     <ItemGroup>
         <None Remove="*.meta" />
         <None Remove="Resolvers\*.meta" />
@@ -60,10 +34,6 @@
         <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
         <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
         <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
-        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
         <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     </ItemGroup>
 
