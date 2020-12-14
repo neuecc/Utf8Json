@@ -21,7 +21,7 @@ namespace Utf8Json.Tests
             {
                 var ex = new Exception("ABC");
                 var json = JsonSerializer.ToJsonString(ex);
-                json.Is("{\"ClassName\":\"System.Exception\",\"Message\":\"ABC\",\"StackTrace\":null,\"Source\":null,\"InnerException\":null}");
+                json.Is("{\"ClassName\":\"System.Exception\",\"StackTrace\":null,\"Message\":\"ABC\",\"Source\":null,\"InnerException\":null}");
             }
             {
                 var ex = new Exception("ABC");
@@ -37,7 +37,7 @@ namespace Utf8Json.Tests
                 FooException ex = new FooException { Bar = 100 };
 
                 var json = JsonSerializer.ToJsonString(ex);
-                json.Is("{\"ClassName\":\"Utf8Json.Tests.FooException\",\"Bar\":100,\"Message\":\"BCD\",\"StackTrace\":null,\"Source\":null,\"InnerException\":null}");
+                json.Is("{\"ClassName\":\"Utf8Json.Tests.FooException\",\"Bar\":100,\"StackTrace\":null,\"Message\":\"BCD\",\"Source\":null,\"InnerException\":null}");
             }
             {
                 Exception ex = new FooException { Bar = 100 };
@@ -54,7 +54,7 @@ namespace Utf8Json.Tests
                 var ex = new Exception("ABC", new FooException { Bar = 100 });
 
                 var json = JsonSerializer.ToJsonString(ex);
-                json.Is("{\"ClassName\":\"System.Exception\",\"Message\":\"ABC\",\"StackTrace\":null,\"Source\":null,\"InnerException\":{\"ClassName\":\"Utf8Json.Tests.FooException\",\"Bar\":100,\"Message\":\"BCD\",\"StackTrace\":null,\"Source\":null,\"InnerException\":null}}");
+                json.Is("{\"ClassName\":\"System.Exception\",\"StackTrace\":null,\"Message\":\"ABC\",\"Source\":null,\"InnerException\":{\"ClassName\":\"Utf8Json.Tests.FooException\",\"Bar\":100,\"StackTrace\":null,\"Message\":\"BCD\",\"Source\":null,\"InnerException\":null}}");
             }
             {
                 var ex = new Exception("ABC", new FooException { Bar = 100 });
