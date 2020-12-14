@@ -862,7 +862,7 @@ namespace Utf8Json.Formatters
             {
                 bool foundDot = false;
                 bool foundColon = false;
-                for (int j = i; j < to; j++)
+                for (int j = i; j < str.Count; j++)
                 {
                     if (array[j] == '.')
                     {
