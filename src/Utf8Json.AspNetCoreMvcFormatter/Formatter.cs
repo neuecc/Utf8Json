@@ -30,19 +30,25 @@ namespace Utf8Json.AspNetCoreMvcFormatter
             return true;
         }
 
-        public Task WriteAsync(OutputFormatterWriteContext context)
+        public async Task WriteAsync(OutputFormatterWriteContext context)
         {
             context.HttpContext.Response.ContentType = ContentType;
 
             // when 'object' use the concrete type(object.GetType())
             if (context.ObjectType == typeof(object))
             {
-                return JsonSerializer.NonGeneric.SerializeAsync(context.HttpContext.Response.Body, context.Object, resolver);
+                await JsonSerializer.NonGeneric.SerializeAsync(
+                    context.HttpContext.Response.Body, 
+                    context.Object, 
+                    resolver);
+                return;
             }
-            else
-            {
-                return JsonSerializer.NonGeneric.SerializeAsync(context.ObjectType, context.HttpContext.Response.Body, context.Object, resolver);
-            }
+
+            await JsonSerializer.NonGeneric.SerializeAsync(
+                context.ObjectType, 
+                context.HttpContext.Response.Body, 
+                context.Object, 
+                resolver);
         }
     }
 
@@ -74,11 +80,11 @@ namespace Utf8Json.AspNetCoreMvcFormatter
             return true;
         }
 
-        public Task<InputFormatterResult> ReadAsync(InputFormatterContext context)
+        public async Task<InputFormatterResult> ReadAsync(InputFormatterContext context)
         {
             var request = context.HttpContext.Request;
-            var result = JsonSerializer.NonGeneric.Deserialize(context.ModelType, request.Body, resolver);
-            return InputFormatterResult.SuccessAsync(result);
+            var result = await JsonSerializer.NonGeneric.DeserializeAsync(context.ModelType, request.Body, resolver);
+            return await InputFormatterResult.SuccessAsync(result);
         }
     }
 }
