@@ -11,7 +11,7 @@ namespace Utf8Json.Tests
         [Fact]
         public void DateTimeOffsetTest()
         {
-            DateTimeOffset now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time").BaseUtcOffset.Ticks, DateTimeKind.Local);
+            DateTimeOffset now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo").BaseUtcOffset.Ticks, DateTimeKind.Local);
             var binary = JsonSerializer.Serialize(now);
             JsonSerializer.Deserialize<DateTimeOffset>(binary).Is(now);
 
@@ -43,7 +43,7 @@ namespace Utf8Json.Tests
         [Fact]
         public void Nullable()
         {
-            DateTimeOffset? now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time").BaseUtcOffset.Ticks, DateTimeKind.Local);
+            DateTimeOffset? now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo").BaseUtcOffset.Ticks, DateTimeKind.Local);
             var binary = JsonSerializer.Serialize(now);
             JsonSerializer.Deserialize<DateTimeOffset?>(binary).ToString().Is(now.ToString());
         }
@@ -104,7 +104,7 @@ namespace Utf8Json.Tests
         [Fact]
         public void Offset()
         {
-            DateTimeOffset now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Tokyo Standard Time").BaseUtcOffset.Ticks, DateTimeKind.Local);
+            DateTimeOffset now = new DateTime(DateTime.UtcNow.Ticks + TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo").BaseUtcOffset.Ticks, DateTimeKind.Local);
             var binary = "    " + JsonSerializer.ToJsonString(now);
             JsonSerializer.Deserialize<DateTimeOffset>(binary).Is(now);
 
