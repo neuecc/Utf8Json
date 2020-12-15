@@ -5,7 +5,6 @@ using Utf8Json;
 using Jil;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Attributes.Jobs;
 
 namespace PerfBenchmark
 {
