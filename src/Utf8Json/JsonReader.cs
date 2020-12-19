@@ -764,13 +764,23 @@ namespace Utf8Json
                 if (bytes[offset++] != '\"') throw CreateParsingException("\"");
 
                 var from = offset;
+		int ii = 0;
 
                 for (int i = offset; i < bytes.Length; i++)
                 {
                     if (bytes[i] == (char)'\"')
                     {
+                        bool escaped = false;
                         // is escape?
-                        if (bytes[i - 1] == (char)'\\')
+                        {
+                            ii = i;
+                            while (bytes[--ii] == (char)'\\') //We already ensured that this span has leading "
+                            {
+                                escaped = !escaped;
+                            }
+                        }
+
+                        if (escaped)
                         {
                             continue;
                         }
