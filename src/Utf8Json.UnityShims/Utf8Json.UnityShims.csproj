@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+        <PackageId>Cryptisk.Utf8Json.UnityShims</PackageId>
         <Configurations>Debug;Release</Configurations>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>opensource.snk</AssemblyOriginatorKeyFile>
