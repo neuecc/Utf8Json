@@ -16,6 +16,7 @@
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <LangVersion>8</LangVersion>
+        <PackageId>Cryptisk.Utf8Json</PackageId>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <NoWarn>1701;1702;1705;1591</NoWarn>
         <DocumentationFile>bin\Release\$(TargetFramework)\Utf8Json.xml</DocumentationFile>
