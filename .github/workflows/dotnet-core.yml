@@ -44,4 +44,4 @@ jobs:
           dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o nupkg src/Utf8Json.ImmutableCollection/Utf8Json.ImmutableCollection.csproj
           dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o nupkg src/Utf8Json.UnityShims/Utf8Json.UnityShims.csproj
       - name: Push to NuGet.org
-        run: dotnet nuget push ./nupkg/*.nupkg --source $NUGET_FEED --skip-duplicate --api-key $NUGET_API_KEY
+        run: dotnet nuget push ./nupkg/*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${{secrets.NUGET_API_KEY}}
