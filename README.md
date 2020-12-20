@@ -3,6 +3,8 @@ Utf8Json - Fast JSON Serializer for C#
 
 **NOTE: This has been forked from @neuecc's repo and uses .NET 5. We'll be bringing in PR's from there over time. If you have fixes you want in, or you wish to help maintain this library then please feel free to contribute. All are welcome. I haven't tested with Unity since I'm not a unity dev. - grs** 
 
+You can find these packages in NuGet under `Cryptisk.Utf8Json`
+
 ![.NET Core](https://github.com/Cryptisk/Utf8Json/workflows/.NET%20Core/badge.svg) [![Join the chat at https://gitter.im/neuecc/Utf8Json](https://badges.gitter.im/neuecc/Utf8Json.svg)](https://gitter.im/neuecc/Utf8Json?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
  [![Releases](https://img.shields.io/github/release/neuecc/Utf8Json.svg)](https://github.com/neuecc/Utf8Json/releases)
 
