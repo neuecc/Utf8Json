@@ -21,8 +21,8 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
-  
-deploy:
+
+  deploy:
     needs: build
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
