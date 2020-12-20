@@ -1,9 +1,10 @@
 Utf8Json - Fast JSON Serializer for C#
 ===
 
-** NOTE: This has been forked from @neuecc's repo and uses .NET 5. We'll be bringing in PR's from there over time. If you have fixes you want in, or you wish to help maintain this library then please feel free to contribute. All are welcome. I haven't tested with Unity since I'm not a unity dev. - grs ** 
+**NOTE: This has been forked from @neuecc's repo and uses .NET 5. We'll be bringing in PR's from there over time. If you have fixes you want in, or you wish to help maintain this library then please feel free to contribute. All are welcome. I haven't tested with Unity since I'm not a unity dev. - grs** 
 
-[![Join the chat at https://gitter.im/neuecc/Utf8Json](https://badges.gitter.im/neuecc/Utf8Json.svg)](https://gitter.im/neuecc/Utf8Json?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+![.NET Core](https://github.com/Cryptisk/Utf8Json/workflows/.NET%20Core/badge.svg) [![Join the chat at https://gitter.im/neuecc/Utf8Json](https://badges.gitter.im/neuecc/Utf8Json.svg)](https://gitter.im/neuecc/Utf8Json?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+>>>>>>> 71bc9882253abee3e69e85a6829321760bf1f184
  [![Releases](https://img.shields.io/github/release/neuecc/Utf8Json.svg)](https://github.com/neuecc/Utf8Json/releases)
 
 Definitely Fastest and Zero Allocation JSON Serializer for C#(.NET, .NET Core, Unity and Xamarin), this serializer write/read directly to UTF8 binary so boostup performance. And I adopt the same architecture as the fastest binary serializer, [MessagePack for C#](https://github.com/neuecc/MessagePack-CSharp) that I've developed.
