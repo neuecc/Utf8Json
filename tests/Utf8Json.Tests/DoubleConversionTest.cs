@@ -34,6 +34,22 @@ namespace Utf8Json.Tests
         }
 
         [Fact]
+        public void CheckStringToIeeeFallback()
+        {
+            // cause this number has more digits than kMaxExactDoubleIntegerDecimalDigits ComputeGuess will fail and the fallback will process this float-point value
+            {
+                var dStr = "59.08634249999999";
+                var d = double.Parse(dStr, System.Globalization.CultureInfo.InvariantCulture);
+                var buf = Encoding.UTF8.GetBytes(dStr);
+                var d2 = NumberConverter.ReadDouble(buf, 0, out var _);
+
+                Approximately(d, d2).IsTrue();
+            }
+        }
+
+
+
+        [Fact]
         public void Double()
         {
             // testdatagen, https://github.com/ufcpp/UfcppSample/blob/master/Demo/2017/TypeRepositoryBenchmarks/Grisu3DoubleConversion/TestData.cs
@@ -51,13 +67,13 @@ namespace Utf8Json.Tests
             foreach (var item in x.Concat(new[] { double.Epsilon, double.MaxValue, double.MinValue }))
             {
                 var actual = GetString(item);
-                var y = double.Parse(actual);
+                var y = double.Parse(actual, System.Globalization.CultureInfo.InvariantCulture);
                 var diff = Math.Abs((item - y) / item);
                 if (diff > 1E-15) throw new Exception(item + "      :   " + diff.ToString());
 
                 if (!(item == double.MaxValue || item == double.MinValue))
                 {
-                    var buf = Encoding.UTF8.GetBytes(item.ToString());
+                    var buf = Encoding.UTF8.GetBytes(item.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     var buf2 = Enumerable.Range(1, 100).Select(z => (byte)z).Concat(buf).ToArray();
                     var d2 = NumberConverter.ReadDouble(buf2, 100, out var _);
                     Approximately(y, d2).IsTrue();
@@ -93,11 +109,11 @@ namespace Utf8Json.Tests
             foreach (var item in y.Concat(new[] { float.Epsilon, float.MaxValue, float.MinValue }))
             {
                 var actual = GetString(item);
-                var y2 = float.Parse(actual);
+                var y2 = float.Parse(actual, System.Globalization.CultureInfo.InvariantCulture);
                 var diff = Math.Abs((item - y2) / item);
                 if (diff > 2E-7) throw new Exception(item + "      :   " + diff.ToString());
 
-                var buf = Encoding.UTF8.GetBytes(item.ToString());
+                var buf = Encoding.UTF8.GetBytes(item.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 var buf2 = Enumerable.Range(1, 100).Select(z => (byte)z).Concat(buf).ToArray();
                 var d2 = NumberConverter.ReadSingle(buf2, 100, out var _);
                 Approximately(y2, d2).IsTrue();

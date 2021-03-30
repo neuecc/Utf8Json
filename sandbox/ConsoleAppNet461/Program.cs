@@ -297,13 +297,13 @@ public class StringToDoubleBenchmark
     [Benchmark]
     public double DoubleParse()
     {
-        return Double.Parse(str);
+        return Double.Parse(str, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     [Benchmark]
     public Double DoubleParseWithDecode()
     {
-        return Double.Parse(Encoding.UTF8.GetString(strBytes));
+        return Double.Parse(Encoding.UTF8.GetString(strBytes), System.Globalization.CultureInfo.InvariantCulture);
     }
 
 
