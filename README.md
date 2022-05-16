@@ -1,3 +1,5 @@
+THIS PROJECT IS ARCHIVED, USE COMMUNITY FORK INSTEAD.
+
 Utf8Json - Fast JSON Serializer for C#
 ===
 
