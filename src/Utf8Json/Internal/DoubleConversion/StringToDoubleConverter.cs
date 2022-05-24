@@ -612,7 +612,7 @@ namespace Utf8Json.Internal.DoubleConversion
                     input++;
                 }
                 var laststr = Encoding.UTF8.GetString(fallbackbuffer, 0, fallbackI);
-                return double.Parse(laststr);
+                return double.Parse(laststr, System.Globalization.CultureInfo.InvariantCulture);
             }
 
             processed_characters_count = (current - input);
