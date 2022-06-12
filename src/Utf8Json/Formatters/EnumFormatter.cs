@@ -250,7 +250,7 @@ namespace Utf8Json.Formatters
                 if (!nameValueMapping.TryGetValue(key, out value))
                 {
                     var str = StringEncoding.UTF8.GetString(key.Array, key.Offset, key.Count);
-                    value = (T)Enum.Parse(typeof(T), str); // Enum.Parse is slow
+                    value = (T)Enum.Parse(typeof(T), str, true); // Enum.Parse is slow
                 }
                 return value;
             }
