@@ -32,7 +32,7 @@ public class ObjectSerializationInfo : IResolverRegisterInfo
 
     public string GetConstructorString()
     {
-        var args = string.Join(", ", ConstructorParameters.Select(x => "__" + x.Name + "__"));
+        var args = string.Join(", ", ConstructorParameters.Select(x => "__" + x.MemberName + "__"));
         return $"{FullName}({args})";
     }
 }
