@@ -3,6 +3,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="Utf8Json.CodeGenerator.Generator.StringKey" #>
 #pragma warning disable 618
 #pragma warning disable 612
 #pragma warning disable 414
@@ -18,26 +19,20 @@ namespace <#= Namespace #>
 
     public sealed class <#= objInfo.Name #>Formatter : global::Utf8Json.IJsonFormatter<<#= objInfo.FullName #>>
     {
-        readonly global::Utf8Json.Internal.AutomataDictionary ____keyMapping;
-        readonly byte[][] ____stringByteKeys;
+        private readonly byte[][] ____stringByteKeys;
 
         public <#= objInfo.Name #>Formatter()
         {
-            this.____keyMapping = new global::Utf8Json.Internal.AutomataDictionary()
-            {
-<# var index = 0; foreach(var x in objInfo.Members) { #>
-                { JsonWriter.GetEncodedPropertyNameWithoutQuotation("<#= x.Name #>"), <#= index++ #>},
-<# } #>
-            };
-
             this.____stringByteKeys = new byte[][]
             {
-<# index = 0; foreach(var x in objInfo.Members.Where(x => x.IsReadable)) { #>
-<# if(index++ == 0) { #>
-                JsonWriter.GetEncodedPropertyNameWithBeginObject("<#= x.Name #>"),
-<# } else { #>
-                JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator("<#= x.Name #>"),
-<# }} #>                
+<#
+    var index = 0;
+    foreach(var x in objInfo.Members.Where(x => x.IsReadable)) { 
+        byte[] rawBytes = index++ == 0 ? Utf8Json.JsonWriter.GetEncodedPropertyNameWithBeginObject(x.Name) : Utf8Json.JsonWriter.GetEncodedPropertyNameWithPrefixValueSeparator(x.Name);
+#>
+                // <#= x.Name #>
+                <#= StringKey.FormatterGeneratorHelper.ToStringNewByteArray(rawBytes) #>,
+<#}#>
             };
         }
 
@@ -49,13 +44,12 @@ namespace <#= Namespace #>
                 writer.WriteNull();
                 return;
             }
-<# } #>            
 
+<# } #>
 <# index = 0; foreach(var x in objInfo.Members.Where(x=>x.IsReadable)) { #>
             writer.WriteRaw(this.____stringByteKeys[<#= index++ #>]);
             <#= x.GetSerializeMethodString() #>;
 <# } #>
-            
             writer.WriteEndObject();
         }
 
@@ -72,40 +66,115 @@ namespace <#= Namespace #>
             
 <# if( !objInfo.HasConstructor) { #>            
 	        throw new InvalidOperationException("generated serializer for IInterface does not support deserialize.");
-<# } else { #>
 
+<# } else { #>
 <# foreach(var x in objInfo.Members) { #>
             var __<#= x.MemberName #>__ = default(<#= x.Type #>);
             var __<#= x.MemberName #>__b__ = false;
-<# } #>
+<# }
+  const string indent = "                        ";
+  var members = StringKey.FormatterGeneratorHelper.GetSortedStringKeys(objInfo.Members);
+  var lengthEnumerable = new StringKey.LengthGroupEnumerable(members);
+  var lessThan8 = lengthEnumerable.TakeWhile(x => x.Span[0].Item1.Length < 8).ToArray();
+  var greaterThan7 = lengthEnumerable.SkipWhile(x => x.Span[0].Item1.Length < 8).ToArray();
+#>
 
             var ____count = 0;
             reader.ReadIsBeginObjectWithVerify();
             while (!reader.ReadIsEndObjectWithSkipValueSeparator(ref ____count))
             {
+<#
+    if (lessThan8.Length == 0)
+    {
+        if (greaterThan7.Length == 0)
+        {#>
+                reader.ReadStringSegmentRaw();
+                reader.ReadIsNameSeparatorWithVerify();
+                reader.ReadNextBlock();
+<#
+        }
+        else
+        {#>
                 var stringKey = reader.ReadPropertyNameSegmentRaw();
-                int key;
-                if (!____keyMapping.TryGetValueSafe(stringKey, out key))
+                var array = stringKey.Array;
+                var offset = stringKey.Offset;
+                switch(stringKey.Count)
                 {
-                    reader.ReadNextBlock();
-                    goto NEXT_LOOP;
-                }
-
-                switch (key)
-                {
-<# index = 0; foreach(var x in objInfo.Members) { #>
-                    case <#= index++ #>:
-                        __<#= x.MemberName #>__ = <#= x.GetDeserializeMethodString() #>;
-                        __<#= x.MemberName #>__b__ = true;
-                        break;
-<# } #>
                     default:
+                    FAIL:
                         reader.ReadNextBlock();
-                        break;
+                        continue;
+<#
+            foreach(var tuple in greaterThan7)
+            {
+                var (readOnlyMemory, member) = tuple.Span[0];
+#>
+                    case <#= readOnlyMemory.Length #>:
+<#= tuple.EmbedSwitch(readOnlyMemory.Length % 8, indent, readOnlyMemory.Length >> 3) #>
+<#
+            }#>
                 }
-
-                NEXT_LOOP:
-                continue;
+<#
+        }
+    }
+    else
+    {
+        if (greaterThan7.Length == 0)
+        {#>
+                var stringKey = reader.ReadPropertyNameSegmentRaw();
+                var array = stringKey.Array;
+                var offset = stringKey.Offset;
+                switch(stringKey.Count)
+                {
+                    default:
+                    FAIL:
+                        reader.ReadNextBlock();
+                        continue;
+<#
+            foreach(var tuple in lessThan8)
+            {
+                var (readOnlyMemory, member) = tuple.Span[0];
+#>
+                    case <#= readOnlyMemory.Length #>:
+<#= tuple.Span.EmbedSwitchLast(readOnlyMemory.Length, indent) #>
+<#
+            }#>
+                }
+<#
+        }
+        else
+        {#>
+                var stringKey = reader.ReadPropertyNameSegmentRaw();
+                var array = stringKey.Array;
+                var offset = stringKey.Offset;
+                switch(stringKey.Count)
+                {
+                    default:
+                    FAIL:
+                        reader.ReadNextBlock();
+                        continue;
+<#
+            foreach(var tuple in lessThan8)
+            {
+                var (readOnlyMemory, member) = tuple.Span[0];
+#>
+                    case <#= readOnlyMemory.Length #>:
+<#= tuple.Span.EmbedSwitchLast(readOnlyMemory.Length, indent) #>
+<#
+            }#>
+<#
+            foreach(var tuple in greaterThan7)
+            {
+                var (readOnlyMemory, member) = tuple.Span[0];
+#>
+                    case <#= readOnlyMemory.Length #>:
+<#= tuple.EmbedSwitch(readOnlyMemory.Length % 8, indent, readOnlyMemory.Length >> 3) #>
+<#
+            }#>
+                }
+<#
+        }
+    }#>
             }
 
             var ____result = new <#= objInfo.GetConstructorString()  #>;
