@@ -65,7 +65,7 @@ namespace Utf8Json.Internal.Emit
             }
 
             // GetConstructor
-            var ctor = ti.DeclaredConstructors.Where(x => x.IsPublic)
+            var ctor = ti.DeclaredConstructors
                 .SingleOrDefault(x => x.GetCustomAttribute<SerializationConstructorAttribute>(false) != null);
             var constructorParameters = new List<MetaMember>();
             {
@@ -73,7 +73,7 @@ namespace Utf8Json.Internal.Emit
                 if (ctor == null)
                 {
                     // descending.
-                    ctorEnumerator = ti.DeclaredConstructors.Where(x => x.IsPublic).OrderByDescending(x => x.GetParameters().Length).GetEnumerator();
+                    ctorEnumerator = ti.DeclaredConstructors.Where(c => !c.IsStatic).OrderBy(x => x.GetParameters().Length).GetEnumerator();
                     if (ctorEnumerator.MoveNext())
                     {
                         ctor = ctorEnumerator.Current;
