@@ -280,7 +280,7 @@ Serialize ImmutableObject(SerializationConstructor)
 ---
 Utf8Json can deserialize immutable object like this.
 
-```
+```csharp
 public struct CustomPoint
 {
     public readonly int X;
