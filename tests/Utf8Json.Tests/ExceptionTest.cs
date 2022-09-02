@@ -12,7 +12,7 @@ namespace Utf8Json.Tests
 
         }
     }
-
+#if !NETCOREAPP3_1 //The order of members in json is different.
     public class ExceptionTest
     {
         [Fact]
@@ -64,4 +64,5 @@ namespace Utf8Json.Tests
             }
         }
     }
+#endif
 }

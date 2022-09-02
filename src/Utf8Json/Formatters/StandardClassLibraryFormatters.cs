@@ -669,8 +669,16 @@ namespace Utf8Json.Formatters
     {
         public void Serialize(ref JsonWriter writer, ValueTask<T> value, IJsonFormatterResolver formatterResolver)
         {
-            // value.Result -> wait...!
-            formatterResolver.GetFormatterWithVerify<T>().Serialize(ref writer, value.Result, formatterResolver);
+            
+            if(value.IsCompleted)
+            {
+                formatterResolver.GetFormatterWithVerify<T>().Serialize(ref writer, value.Result, formatterResolver);
+            }
+            else
+            {
+                // value.Result -> wait...!
+                formatterResolver.GetFormatterWithVerify<T>().Serialize(ref writer, value.AsTask().Result, formatterResolver);
+            }
         }
 
         public ValueTask<T> Deserialize(ref JsonReader reader, IJsonFormatterResolver formatterResolver)
