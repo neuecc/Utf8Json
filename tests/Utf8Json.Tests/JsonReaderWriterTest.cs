@@ -265,5 +265,17 @@ namespace Utf8Json.Tests
             // ok, can read.
             reader.GetCurrentOffsetUnsafe().Is(bin.Length);
         }
+
+
+        [Fact]
+        public void TrailingBackSlash()
+        {
+            var str = "\"\\\\\"";
+            var bytes = Encoding.UTF8.GetBytes(str);
+            var reader = new JsonReader(bytes);
+            var strSegment = Encoding.UTF8.GetString(reader.ReadStringSegmentRaw().ToArray());
+            strSegment.Is("\\\\");
+        }
+
     }
 }
