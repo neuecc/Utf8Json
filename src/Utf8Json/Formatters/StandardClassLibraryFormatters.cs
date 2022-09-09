@@ -305,7 +305,7 @@ namespace Utf8Json.Formatters
             var token = reader.GetCurrentJsonToken();
             if (token == JsonToken.Number)
             {
-                var number = reader.ReadNumberSegment();
+                var number = reader.ReadNextBlockSegment();
                 return decimal.Parse(StringEncoding.UTF8.GetString(number.Array, number.Offset, number.Count), NumberStyles.Float, CultureInfo.InvariantCulture);
             }
             else if (token == JsonToken.String)
