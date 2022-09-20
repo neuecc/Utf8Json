@@ -21,6 +21,17 @@ namespace Utf8Json
         T DeserializeFromPropertyName(ref JsonReader reader, IJsonFormatterResolver formatterResolver);
     }
 
+    public interface IOverwriteJsonFormatter<T> : IJsonFormatter<T>
+    {
+        void DeserializeTo(ref T value, ref JsonReader reader, IJsonFormatterResolver formatterResolver);
+    }
+
+    public enum CollectionDeserializeToBehaviour
+    {
+        Add, // default is add(protobuf-merge, json.net-populateobject
+        OverwriteReplace
+    }
+
     public static class JsonFormatterExtensions
     {
         public static string ToJsonString<T>(this IJsonFormatter<T> formatter, T value, IJsonFormatterResolver formatterResolver)
