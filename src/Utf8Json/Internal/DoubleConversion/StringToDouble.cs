@@ -6,20 +6,20 @@ namespace Utf8Json.Internal.DoubleConversion
 {
     using uint64_t = UInt64;
 
-    internal struct Vector
+    internal struct Vector<T>
     {
-        public readonly byte[] bytes;
+        public readonly T[] bytes;
         public readonly int start;
         public readonly int _length;
 
-        public Vector(byte[] bytes, int start, int length)
+        public Vector(T[] bytes, int start, int length)
         {
             this.bytes = bytes;
             this.start = start;
             this._length = length;
         }
 
-        public byte this[int i]
+        public T this[int i]
         {
             get
             {
@@ -36,12 +36,12 @@ namespace Utf8Json.Internal.DoubleConversion
             return _length;
         }
 
-        public byte first()
+        public T first()
         {
             return bytes[start];
         }
 
-        public byte last()
+        public T last()
         {
             return bytes[_length - 1];
         }
@@ -51,9 +51,9 @@ namespace Utf8Json.Internal.DoubleConversion
             return _length == 0;
         }
 
-        public Vector SubVector(int from, int to)
+        public Vector<T> SubVector(int from, int to)
         {
-            return new Vector(this.bytes, start + from, to - from);
+            return new Vector<T>(this.bytes, start + from, to - from);
         }
     }
 
@@ -123,7 +123,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // we round up to 780.
         const int kMaxSignificantDecimalDigits = 780;
 
-        static Vector TrimLeadingZeros(Vector buffer)
+        static Vector<byte> TrimLeadingZeros(Vector<byte> buffer)
         {
             for (int i = 0; i < buffer.length(); i++)
             {
@@ -132,10 +132,10 @@ namespace Utf8Json.Internal.DoubleConversion
                     return buffer.SubVector(i, buffer.length());
                 }
             }
-            return new Vector(buffer.bytes, buffer.start, 0);
+            return new Vector<byte>(buffer.bytes, buffer.start, 0);
         }
 
-        static Vector TrimTrailingZeros(Vector buffer)
+        static Vector<byte> TrimTrailingZeros(Vector<byte> buffer)
         {
             for (int i = buffer.length() - 1; i >= 0; --i)
             {
@@ -144,11 +144,11 @@ namespace Utf8Json.Internal.DoubleConversion
                     return buffer.SubVector(0, i + 1);
                 }
             }
-            return new Vector(buffer.bytes, buffer.start, 0);
+            return new Vector<byte>(buffer.bytes, buffer.start, 0);
         }
 
 
-        static void CutToMaxSignificantDigits(Vector buffer,
+        static void CutToMaxSignificantDigits(Vector<byte> buffer,
                                        int exponent,
                                        byte[] significant_buffer,
                                        out int significant_exponent)
@@ -170,19 +170,19 @@ namespace Utf8Json.Internal.DoubleConversion
         // If possible the input-buffer is reused, but if the buffer needs to be
         // modified (due to cutting), then the input needs to be copied into the
         // buffer_copy_space.
-        static void TrimAndCut(Vector buffer, int exponent,
+        static void TrimAndCut(Vector<byte> buffer, int exponent,
                        byte[] buffer_copy_space, int space_size,
-                       out Vector trimmed, out int updated_exponent)
+                       out Vector<byte> trimmed, out int updated_exponent)
         {
-            Vector left_trimmed = TrimLeadingZeros(buffer);
-            Vector right_trimmed = TrimTrailingZeros(left_trimmed);
+            Vector<byte> left_trimmed = TrimLeadingZeros(buffer);
+            Vector<byte> right_trimmed = TrimTrailingZeros(left_trimmed);
             exponent += left_trimmed.length() - right_trimmed.length();
             if (right_trimmed.length() > kMaxSignificantDecimalDigits)
             {
                 // (void)space_size;  // Mark variable as used.
                 CutToMaxSignificantDigits(right_trimmed, exponent,
                                           buffer_copy_space, out updated_exponent);
-                trimmed = new Vector(buffer_copy_space, 0, kMaxSignificantDecimalDigits);
+                trimmed = new Vector<byte>(buffer_copy_space, 0, kMaxSignificantDecimalDigits);
             }
             else
             {
@@ -197,7 +197,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // When the string starts with "1844674407370955161" no further digit is read.
         // Since 2^64 = 18446744073709551616 it would still be possible read another
         // digit if it was less or equal than 6, but this would complicate the code.
-        static uint64_t ReadUint64(Vector buffer,
+        static uint64_t ReadUint64(Vector<byte> buffer,
                            out int number_of_read_digits)
         {
             uint64_t result = 0;
@@ -215,7 +215,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // The returned DiyFp is not necessarily normalized.
         // If remaining_decimals is zero then the returned DiyFp is accurate.
         // Otherwise it has been rounded and has error of at most 1/2 ulp.
-        static void ReadDiyFp(Vector buffer,
+        static void ReadDiyFp(Vector<byte> buffer,
                       out DiyFp result,
                       out int remaining_decimals)
         {
@@ -241,7 +241,7 @@ namespace Utf8Json.Internal.DoubleConversion
         }
 
 
-        static bool DoubleStrtod(Vector trimmed,
+        static bool DoubleStrtod(Vector<byte> trimmed,
                          int exponent,
                          out double result)
         {
@@ -310,7 +310,7 @@ namespace Utf8Json.Internal.DoubleConversion
         // If the function returns true then the result is the correct double.
         // Otherwise it is either the correct double or the double that is just below
         // the correct double.
-        static bool DiyFpStrtod(Vector buffer,
+        static bool DiyFpStrtod(Vector<byte> buffer,
                         int exponent,
                         out double result)
         {
@@ -422,10 +422,47 @@ namespace Utf8Json.Internal.DoubleConversion
                 return true;
             }
         }
-
+        // Returns
+        //   - -1 if buffer*10^exponent < diy_fp.
+        //   -  0 if buffer*10^exponent == diy_fp.
+        //   - +1 if buffer*10^exponent > diy_fp.
+        // Preconditions:
+        //   buffer.length() + exponent <= kMaxDecimalPower + 1
+        //   buffer.length() + exponent > kMinDecimalPower
+        //   buffer.length() <= kMaxDecimalSignificantDigits
+        static int CompareBufferWithDiyFp(Vector<byte> buffer,
+                                  int exponent,
+                                  DiyFp diy_fp)
+        {
+            // Make sure that the Bignum will be able to hold all our numbers.
+            // Our Bignum implementation has a separate field for exponents. Shifts will
+            // consume at most one bigit (< 64 bits).
+            // ln(10) == 3.3219...\
+            Bignum buffer_bignum = new Bignum();
+            Bignum diy_fp_bignum = new Bignum();
+            buffer_bignum.AssignDecimalString(buffer);
+            diy_fp_bignum.AssignUInt64(diy_fp.f);
+            if (exponent >= 0)
+            {
+                buffer_bignum.MultiplyByPowerOfTen(exponent);
+            }
+            else
+            {
+                diy_fp_bignum.MultiplyByPowerOfTen(-exponent);
+            }
+            if (diy_fp.e > 0)
+            {
+                diy_fp_bignum.ShiftLeft(diy_fp.e);
+            }
+            else
+            {
+                buffer_bignum.ShiftLeft(-diy_fp.e);
+            }
+            return Bignum.Compare(buffer_bignum, diy_fp_bignum);
+        }
         // Returns true if the guess is the correct double.
         // Returns false, when guess is either correct or the next-lower double.
-        static bool ComputeGuess(Vector trimmed, int exponent,
+        static bool ComputeGuess(Vector<byte> trimmed, int exponent,
                                  out double guess)
         {
             if (trimmed.length() == 0)
@@ -456,10 +493,10 @@ namespace Utf8Json.Internal.DoubleConversion
             return false;
         }
 
-        public static double? Strtod(Vector buffer, int exponent)
+        public static double Strtod(Vector<byte> buffer, int exponent)
         {
             byte[] copy_buffer = GetCopyBuffer();
-            Vector trimmed;
+            Vector<byte> trimmed;
             int updated_exponent;
             TrimAndCut(buffer, exponent, copy_buffer, kMaxSignificantDecimalDigits,
                        out trimmed, out updated_exponent);
@@ -468,13 +505,60 @@ namespace Utf8Json.Internal.DoubleConversion
             double guess;
             var is_correct = ComputeGuess(trimmed, exponent, out guess);
             if (is_correct) return guess;
-            return null;
+            DiyFp upper_boundary = new Double(guess).UpperBoundary();
+            int comparison = CompareBufferWithDiyFp(trimmed, exponent, upper_boundary);
+            if (comparison < 0)
+            {
+                return guess;
+            }
+            else if (comparison > 0)
+            {
+                return new Double(guess).NextDouble();
+            }
+            else if ((new Double(guess).Significand() & 1) == 0)
+            {
+                // Round towards even.
+                return guess;
+            }
+            else
+            {
+                return new Double(guess).NextDouble();
+            }
         }
-
-        public static float? Strtof(Vector buffer, int exponent)
+        static float SanitizedDoubletof(double d)
+        {
+            //ASSERT(d >= 0.0);
+            // ASAN has a sanitize check that disallows casting doubles to floats if
+            // they are too big.
+            // https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html#available-checks
+            // The behavior should be covered by IEEE 754, but some projects use this
+            // flag, so work around it.
+            float max_finite = 3.4028234663852885981170418348451692544e+38f;
+            // The half-way point between the max-finite and infinity value.
+            // Since infinity has an even significand everything equal or greater than
+            // this value should become infinity.
+            double half_max_finite_infinity =
+                3.40282356779733661637539395458142568448e+38;
+            if (d >= max_finite)
+            {
+                if (d >= half_max_finite_infinity)
+                {
+                    return Single.Infinity();
+                }
+                else
+                {
+                    return max_finite;
+                }
+            }
+            else
+            {
+                return (float)d;
+            }
+        }
+        public static float Strtof(Vector<byte> buffer, int exponent)
         {
             byte[] copy_buffer = GetCopyBuffer();
-            Vector trimmed;
+            Vector<byte> trimmed;
             int updated_exponent;
             TrimAndCut(buffer, exponent, copy_buffer, kMaxSignificantDecimalDigits,
                        out trimmed, out updated_exponent);
@@ -518,9 +602,10 @@ namespace Utf8Json.Internal.DoubleConversion
             else
             {
                 double double_next2 = new Double(double_next).NextDouble();
-                f4 = (float)(double_next2);
+                f4 = SanitizedDoubletof(double_next2);
             }
             // (void)f2;  // Mark variable as used.
+            // ASSERT(f1 <= f2 && f2 <= f3 && f3 <= f4);
 
             // If the guess doesn't lie near a single-precision boundary we can simply
             // return its float-value.
@@ -528,8 +613,42 @@ namespace Utf8Json.Internal.DoubleConversion
             {
                 return float_guess;
             }
+            // ASSERT((f1 != f2 && f2 == f3 && f3 == f4) ||
+            // (f1 == f2 && f2 != f3 && f3 == f4) ||
+            // (f1 == f2 && f2 == f3 && f3 != f4));
 
-            return null;
+            // guess and next are the two possible candidates (in the same way that
+            // double_guess was the lower candidate for a double-precision guess).
+            float guess = f1;
+            float next = f4;
+            DiyFp upper_boundary;
+            if (guess == 0.0f)
+            {
+                float min_float = 1e-45f;
+                upper_boundary = new Double(((double)min_float) / 2).AsDiyFp();
+            }
+            else
+            {
+                upper_boundary = new Single(guess).UpperBoundary();
+            }
+            int comparison = CompareBufferWithDiyFp(trimmed, exponent, upper_boundary);
+            if (comparison < 0)
+            {
+                return guess;
+            }
+            else if (comparison > 0)
+            {
+                return next;
+            }
+            else if ((new Single(guess).Significand() & 1) == 0)
+            {
+                // Round towards even.
+                return guess;
+            }
+            else
+            {
+                return next;
+            }
         }
     }
 }

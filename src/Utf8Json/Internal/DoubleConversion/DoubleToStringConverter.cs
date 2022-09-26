@@ -657,16 +657,8 @@ namespace Utf8Json.Internal.DoubleConversion
             var decimal_rep = GetDecimalRepBuffer(kDecimalRepCapacity); // byte[] decimal_rep = new byte[kDecimalRepCapacity];
             int decimal_rep_length;
 
-            var fastworked = DoubleToAscii(value, mode, 0, decimal_rep,
+            DoubleToAscii(value, mode, 0, decimal_rep,
                           out sign, out decimal_rep_length, out decimal_point);
-
-            if (!fastworked)
-            {
-                // C# custom, slow path
-                var str = value.ToString("G17", CultureInfo.InvariantCulture);
-                result_builder.AddStringSlow(str);
-                return true;
-            }
 
             bool unique_zero = (flags_ & Flags.UNIQUE_ZERO) != 0;
             if (sign && (value != 0.0 || !unique_zero))
@@ -787,14 +779,29 @@ namespace Utf8Json.Internal.DoubleConversion
             }
             result_builder.AddSubstring(buffer, first_char_pos, kMaxExponentLength - first_char_pos);
         }
-
-        // modified, return fast_worked.
-        static bool DoubleToAscii(double v,
+        static BignumDtoaMode DtoaToBignumDtoaMode(
+                    DtoaMode dtoa_mode)
+        {
+            switch (dtoa_mode)
+            {
+                case DtoaMode.SHORTEST:
+                    return BignumDtoaMode.BIGNUM_DTOA_SHORTEST;
+                case DtoaMode.SHORTEST_SINGLE:
+                    return BignumDtoaMode.BIGNUM_DTOA_SHORTEST_SINGLE;
+                // case DtoaMode.FIXED: return BignumDtoaMode.BIGNUM_DTOA_FIXED;
+                // case DtoaMode.PRECISION: return BignumDtoaMode.BIGNUM_DTOA_PRECISION;
+                default:
+                    throw new Exception("Unreachable code");
+                    // UNREACHABLE();
+            }
+        }
+        
+        static void DoubleToAscii(double v,
             DtoaMode mode,
             int requested_digits,
             //byte[] buffer,
             //int buffer_length,
-            byte[] vector, // already allocate
+            byte[] buffer, // already allocate
             out bool sign,
             out int length,
             out int point)
@@ -818,21 +825,21 @@ namespace Utf8Json.Internal.DoubleConversion
 
             if (v == 0)
             {
-                vector[0] = (byte)'0';
+                buffer[0] = (byte)'0';
                 // vector[1] = '\0';
                 length = 1;
                 point = 1;
-                return true;
+                return;
             }
 
             bool fast_worked;
             switch (mode)
             {
                 case DtoaMode.SHORTEST:
-                    fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST, vector, out length, out point);
+                    fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST, buffer, out length, out point);
                     break;
                 case DtoaMode.SHORTEST_SINGLE:
-                    fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, vector, out length, out point);
+                    fast_worked = FastDtoa(v, FastDtoaMode.FAST_DTOA_SHORTEST_SINGLE, buffer, out length, out point);
                     break;
                 //case FIXED:
                 //    fast_worked = FastFixedDtoa(v, requested_digits, vector, length, point);
@@ -845,14 +852,13 @@ namespace Utf8Json.Internal.DoubleConversion
                     fast_worked = false;
                     throw new Exception("Unreachable code.");
             }
-            // if (fast_worked) return;
+            if (fast_worked) return;
 
             // If the fast dtoa didn't succeed use the slower bignum version.
-            // BignumDtoaMode bignum_mode = DtoaToBignumDtoaMode(mode);
-            // BignumDtoa(v, bignum_mode, requested_digits, vector, length, point);
-            // vector[*length] = '\0';
-
-            return fast_worked;
+            BignumDtoaMode bignum_mode = DtoaToBignumDtoaMode(mode);
+            Vector<byte> vector = new Vector<byte>(buffer, 0, buffer.Length);
+            Bignumdtoa.BignumDtoa(v, bignum_mode, requested_digits, vector, ref length, ref point);
+            vector[length] = (byte)'\0';
         }
     }
 }

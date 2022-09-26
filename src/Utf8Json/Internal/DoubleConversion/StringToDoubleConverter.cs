@@ -588,35 +588,18 @@ namespace Utf8Json.Internal.DoubleConversion
 
             buffer[buffer_pos] = (byte)'\0';
 
-            double? converted;
+            double converted;
             if (read_as_double)
             {
-                converted = StringToDouble.Strtod(new Vector(buffer, 0, buffer_pos), exponent);
+                converted = StringToDouble.Strtod(new Vector<byte>(buffer, 0, buffer_pos), exponent);
             }
             else
             {
-                converted = StringToDouble.Strtof(new Vector(buffer, 0, buffer_pos), exponent);
-            }
-
-            if (converted == null)
-            {
-                // read-again
-                processed_characters_count = (current - input);
-
-                var fallbackbuffer = GetFallbackBuffer();
-                BinaryUtil.EnsureCapacity(ref fallbackBuffer, 0, processed_characters_count);
-                var fallbackI = 0;
-                while (input != current)
-                {
-                    fallbackbuffer[fallbackI++] = input.Value;
-                    input++;
-                }
-                var laststr = Encoding.UTF8.GetString(fallbackbuffer, 0, fallbackI);
-                return double.Parse(laststr);
+                converted = StringToDouble.Strtof(new Vector<byte>(buffer, 0, buffer_pos), exponent);
             }
 
             processed_characters_count = (current - input);
-            return sign ? -converted.Value : converted.Value;
+            return sign ? -converted : converted;
         }
     }
 }
