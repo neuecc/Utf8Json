@@ -27,4 +27,10 @@ namespace Utf8Json
     {
 
     }
+    
+    [AttributeUsage(AttributeTargets.Interface, AllowMultiple = false, Inherited = false)]
+    public class InterfaceDataContractAttribute : Attribute
+    {
+
+    }
 }
