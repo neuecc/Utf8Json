@@ -89,6 +89,22 @@ namespace Utf8Json.Tests
             }
         }
 
+        [Fact]
+        public void ListOfTimespansShouldSerialize()
+        {
+            var data = new List<TimeSpan>
+            {
+                TimeSpan.FromHours(1),
+                TimeSpan.FromHours(5),
+                TimeSpan.FromHours(5),
+                TimeSpan.FromDays(1),
+                TimeSpan.FromDays(2)
+            };
+            var serialized = Utf8Json.JsonSerializer.ToJsonString(data);
+            var deSerialized = Utf8Json.JsonSerializer.Deserialize<List<TimeSpan>>(serialized);
+            var serialized2 = Utf8Json.JsonSerializer.ToJsonString(deSerialized);
+            serialized2.Is(serialized);
+        }
 
         [Fact]
         public void ShortFormat()
