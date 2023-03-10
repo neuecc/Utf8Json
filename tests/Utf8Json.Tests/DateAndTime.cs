@@ -142,6 +142,13 @@ namespace Utf8Json.Tests
             deserialized.StatusDate.Is(new DateTimeOffset(1970, 1, 1, 9, 15, 10, TimeSpan.Zero));
         }
 
+        [Fact]
+        public void Issue105()
+        {
+            JsonSerializer.Deserialize<TimeSpan>("\"88.12:00:00\"").Is(TimeSpan.FromDays(88.5));
+            JsonSerializer.Deserialize<TimeSpan>("\"8.12:00:00\"").Is(TimeSpan.FromDays(8.5));
+        }
+
         public class Test
         {
             public bool Flag { get; set; }
