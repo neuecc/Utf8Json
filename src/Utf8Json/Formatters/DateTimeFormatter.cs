@@ -970,4 +970,188 @@ namespace Utf8Json.Formatters
             throw new InvalidOperationException("invalid datetime format. value:" + StringEncoding.UTF8.GetString(str.Array, str.Offset, str.Count));
         }
     }
+
+    /// <summary>
+    /// This only supports TimeSpan.Zero to TimeSpan.MaxValue
+    /// </summary>
+    public class Iso8601TimeSpanFormatter : IJsonFormatter<TimeSpan>
+    {
+        public static readonly IJsonFormatter<TimeSpan> Default =
+            new Iso8601TimeSpanFormatter();
+        private static readonly ISet<char> _designators = new HashSet<char>
+            { 'P', 'T' };
+
+        private static readonly int NumberOfDaysInOneIsoWeek = 7;
+
+        private Iso8601TimeSpanFormatter()
+        {
+        }
+
+        public void Serialize(
+            ref JsonWriter writer,
+            TimeSpan value,
+            IJsonFormatterResolver formatterResolver)
+        {
+            if (value == TimeSpan.Zero)
+            {
+                writer.WriteString("T0S");
+                return;
+            }
+
+            if (value < TimeSpan.Zero)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "value",
+                    value,
+                    "TimeSpan cannot be less than zero");
+            }
+
+            if (value.TotalSeconds < 1.0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "value",
+                    value,
+                    "The max resolution on ISO 8601 durations is seconds. " +
+                    "Thus timespan cannot be less than one second");
+            }
+
+            writer.WriteRawUnsafe((byte) '\"');
+
+            writer.WriteRawUnsafe((byte) 'P');
+
+            var days = value.Days;
+            var hours = value.Hours;
+            var minutes = value.Minutes;
+            var seconds = value.Seconds;
+
+            if (days > 0)
+            {
+                if (days >= NumberOfDaysInOneIsoWeek)
+                {
+                    var weeks = days / NumberOfDaysInOneIsoWeek;
+                    
+                    writer.WriteInt32(weeks);
+                    writer.WriteRawUnsafe((byte)'W');
+                    
+                    days %= NumberOfDaysInOneIsoWeek;
+                }
+
+                if (days > 0)
+                {
+                    writer.WriteInt32(days);
+                    writer.WriteRawUnsafe((byte) 'D');
+                }
+            }
+
+            if (hours == 0 && minutes == 0 && seconds == 0)
+            {
+                writer.WriteRawUnsafe((byte) '\"');
+                return;
+            }
+
+            writer.WriteRawUnsafe((byte)'T');
+
+            if (hours > 0)
+            {
+                writer.WriteInt32(hours);
+                writer.WriteRawUnsafe((byte) 'H');
+            }
+
+            if (minutes > 0)
+            {
+                writer.WriteInt32(minutes);
+                writer.WriteRawUnsafe((byte) 'M');
+            }
+
+            if (seconds > 0)
+            {
+                writer.WriteInt32(seconds);
+                writer.WriteRawUnsafe((byte) 'S');
+            }
+
+            writer.WriteRawUnsafe((byte) '\"');
+        }
+
+        public TimeSpan Deserialize(
+            ref JsonReader reader,
+            IJsonFormatterResolver formatterResolver)
+        {
+            var str = reader.ReadStringSegmentUnsafe();
+            var array = str.Array;
+            var i = str.Offset;
+            var len = str.Count;
+
+            // The minimum ISO8601 duration is "T0S"
+            if (len < 3 || array == null || !_designators.Contains((char)array[i]))
+            {
+                throw new InvalidOperationException("Invalid ISO8601 format");
+            }
+
+            var rentedBuffer = BufferPool.Default.Rent();
+            try
+            {
+                var days = 0;
+                if ((char) array[i] != 'P')
+                    goto TIME_ONLY;
+
+                // Skip P designator
+                i++;
+
+                // Year, month, week are not supported in TimeSpans
+                // We cannot blindly assume a year always contains 365 days
+                // A month can contain 28/29/30/31 days
+                var years = ReadInt32Until(array, rentedBuffer, ref i, 'Y');
+                var months = ReadInt32Until(array, rentedBuffer, ref i, 'M');
+
+                var weeks = ReadInt32Until(array, rentedBuffer, ref i, 'W');
+                days = weeks * NumberOfDaysInOneIsoWeek + ReadInt32Until(
+                    array,
+                    rentedBuffer,
+                    ref i,
+                    'D');
+
+                TIME_ONLY:
+                // Skip T designator
+                i++;
+
+                var hours = ReadInt32Until(array, rentedBuffer, ref i, 'H');
+                var minutes = ReadInt32Until(array, rentedBuffer, ref i, 'M');
+                var seconds = ReadInt32Until(array, rentedBuffer, ref i, 'S');
+
+                return new TimeSpan(days, hours, minutes, seconds);
+            }
+            finally
+            {
+                Array.Clear(rentedBuffer, 0, rentedBuffer.Length);
+                BufferPool.Default.Return(rentedBuffer);
+            }
+        }
+
+        private static int ReadInt32Until(
+            byte[] array,
+            byte[] rentedBuffer,
+            ref int i,
+            char stop)
+        {
+            for (var unit = 0;
+                NumberConverter.IsNumber(array[i]) && array[i] != stop;
+                i++)
+            {
+                rentedBuffer[unit++] = array[i];
+            }
+
+            // Account for missing components
+            if (array[i] != stop || _designators.Contains((char) array[i]))
+            {
+                return 0;
+            }
+
+            i++;
+            var result = new JsonReader(rentedBuffer).ReadInt32();
+
+            // Remove extra elements that are read from previous units
+            Array.Clear(rentedBuffer, 0, rentedBuffer.Length);
+            return result;
+        }
+    }
 }
