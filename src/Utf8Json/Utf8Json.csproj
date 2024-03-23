@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="Windows-1252"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;NET45;NET47</TargetFrameworks>
@@ -57,10 +58,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
         <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.4.0" />
-        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
